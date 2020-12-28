@@ -31,6 +31,8 @@ namespace xpack {
 #define X_PACK_FLAG_OE (1<<0) // omitempty, in encode
 #define X_PACK_FLAG_M  (1<<1) // mandatory, in decode
 
+#define X_PACK_FLAG_ATTR (1<<15) // for xml encode, encode in attribute
+
 // control flag
 #define X_PACK_CTRL_FLAG_INHERIT (1<<0)
 
@@ -97,28 +99,31 @@ struct Extend {
         }
     }
 
-    int Flag() const {
-        if (NULL == this) {
+    static int Flag(const Extend *ext) {
+        if (NULL == ext) {
             return 0;
         } else {
-            return flag;
+            return ext->flag;
         }
     }
 
-    int CtrlFlag() const {
-        if (NULL == this) {
+    static int CtrlFlag(const Extend *ext) {
+        if (NULL == ext) {
             return 0;
         } else {
-            return ctrl_flag;
+            return ext->ctrl_flag;
         }
     }
 
 
-    bool OmitEmpty() const {
-        return NULL!=this && (this->flag&X_PACK_FLAG_OE);
+    static bool OmitEmpty(const Extend *ext) {
+        return NULL!=ext && (ext->flag&X_PACK_FLAG_OE);
     }
-    bool Mandatory() const {
-        return NULL!=this && (this->flag&X_PACK_FLAG_M);
+    static bool Mandatory(const Extend *ext) {
+        return NULL!=ext && (ext->flag&X_PACK_FLAG_M);
+    }
+    static bool Attribute(const Extend *ext) {
+        return NULL!=ext && (ext->flag&X_PACK_FLAG_ATTR);
     }
 };
 

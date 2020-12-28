@@ -62,7 +62,7 @@ public:
     template <class T>
     bool encode(const char*key, const std::vector<T> &val, const Extend *ext) {
         size_t s = val.size();
-        if (s==0 && ext->OmitEmpty()) {
+        if (s==0 && Extend::OmitEmpty(ext)) {
             return false;
         }
 
@@ -78,7 +78,7 @@ public:
     template <class T>
     bool encode(const char*key, const std::list<T> &val, const Extend *ext) {
         size_t s = val.size();
-        if (s==0 && ext->OmitEmpty()) {
+        if (s==0 && Extend::OmitEmpty(ext)) {
             return false;
         }
 
@@ -94,7 +94,7 @@ public:
     template <class T>
     bool encode(const char*key, const std::set<T> &val, const Extend *ext) {
         size_t s = val.size();
-        if (s==0 && ext->OmitEmpty()) {
+        if (s==0 && Extend::OmitEmpty(ext)) {
             return false;
         }
 
@@ -110,7 +110,7 @@ public:
     template <class T>
     bool encode(const char*key, const std::map<std::string, T> &val, const Extend *ext) {
         size_t s = val.size();
-        if (s==0 && ext->OmitEmpty()) {
+        if (s==0 && Extend::OmitEmpty(ext)) {
             return false;
         }
 
@@ -125,7 +125,7 @@ public:
     // class/struct that defined macro XPACK
     template <class T>
     typename x_enable_if<T::__x_pack_value&&!is_xpack_out<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
-        bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&ext->CtrlFlag());
+        bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
         if (!inherit) {
             ((doc_type*)this)->ObjectBegin(key);
         }
@@ -139,7 +139,7 @@ public:
     // class/struct that defined macro XPACK_OUT
     template <class T>
     typename x_enable_if<is_xpack_out<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
-        bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&ext->CtrlFlag());
+        bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
         if (!inherit) {
            ((doc_type*)this)->ObjectBegin(key);
         }
@@ -155,7 +155,7 @@ public:
     template <class T>
     bool encode(const char*key, const std::unordered_map<std::string, T> &val, const Extend *ext) {
         size_t s = val.size();
-        if (s==0 && ext->OmitEmpty()) {
+        if (s==0 && Extend::OmitEmpty(ext)) {
             return false;
         }
 

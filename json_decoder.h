@@ -100,7 +100,7 @@ public:
                 decode_exception("type unmatch", key);          \
             }                                                   \
             ret = true;                                         \
-        } else if (NULL!=key && ext->Mandatory()) {             \
+        } else if (NULL!=key && Extend::Mandatory(ext)) {       \
             decode_exception("mandatory key not found", key);   \
         }                                                       \
         return ret
@@ -112,7 +112,7 @@ public:
     bool decode(const char*key, bool &val, const Extend *ext) {
         const rapidjson::Value *v = get_val(key);
         if (NULL == v) {
-            if (NULL!=key && ext->Mandatory()) {
+            if (NULL!=key && Extend::Mandatory(ext)) {
                 decode_exception("mandatory key not found", key);
             }
             return false;
@@ -128,6 +128,9 @@ public:
         }
     }
     bool decode(const char*key, char &val, const Extend *ext) {
+        XPACK_JSON_DECODE(GetInt, (char));
+    }
+    bool decode(const char*key, signed char &val, const Extend *ext) {
         XPACK_JSON_DECODE(GetInt, (char));
     }
     bool decode(const char*key, unsigned char &val, const Extend *ext) {

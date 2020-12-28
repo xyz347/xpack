@@ -170,14 +170,6 @@ public:
         return true;
     }
 
-    // signed char and char is difference type
-    bool decode(const char *key, signed char &val, const Extend *ext) {
-        char _tmp;
-        bool ret = ((doc_type*)this)->decode(key, _tmp, ext);
-        val = _tmp;
-        return ret;
-    }
-
     #ifdef X_PACK_SUPPORT_CXX0X
     // unordered_map
     template <class T>
@@ -286,7 +278,7 @@ protected:
         doc_type *obj = static_cast<doc_type*>(this);
         if (NULL != key) {
             obj = obj->Find(key, tmp);
-            if (NULL == obj && ext->Mandatory()) {
+            if (NULL == obj && Extend::Mandatory(ext)) {
                 decode_exception("mandatory key not found", key);
             }
         }
@@ -325,10 +317,10 @@ protected:
         }
         err.append("[");
         std::string p = path();
-        if (!p.empty()) {
+        if (!p.empty() && NULL!=key) {
             err.append(p).append(".");
+            err.append(key);
         }
-        err.append(key);
         err.append("]");
         throw std::runtime_error(err);
     }

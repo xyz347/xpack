@@ -103,7 +103,7 @@ public:
 
 public:
     #define X_PACK_JSON_ENCODE(cond, f)  \
-        if ((cond) && ext->OmitEmpty()){ \
+        if ((cond) && Extend::OmitEmpty(ext)){ \
             return false;                \
         }                                \
         xpack_set_key(key);              \

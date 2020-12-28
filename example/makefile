@@ -1,8 +1,12 @@
+ifeq ($(GPP),)
+GPP=g++
+endif
+
 SRC=$(wildcard *.cpp)
 TAR=$(basename $(SRC))
 
 %:%.cpp
-	g++ -o $@ $< -I ../.. -DXPACK_SUPPORT_CHAR_ARRAY
+	$(GPP) -o $@ $< -I ../.. -DXPACK_SUPPORT_CHAR_ARRAY
 	@echo ============ run $@ ================
 	@./$@
 	@-rm $@

@@ -18,34 +18,35 @@
 #include<gtest/gtest.h>
 
 #include "json.h"
+#include "xml.h"
 #include "string.h"
 
 using namespace std;
 
 // BuiltInTypes
 struct BuiltInTypes {
-    signed char            sch;
-    char                 ch;
-    unsigned char         uch;
-    short                 sh;
-    unsigned short         ush;
-    int                 i;
-    unsigned int         ui;
-    long                 l;
-    unsigned long         ul;
-    long long             ll;
-    unsigned long long     ull;
-    float                 f;
-    double                 d;
-    long double         ld;
-    bool                b;
-    XPACK(O(sch, ch, uch, sh, ush, i, ui, l, ul, ll, ull, f, d, ld, b));
+    signed char        sch;
+    char               ch;
+    unsigned char      uch;
+    short              sh;
+    unsigned short     ush;
+    int                i;
+    unsigned int       ui;
+    long               l;
+    unsigned long      ul;
+    long long          ll;
+    unsigned long long ull;
+    float              f;
+    double             d;
+    long double        ld;
+    bool               b;
+    XPACK(X(F(ATTR), sch, ch, uch, sh, ush), O(i, ui, l, ul, ll, ull, f, d, ld, b));
 };
 
 // simple struct used by other
 struct Base {
     int     bi;
-    string     bs;
+    string  bs;
     XPACK(O(bi, bs));
 };
 
@@ -70,31 +71,31 @@ struct OtherNS:public Base {
 // XPACK_OUT  must define in global namespace
 XPACK_OUT(otherns::OtherNS, I(Base), B(F(0), h, l), E(F(0), e));
 
-struct Json :public otherns::OtherNS {
-    string                     as1;    // alias name
-    string                     as2;
-    BuiltInTypes             types;
+struct XTest :public otherns::OtherNS {
+    string                  as1;    // alias name
+    string                  as2;
+    BuiltInTypes            types;
     vector<int>             vi;        // vector int
-    vector<vector<int> >     vvi;    // vector vector int
-    vector<string>             vs;        // vector string
+    vector<vector<int> >    vvi;    // vector vector int
+    vector<string>          vs;        // vector string
     vector<vector<string> > vvs;    // vector vector string
-    vector<Base>             vst;    // vector struct
-    vector<vector<Base> >     vvst;    // vector vector struct
+    vector<Base>            vst;    // vector struct
+    vector<vector<Base> >   vvst;    // vector vector struct
 
-    set<int>                      si;
-    list<int>                     li;
-    map<string, int>              mi;
-    map<string, Base>            mst;
+    set<int>                    si;
+    list<int>                   li;
+    map<string, int>            mi;
+    map<string, Base>           mst;
     unordered_map<string, Base> umst;
     shared_ptr<Base>            spst;
     char                        charray[16];
 
     // Qt
-    QString                qstr;
+    QString             qstr;
     QList<Base>         qlst;
-    QVector<Base>         qvst;
-    QMap<string, Base>     qmst;
-    QMap<QString, Base>    qmqsst;
+    QVector<Base>       qvst;
+    QMap<string, Base>  qmst;
+    QMap<QString, Base> qmqsst;
 
     XPACK(I(otherns::OtherNS, Base), A(as1, "a1 json:alias1", as2, "a2 json:alias2"),
           O(types, vi, vvi, vs, vvs, vst, vvst),
@@ -102,7 +103,7 @@ struct Json :public otherns::OtherNS {
           O(qstr, qlst, qvst, qmst, qmqsst));
 };
 
-void childeq(const Json&cd) {
+void childeq(const XTest&cd) {
     EXPECT_EQ(cd.bi, 1024);
     EXPECT_EQ(cd.bs, "1024");
 
@@ -227,13 +228,25 @@ void childeq(const Json&cd) {
 }
 
 TEST(json, testJson) {
-    //char *p = new(char [100]);
-    Json cd;
+    XTest cd;
     xpack::json::decode_file("test.json", cd);
     childeq(cd);
     string tjs = xpack::json::encode(cd);//, 0, 1, '\t');
-    Json cd1;
+    cout<<"json:"<<endl<<tjs<<endl;
+    XTest cd1;
     xpack::json::decode(tjs, cd1);
+    childeq(cd1);
+}
+
+TEST(xml, testXml) {
+    XTest cd;
+    xpack::xml::decode_file("test.xml", cd);
+    childeq(cd);
+
+    string str = xpack::xml::encode(cd, "root");//, 0, 1, '\t');
+    XTest cd1;
+    cout<<"xml:"<<endl<<str<<endl;
+    xpack::xml::decode(str, cd1);
     childeq(cd1);
 }
 
@@ -242,13 +255,10 @@ int main(int argc, char *argv[]) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
     #else
-    Json cd;
-    xpack::json::decode_file("test.json", cd);
-    //childeq(cd);
-    string tjs = xpack::json::encode(cd);//, 0, 1, '\t');
-    Json cd1;
-    xpack::json::decode(tjs, cd1);
-    //childeq(cd1);
+    XTest cd;
+    xpack::xml::decode_file("test.xml", cd);
+    //cout<<xpack::json::encode(cd)<<endl;
+    cout<<xpack::xml::encode(cd, "root", 0, 2, ' ')<<endl;
     return 0;
     #endif
 }
