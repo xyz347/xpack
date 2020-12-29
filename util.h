@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "traits.h"
 #include "numeric.h"
 
 namespace xpack {

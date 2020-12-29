@@ -18,12 +18,14 @@
 #ifndef __X_PACK_DECODER_H
 #define __X_PACK_DECODER_H
 
+#include <stdexcept>
 #include <map>
 #include <set>
 #include <vector>
 #include <list>
 
 #include "traits.h"
+#include "xtype.h"
 
 #ifdef XPACK_SUPPORT_CHAR_ARRAY
 #include "string.h"
@@ -168,6 +170,12 @@ public:
 
         __x_pack_decode_out(*obj, val, ext);
         return true;
+    }
+
+    // XType 
+    template <class T>
+    typename x_enable_if<is_xpack_xtype<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
+        return xpack_xtype_decode(*(doc_type*)this, key, val, ext);
     }
 
     #ifdef X_PACK_SUPPORT_CXX0X

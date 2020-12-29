@@ -17,7 +17,6 @@
 #ifndef __X_PACK_JSON_DECODER_H
 #define __X_PACK_JSON_DECODER_H
 
-#include <stdexcept>
 #include <fstream>
 
 #include "rapidjson_custom.h"

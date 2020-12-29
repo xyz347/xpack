@@ -15,10 +15,13 @@
 */
 
 #include <iostream>
-#include<gtest/gtest.h>
 
-#include "json.h"
-#include "xml.h"
+#ifdef XGTEST
+#include<gtest/gtest.h>
+#endif
+
+#include "xpack/json.h"
+#include "xpack/xml.h"
 #include "string.h"
 
 using namespace std;
@@ -86,10 +89,14 @@ struct XTest :public otherns::OtherNS {
     list<int>                   li;
     map<string, int>            mi;
     map<string, Base>           mst;
+#ifdef XGTEST
     unordered_map<string, Base> umst;
+#else
+    map<string, Base> umst;
+#endif
     shared_ptr<Base>            spst;
     char                        charray[16];
-
+#ifdef XPACK_SUPPORT_QT
     // Qt
     QString             qstr;
     QList<Base>         qlst;
@@ -101,8 +108,14 @@ struct XTest :public otherns::OtherNS {
           O(types, vi, vvi, vs, vvs, vst, vvst),
           O(si,li,mi, mst, umst, spst, charray),
           O(qstr, qlst, qvst, qmst, qmqsst));
+#else
+    XPACK(I(otherns::OtherNS, Base), A(as1, "a1 json:alias1", as2, "a2 json:alias2"),
+          O(types, vi, vvi, vs, vvs, vst, vvst),
+          O(si,li,mi, mst, umst, spst, charray));
+#endif
 };
 
+#ifdef XGTEST
 void childeq(const XTest&cd) {
     EXPECT_EQ(cd.bi, 1024);
     EXPECT_EQ(cd.bs, "1024");
@@ -185,7 +198,7 @@ void childeq(const XTest&cd) {
     EXPECT_TRUE(strcmp(cd.charray, "hello world")==0);
 
     EXPECT_EQ(cd.qstr, "1024");
-
+#ifdef XPACK_SUPPORT_QT
     auto qlstiter = cd.qlst.begin();
     EXPECT_EQ(cd.qlst.size(), 2);
     EXPECT_EQ(qlstiter->bi, 1);
@@ -209,7 +222,7 @@ void childeq(const XTest&cd) {
     EXPECT_EQ(cd.qmqsst.find("e")->bs, "6");
     EXPECT_EQ(cd.qmqsst.find("f")->bi, 7);
     EXPECT_EQ(cd.qmqsst.find("f")->bs, "8");
-
+#endif
     EXPECT_EQ(cd.types.sch, 48);
     EXPECT_EQ(cd.types.ch, 49);
     EXPECT_EQ(cd.types.uch, 50);
@@ -249,16 +262,41 @@ TEST(xml, testXml) {
     xpack::xml::decode(str, cd1);
     childeq(cd1);
 }
+#endif
 
 int main(int argc, char *argv[]) {
-    #if 1
+#ifdef XGTEST
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
-    #else
-    XTest cd;
-    xpack::xml::decode_file("test.xml", cd);
-    //cout<<xpack::json::encode(cd)<<endl;
-    cout<<xpack::xml::encode(cd, "root", 0, 2, ' ')<<endl;
+#else
+    XTest j1;
+    XTest j2;
+    string s1;
+    string s2;
+
+    cout<<"test json....";
+    xpack::json::decode_file("test.json", j1);
+    s1 = xpack::json::encode(j1);
+    xpack::json::decode(s1, j2);
+    s2 = xpack::json::encode(j2);
+    if (0 != s1.compare(s2)) {
+        cout<<"fail(json not same)"<<endl<<"json1:"<<endl<<s1<<endl<<"json2:"<<endl<<s2<<endl;
+    } else {
+        cout<<"done"<<endl;
+    }
+
+    XTest x1;
+    XTest x2;
+    cout<<"test xml....";
+    xpack::xml::decode_file("test.xml", x1);
+    s1 = xpack::xml::encode(x1, "root");
+    xpack::xml::decode(s1, x2);
+    s2 = xpack::xml::encode(x2, "root");
+    if (0 != s1.compare(s2)) {
+        cout<<"fail(xml not same)"<<endl<<"xml1:"<<endl<<s1<<endl<<"xml2:"<<endl<<s2<<endl;
+    } else {
+        cout<<"done"<<endl;
+    }
     return 0;
-    #endif
+#endif
 }

@@ -14,18 +14,21 @@
 * limitations under the License.
 */
 
-#include <sys/time.h>
+// #include <sys/time.h> linux only
 #include <iostream>
 #include "xpack/json.h"
+#ifndef _MSC_VER
+#include <sys/time.h>
+#endif
 
 using namespace std;
 
-/*
+#ifdef _MSC_VER
 struct timeval {
-    time_t      tv_sec;
-    suseconds_t tv_usec;
+    long tv_sec;
+    long tv_usec;
 };
-*/
+#endif
 
 // timeval is thirdparty struct
 XPACK_OUT(timeval, O(tv_sec, tv_usec));

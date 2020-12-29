@@ -19,7 +19,6 @@
 
 #include <map>
 #include <vector>
-#include <stdexcept>
 #include <fstream>
 
 #include <cstdlib>

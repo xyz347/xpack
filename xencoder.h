@@ -25,6 +25,7 @@
 
 #include "traits.h"
 #include "numeric.h"
+#include "xtype.h"
 
 #ifdef XPACK_SUPPORT_QT
 #include <QString>
@@ -148,6 +149,12 @@ public:
             ((doc_type*)this)->ObjectEnd(key);
         }
         return true;
+    }
+
+    // XType 
+    template <class T>
+    typename x_enable_if<is_xpack_xtype<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
+        return xpack_xtype_encode(*(doc_type*)this, key, val, ext);
     }
 
     #ifdef X_PACK_SUPPORT_CXX0X
