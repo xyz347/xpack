@@ -19,17 +19,16 @@
 
 using namespace std;
 
-struct Test {
-    long uid;
-    string  name;
-    XPACK(A(uid, "id"), O(name));
-};
-
 int main(int argc, char *argv[]) {
-    Test t;
-    string json="{\"id\":123, \"name\":\"Pony\"}";
+    xpack::JsonEncoder en;
+    en.ObjectBegin(NULL);
 
-    xpack::json::decode(json, t);
-    cout<<t.uid<<endl;
+    vector<int> vi(3);
+    vi[0] = 1;
+    vi[1] = 2;
+    vi[2] = 3;
+    en.encode("vv", vi, NULL);
+    en.ObjectEnd(NULL);
+    cout<<en.String()<<endl;
     return 0;
 }

@@ -20,7 +20,7 @@
 namespace xpack {
 
 template <class T>
-struct numeric{static bool const value = false; static bool const is_integer = false;};
+struct numeric{static bool const value = false; static bool const is_integer = false;static bool const is_float = false;};
 
 template<>
 struct numeric<char>{static bool const value = true; static bool const is_integer = true;};
@@ -56,13 +56,13 @@ template<>
 struct numeric<unsigned long long>{static bool const value = true; static bool const is_integer = true;};
 
 template<>
-struct numeric<float>{static bool const value = true;};
+struct numeric<float>{static bool const value = true;static bool const is_float = true;};
 
 template<>
-struct numeric<double>{static bool const value = true;};
+struct numeric<double>{static bool const value = true;static bool const is_float = true;};
 
 template<>
-struct numeric<long double>{static bool const value = true;};
+struct numeric<long double>{static bool const value = true;static bool const is_float = true;};
 
 }
 

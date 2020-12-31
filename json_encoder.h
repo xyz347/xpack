@@ -35,7 +35,7 @@ public:
     friend class XEncoder<JsonEncoder>;
     using xdoc_type::encode;
 
-    JsonEncoder(int indentCount=0, char indentChar=' ') {
+    JsonEncoder(int indentCount=-1, char indentChar=' ') {
         _buf = new JSON_WRITER_BUFFER;
         if (indentCount < 0) {
             _writer = new JSON_WRITER_WRITER(*_buf);
@@ -103,7 +103,7 @@ public:
 
 public:
     #define X_PACK_JSON_ENCODE(cond, f)  \
-        if ((cond) && ext->OmitEmpty()){ \
+        if ((cond) && Extend::OmitEmpty(ext)){ \
             return false;                \
         }                                \
         xpack_set_key(key);              \

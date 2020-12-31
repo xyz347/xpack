@@ -1,0 +1,127 @@
+<root>
+	<bi>1024</bi>
+	<bs>1024</bs>
+	<h>10</h>
+	<l>24</l>
+	<e>1</e>
+	<a1>hello</a1>
+	<a2>world</a2>
+	<vi>
+		<x1>1</x1>
+		<x1>2</x1>
+		<x1>4</x1>
+	</vi>
+	<vvi>
+		<x1>
+			<x2>8</x2>
+			<x2>16</x2>
+			<x2>32</x2>
+		</x1>
+		<x1>
+			<x2>64</x2>
+			<x2>128</x2>
+			<x2>256</x2>
+		</x1>
+	</vvi>
+	<vvi>
+		<x>
+			<x>8</x>
+			<x>16</x>
+			<x>32</x>
+		</x>
+		<x>
+			<x>64</x>
+			<x>128</x>
+			<x>256</x>
+		</x>
+	</vvi>
+	<vs>
+		<x>hello</x>
+		<x>hallo</x>
+		<x>你好</x>
+	</vs>
+	<vvs>
+		<x>
+			<x>Python</x>
+			<x>Perl</x>
+			<x>Bash</x>
+		</x>
+		<x>
+			<x>C++</x>
+			<x>Golang</x>
+			<x>Rust</x>
+		</x>
+	</vvs>
+	<vst>
+		<x> <bi>1</bi> <bs>2</bs> </x>
+		<x>	<bi>3</bi> <bs>4</bs> </x>
+	</vst>
+	<vvst>
+		<x>
+			<x>	<bi>5</bi> <bs>6</bs> </x>
+			<x> <bi>7</bi> <bs>8</bs> </x>
+		</x>
+		<x>
+		 	<x> <bi>9</bi> <bs>10</bs> </x>
+		</x>
+	</vvst>
+	<si>
+		<x>1</x>
+		<x>3</x>
+		<x>5</x>
+	</si>
+	<li>
+		<x>2</x>
+		<x>4</x>
+		<x>6</x>
+	</li>
+	<mi>
+		<a>1</a>
+		<b>2</b>
+		<c>3</c>
+	</mi>
+	<mst>
+		<d> <bi>1</bi> <bs>2</bs> </d>
+		<e>	<bi>3</bi> <bs>4</bs> </e>
+	</mst>
+	<umst>
+		<f> <bi>1</bi> <bs>2</bs></f>
+		<g> <bi>3</bi> <bs>4</bs></g>
+	</umst>
+	<spst> <bi>10</bi> <bs>24</bs></spst>
+	<charray>hello world</charray>
+	<qstr>1024</qstr>
+	<qlst>
+		<x> <bi>1</bi> <bs>2</bs></x>
+		<x> <bi>3</bi> <bs>4</bs></x>
+	</qlst>
+	<qvst>
+		<x> <bi>5</bi> <bs>6</bs></x>
+		<x> <bi>7</bi> <bs>8</bs></x>
+	</qvst>
+	<qmst>
+		<d> <bi>1</bi> <bs>2</bs></d>
+		<e> <bi>3</bi> <bs>4</bs></e>
+	</qmst>
+	<qmqsst>
+		<e> <bi>5</bi> <bs>6</bs></e>
+		<f> <bi>7</bi> <bs>8</bs></f>
+	</qmqsst>
+	<types sch="48">
+		<!--sch>48</sch-->
+		<ch>49</ch>
+		<uch>50</uch>
+		<sh>10</sh>
+		<ush>24</ush>
+		<i>10</i>
+		<ui>24</ui>
+		<l>10</l>
+		<ul>24</ul>
+		<ll>10</ll>
+		<ull>24</ull>
+		<f>2.718</f>
+		<d>3.14</d>
+		<ld>0.618</ld>
+		<b>true</b>
+	</types>
+</root>

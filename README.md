@@ -1,7 +1,8 @@
 xpack
 ====
-* 用于在C++结构体和json之间互相转换, xml/bson将很快支持。
+* 用于在C++结构体和json/xml之间互相转换, bson将很快支持。
 * 只需要头文件, 无需编译库文件。
+* 具体可以参考example的例子
 
 ------
 * [基本用法](#基本用法)
@@ -11,9 +12,11 @@ xpack
 * [位域](#位域)
 * [继承](#继承)
 * [枚举](#枚举)
+* [自定义编解码](#自定义编解码)
 * [char数组](#char数组)
 * [第三方类和结构体](#第三方类和结构体)
 * [格式化缩进](#格式化缩进)
+* [XML数组](#xml数组)
 * [Qt支持](#qt支持)
 * [重要说明](#重要说明)
 
@@ -89,6 +92,7 @@ FLAG
 	- 0 没有任何FLAG
 	- OE omitempty，encode的时候，如果变量是0或者空字符串或者false，则不生成对应的key信息
 	- M mandatory，decode的时候，如果这个字段不存在，则抛出异常，用于一些id字段。
+    - ATTR attribute，xml encode的时候，把值放到attribute里面。
 - O。等价于X(F(0), ...) 没有任何FLAG。
 - M。等价于X(F(M)，...) 表示这些字段是必须存在的。
 - A。[别名](#别名)，A(member1, alias1, member2, alias2...)
@@ -234,10 +238,22 @@ int main(int argc, char *argv[]) {
 
 ```
 
+自定义编解码
+----
+应用场景：部分类型可能不想按结构体变量逐个编码，比如定义了一个时间结构体：
+```C++
+struct Time {
+    long ts; //unix timestamp
+};
+```
+并不希望编码成{"ts":1218196800} 这种格式，而是希望编码成"2008-08-08 20:00:00"这种格式，这个时候就可以用自定义编解码实现。
+
+- 可以参考[例子](example/xtype.cpp)
+
 char数组
 ----
 - **缺省是不支持char数组的**
-- 修改[config.h](config.h)，使能XPACK_SUPPORT_CHAR_ARRAY这个宏即可。也可以直接在编译选项加上这个定义。
+- 修改[config.h](config.h)，开启XPACK_SUPPORT_CHAR_ARRAY这个宏即可。也可以直接在编译选项加上这个定义。
 - **除了char，其他类型不支持数组**
 
 ```C++
@@ -311,11 +327,21 @@ int main(int argc, char *argv[]) {
 
 格式化缩进
 ----
-- encode缺省生成的json是没有缩进的，适合程序使用，如果让人读，可以进行缩进。
+- encode缺省生成的json/xml是没有缩进的，适合程序使用，如果让人读，可以进行缩进。
 - encode的最后两个参数控制
 	- indentCount 表示缩进的字符数，<0表示不缩进，0则是换行但是不缩进
 	- indentChar 表示缩进的字符，用空格或者制表符
 
+XML数组
+----
+- 数组会用"x"作为标签，比如"ids":[1,2,3]，对应的xml是:
+``` xml
+<ids>
+    <x>1</x>
+    <x>2</x>
+    <x>3</x>
+</ids>
+```
 
 Qt支持
 ----
@@ -329,4 +355,6 @@ Qt支持
 - vc6不支持。
 - msvc没有做很多测试，只用2019做过简单测试。
 - json的序列化反序列化用的是[rapidjson](https://github.com/Tencent/rapidjson)
+- xml的反序列化用的是[rapidxml](http://rapidxml.sourceforge.net)
+- xml的序列化是我自己写的，没有参考RFC，可能有和标准不一样的地方.
 - 有疑问可以加QQ群878041110

@@ -23,9 +23,16 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "traits.h"
 #include "numeric.h"
 
 namespace xpack {
+
+struct cmp_str {
+   bool operator()(char const *a, char const *b) const {
+      return strcmp(a, b) < 0;
+   }
+};
 
 class Util {
 public:
@@ -60,7 +67,7 @@ public:
 
     // not support float.
     template <class T>
-    static typename x_enable_if<numeric<T>::value, std::string>::type itoa(const T&val) {
+    static typename x_enable_if<numeric<T>::is_integer, std::string>::type itoa(const T&val) {
         char buf[128];
         size_t i = sizeof(buf)-1;
 
@@ -77,6 +84,50 @@ public:
             buf[i--] = '-';
         }
         return std::string(&buf[i+1], sizeof(buf)-i-1);
+    }
+
+    // not support float. and only decimal
+    template <class T>
+    static typename x_enable_if<numeric<T>::is_integer, bool>::type atoi(const std::string&s, T&val) {
+        if (s.empty()) {
+            return false;
+        }
+
+        T _tmp = 0;
+        size_t i;
+        if (s[0] == '-') {
+            if (s.length() == 1) {
+                return false;
+            }
+            for (size_t i=1; i<s.length(); ++i) {
+                if (s[i]>='0' && s[i]<='9') {
+                    T _c = _tmp*10 - (s[i]-'0');
+                    if (_c < _tmp) {
+                        _tmp = _c;
+                    } else {
+                        return false; // overflow
+                    }
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            for (size_t i=0; i<s.length(); ++i) {
+                if (s[i]>='0' && s[i]<='9') {
+                    T _c = _tmp*10 + (s[i]-'0');
+                    if (_c > _tmp) {
+                        _tmp = _c;
+                    } else {
+                        return false; // overflow
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        val = _tmp;
+        return true;
     }
 };
 
