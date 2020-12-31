@@ -35,7 +35,7 @@ public:
     friend class XEncoder<JsonEncoder>;
     using xdoc_type::encode;
 
-    JsonEncoder(int indentCount=0, char indentChar=' ') {
+    JsonEncoder(int indentCount=-1, char indentChar=' ') {
         _buf = new JSON_WRITER_BUFFER;
         if (indentCount < 0) {
             _writer = new JSON_WRITER_WRITER(*_buf);

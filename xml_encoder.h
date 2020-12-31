@@ -56,7 +56,7 @@ public:
     friend class XEncoder<XmlEncoder>;
     using xdoc_type::encode;
 
-    XmlEncoder(int indentCount=0, char indentChar=' '):_indentCount(indentCount),_indentChar(indentChar) {
+    XmlEncoder(int indentCount=-1, char indentChar=' '):_indentCount(indentCount),_indentChar(indentChar) {
         if (_indentCount > 0) {
             if (_indentChar!=' ' && _indentChar!='\t') {
                 throw std::runtime_error("indentChar must be space or tab");
