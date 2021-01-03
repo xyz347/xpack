@@ -83,7 +83,7 @@ public:
         }
     }
 
-    const char * Type() {
+    inline const char * Type() const {
         return "json";
     }
 

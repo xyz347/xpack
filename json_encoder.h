@@ -61,8 +61,12 @@ public:
         }
     }
 
-    const char *Type() const {
+    inline const char *Type() const {
         return "json";
+    }
+    inline const char *IndexKey(size_t index) {
+        (void)index;
+        return NULL;
     }
 
     std::string String() {

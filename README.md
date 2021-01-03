@@ -1,6 +1,6 @@
 xpack
 ====
-* 用于在C++结构体和json/xml之间互相转换, bson将很快支持。
+* 用于在C++结构体和json/xml之间互相转换, bson在[xbson](https://github.com/xyz347/xbson)中支持。
 * 只需要头文件, 无需编译库文件。
 * 具体可以参考example的例子
 

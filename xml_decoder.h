@@ -97,7 +97,7 @@ public:
     }
 
 public: // decode
-    #define XPACK_XML_DECODE()                                    \
+    #define XPACK_XML_DECODE_CHECK()                              \
         std::string v = get_val(key);                             \
         if (v.empty()) {                                          \
             if (Extend::Mandatory(ext)) {                         \
@@ -122,12 +122,12 @@ public: // decode
 
     // string
     bool decode(const char *key, std::string &val, const Extend *ext) {
-        XPACK_XML_DECODE();
+        XPACK_XML_DECODE_CHECK();
         val = v;
         return true;
     }
     bool decode(const char *key, bool &val, const Extend *ext) {
-        XPACK_XML_DECODE();
+        XPACK_XML_DECODE_CHECK();
         if (v=="1" || v=="true" || v=="TRUE" || v=="True") {
             val = true;
         } else if (v=="0" || v=="false" || v=="FALSE" || v=="False") {
@@ -140,7 +140,7 @@ public: // decode
     }
 
     bool decode(const char *key, double &val, const Extend *ext) {
-        XPACK_XML_DECODE();
+        XPACK_XML_DECODE_CHECK();
 		if (1==v.length() && v[0]=='-') {
 			return false;
 		}
@@ -222,7 +222,7 @@ private:
 	// integer. if we named this as decode, clang and msvc will fail
     template <class T>
     typename x_enable_if<numeric<T>::is_integer, bool>::type decode_integer(const char *key, T &val, const Extend *ext) {
-        XPACK_XML_DECODE();
+        XPACK_XML_DECODE_CHECK();
 		if (Util::atoi(v, val)) {
             return true;
         } else {
@@ -231,7 +231,7 @@ private:
         }
     }
 
-    typedef std::map<const char*, size_t, cmp_str> node_index; // name to list(nodes with same name)
+    typedef std::map<const char*, size_t, cmp_str> node_index; // index of _childs
 
     XmlDecoder():xdoc_type(NULL, ""),_doc(NULL),_node(NULL) {
         init();
