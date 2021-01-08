@@ -94,17 +94,20 @@ public:
         }
 
         T _tmp = 0;
-        size_t i;
+        size_t i = 0;
         if (s[0] == '-') {
             if (s.length() == 1) {
                 return false;
+            } else if (s.length()>2 && s[1]=='0') {
+                return false;
             }
-            for (size_t i=1; i<s.length(); ++i) {
+
+            for (i=1; i<s.length(); ++i) {
                 if (s[i]>='0' && s[i]<='9') {
                     T _c = _tmp*10 - (s[i]-'0');
                     if (_c < _tmp) {
                         _tmp = _c;
-                    } else {
+                    } else if (i > 0) {
                         return false; // overflow
                     }
                 } else {
@@ -112,12 +115,18 @@ public:
                 }
             }
         } else {
-            for (size_t i=0; i<s.length(); ++i) {
+            if (s[0] == '+') {
+                ++i;
+            }
+            if (s[i]=='0' && i+1<s.length()) {
+                return false;
+            }
+            for (; i<s.length(); ++i) {
                 if (s[i]>='0' && s[i]<='9') {
                     T _c = _tmp*10 + (s[i]-'0');
                     if (_c > _tmp) {
                         _tmp = _c;
-                    } else {
+                    } else if (i > 0) {
                         return false; // overflow
                     }
                 } else {

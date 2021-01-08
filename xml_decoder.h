@@ -98,8 +98,8 @@ public:
 
 public: // decode
     #define XPACK_XML_DECODE_CHECK()                              \
-        std::string v = get_val(key);                             \
-        if (v.empty()) {                                          \
+        bool exists; std::string v = get_val(key, exists);        \
+        if (!exists) {                                            \
             if (Extend::Mandatory(ext)) {                         \
                 decode_exception("mandatory key not found", key); \
             }                                                     \
@@ -252,7 +252,8 @@ private:
         }
     }
 
-    std::string get_val(const char *key) {
+    std::string get_val(const char *key, bool &exists) {
+        exists = true;
         if (NULL == key) {
             return _node->value();
         } else {
@@ -266,6 +267,7 @@ private:
                 }
             }
         }
+        exists = false;
         return "";
     }
 
