@@ -325,8 +325,10 @@ protected:
         }
         err.append("[");
         std::string p = path();
-        if (!p.empty() && NULL!=key) {
+        if (!p.empty()) {
             err.append(p).append(".");
+        }
+        if (NULL != key) {
             err.append(key);
         }
         err.append("]");

@@ -16,19 +16,22 @@
 
 #include <iostream>
 #include "xpack/json.h"
+#include "xpack/xml.h"
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    xpack::JsonEncoder en;
-    en.ObjectBegin(NULL);
-
     vector<int> vi(3);
     vi[0] = 1;
     vi[1] = 2;
     vi[2] = 3;
-    en.encode("vv", vi, NULL);
-    en.ObjectEnd(NULL);
+
+    xpack::JsonEncoder en;
+    xpack::XmlEncoder xn;
+    en.ob(NULL).add("vv", vi).add("i",10).add("s","hello").oe();
+    xn.ob("root").add("vv", vi).add("i",10).add("s","hello").oe();
+
     cout<<en.String()<<endl;
+    cout<<xn.String()<<endl;
     return 0;
 }

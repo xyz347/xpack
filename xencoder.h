@@ -67,11 +67,12 @@ public:
             return false;
         }
 
-        ((doc_type*)this)->ArrayBegin(key);
+        doc_type *dt = (doc_type*)this;
+        dt->ArrayBegin(key);
         for (size_t i=0; i<s; ++i) {
-            ((doc_type*)this)->encode(NULL, val[i], ext);
+            dt->encode(dt->IndexKey(i), val[i], ext);
         }
-        ((doc_type*)this)->ArrayEnd(key);
+        dt->ArrayEnd(key);
         return true;
     }
 
@@ -83,11 +84,13 @@ public:
             return false;
         }
 
-        ((doc_type*)this)->ArrayBegin(key);
-        for (typename std::list<T>::const_iterator it=val.begin(); it!=val.end(); ++it) {
-            ((doc_type*)this)->encode(NULL, *it, ext);
+        doc_type *dt = (doc_type*)this;
+        dt->ArrayBegin(key);
+        size_t i = 0;
+        for (typename std::list<T>::const_iterator it=val.begin(); it!=val.end(); ++it, ++i) {
+            dt->encode(dt->IndexKey(i), *it, ext);
         }
-        ((doc_type*)this)->ArrayEnd(key);
+        dt->ArrayEnd(key);
         return true;
     }
 
@@ -99,11 +102,13 @@ public:
             return false;
         }
 
-        ((doc_type*)this)->ArrayBegin(key);
-        for (typename std::set<T>::const_iterator it=val.begin(); it!=val.end(); ++it) {
-            ((doc_type*)this)->encode(NULL, *it, ext);
+        doc_type *dt = (doc_type*)this;
+        dt->ArrayBegin(key);
+        size_t i = 0;
+        for (typename std::set<T>::const_iterator it=val.begin(); it!=val.end(); ++it, ++i) {
+            dt->encode(dt->IndexKey(i), *it, ext);
         }
-        ((doc_type*)this)->ArrayEnd(key);
+        dt->ArrayEnd(key);
         return true;
     }
 
@@ -115,11 +120,12 @@ public:
             return false;
         }
 
-        ((doc_type*)this)->ObjectBegin(key);
+        doc_type *dt = (doc_type*)this;
+        dt->ObjectBegin(key);
         for (typename std::map<std::string, T>::const_iterator it=val.begin(); it!=val.end(); ++it) {
-            ((doc_type*)this)->encode(it->first.c_str(), it->second, ext);
+            dt->encode(it->first.c_str(), it->second, ext);
         }
-        ((doc_type*)this)->ObjectEnd(key);
+        dt->ObjectEnd(key);
         return true;
     }
 
@@ -127,12 +133,13 @@ public:
     template <class T>
     typename x_enable_if<T::__x_pack_value&&!is_xpack_out<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
         bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
+        doc_type *dt = (doc_type*)this;
         if (!inherit) {
-            ((doc_type*)this)->ObjectBegin(key);
+            dt->ObjectBegin(key);
         }
-        val.__x_pack_encode(*(doc_type*)this, val, ext);
+        val.__x_pack_encode(*dt, val, ext);
         if (!inherit) {
-            ((doc_type*)this)->ObjectEnd(key);
+            dt->ObjectEnd(key);
         }
         return true;
     }
@@ -141,12 +148,13 @@ public:
     template <class T>
     typename x_enable_if<is_xpack_out<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
         bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
+        doc_type *dt = (doc_type*)this;
         if (!inherit) {
-           ((doc_type*)this)->ObjectBegin(key);
+           dt->ObjectBegin(key);
         }
-        __x_pack_encode_out(*(doc_type*)this, val, ext);
+        __x_pack_encode_out(*dt, val, ext);
         if (!inherit) {
-            ((doc_type*)this)->ObjectEnd(key);
+            dt->ObjectEnd(key);
         }
         return true;
     }
@@ -166,11 +174,12 @@ public:
             return false;
         }
 
-        ((doc_type*)this)->ObjectBegin(key);
+        doc_type *dt = (doc_type*)this;
+        dt->ObjectBegin(key);
         for (typename std::unordered_map<std::string, T>::const_iterator it=val.begin(); it!=val.end(); ++it) {
-            ((doc_type*)this)->encode(it->first.c_str(), it->second, ext);
+            dt->encode(it->first.c_str(), it->second, ext);
         }
-        ((doc_type*)this)->ObjectEnd(key);
+        dt->ObjectEnd(key);
         return true;
     }
 
@@ -231,6 +240,42 @@ public:
         return ((doc_type*)this)->encode(key, str, ext);
     }
     #endif
+
+    // wrapper for encode manual
+    template <class T>
+    doc_type& add(const char *key, const T&val, const Extend *ext=NULL) {
+        doc_type *dt = (doc_type*)this;
+        dt->encode(key, val, ext);
+        return *dt;
+    }
+
+    // object begin
+    doc_type& ob(const char *key) {
+        doc_type *dt = (doc_type*)this;
+        dt->ObjectBegin(key);
+        return *dt;
+    }
+
+    // object end
+    doc_type& oe(const char *key=NULL) {
+        doc_type *dt = (doc_type*)this;
+        dt->ObjectEnd(key);
+        return *dt;
+    }
+
+    // array begin
+    doc_type& ab(const char *key) {
+        doc_type *dt = (doc_type*)this;
+        dt->ArrayBegin(key);
+        return *dt;
+    }
+
+    // array end
+    doc_type& ae(const char *key=NULL) {
+        doc_type *dt = (doc_type*)this;
+        dt->ArrayEnd(key);
+        return *dt;
+    }
 };
 
 }

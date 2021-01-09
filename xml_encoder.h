@@ -72,8 +72,12 @@ public:
         return _output;
     }
 public:
-    const char *Type() const {
+    inline const char *Type() const {
         return "xml";
+    }
+    inline const char *IndexKey(size_t index) {
+        (void)index;
+        return "x";
     }
     void ArrayBegin(const char *key) {
         Node *n = new Node(key);
