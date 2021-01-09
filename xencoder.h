@@ -257,9 +257,9 @@ public:
     }
 
     // object end
-    doc_type& oe() {
+    doc_type& oe(const char *key=NULL) {
         doc_type *dt = (doc_type*)this;
-        dt->ObjectEnd(NULL);
+        dt->ObjectEnd(key);
         return *dt;
     }
 
@@ -271,9 +271,9 @@ public:
     }
 
     // array end
-    doc_type& ae() {
+    doc_type& ae(const char *key=NULL) {
         doc_type *dt = (doc_type*)this;
-        dt->ArrayEnd(NULL);
+        dt->ArrayEnd(key);
         return *dt;
     }
 };
