@@ -15,8 +15,9 @@
   #define RAPIDJSON_HAS_STDSTRING 1
 #endif
 
-
+#ifndef RAPIDJSON_WRITE_DEFAULT_FLAGS
 #define RAPIDJSON_WRITE_DEFAULT_FLAGS kWriteNanAndInfFlag
+#endif
 
 #endif
 
