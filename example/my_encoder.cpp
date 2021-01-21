@@ -20,6 +20,8 @@ public:
 
     template<class T>
     bool encode(const char *key, const T&val, const xpack::Extend *ext) {
+        (void)val;
+        (void)ext;
         if (NULL != key) {
             members.push_back(std::string(key));
         }
@@ -36,6 +38,8 @@ public:
     // class without xpack
     template<class T>
     typename xpack::x_enable_if<!isxpack<T>::value&&!xpack::is_xpack_out<T>::value, bool>::type encode(const char *key, const T&val, const xpack::Extend *ext) {
+        (void)val;
+        (void)ext;
         if (NULL != key) {
             members.push_back(std::string(key));
         }
@@ -110,6 +114,9 @@ struct Test:public Base1, Base2 {
 
 
 int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+
     Test t;
     std::cout<<GetMembers(t)<<std::endl;
     std::cout<<GetMembersP(t)<<std::endl;

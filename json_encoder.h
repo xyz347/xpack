@@ -83,6 +83,7 @@ public:
         }
     }
     void ArrayEnd(const char *key) {
+        (void)key;
         if (NULL != _writer) {
             _writer->EndArray();
         } else {
@@ -98,6 +99,7 @@ public:
         }
     }
     void ObjectEnd(const char *key) {
+        (void)key;
         if (NULL != _writer) {
             _writer->EndObject();
         } else {

@@ -42,6 +42,9 @@ struct T {
 
 
 int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+
     T t;
     T r;
     t.a = 123;

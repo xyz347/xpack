@@ -147,23 +147,23 @@ public:               \
 // decode function
 #define X_PACK_DECODE_BEGIN                         \
     template<class __X_PACK_DOC, class __X_PACK_ME> \
-    void __x_pack_decode(__X_PACK_DOC& __x_pack_obj, __X_PACK_ME &__x_pack_self, const xpack::Extend *__x_pack_extp) {
+    void __x_pack_decode(__X_PACK_DOC& __x_pack_obj, __X_PACK_ME &__x_pack_self, const xpack::Extend *__x_pack_extp) {(void)__x_pack_extp;
 
 // encode function
 #define X_PACK_ENCODE_BEGIN                          \
     template <class __X_PACK_DOC, class __X_PACK_ME> \
-    void __x_pack_encode(__X_PACK_DOC& __x_pack_obj, const __X_PACK_ME &__x_pack_self, const xpack::Extend *__x_pack_extp) const {
+    void __x_pack_encode(__X_PACK_DOC& __x_pack_obj, const __X_PACK_ME &__x_pack_self, const xpack::Extend *__x_pack_extp) const {(void)__x_pack_extp;
 
 
 // out decode function
 #define X_PACK_DECODE_BEGIN_OUT(NAME) \
     template<typename __X_PACK_DOC>   \
-    void __x_pack_decode_out(__X_PACK_DOC& __x_pack_obj, NAME & __x_pack_self, const xpack::Extend *__x_pack_extp) {
+    void __x_pack_decode_out(__X_PACK_DOC& __x_pack_obj, NAME & __x_pack_self, const xpack::Extend *__x_pack_extp) {(void)__x_pack_extp;
 
 // out encode function
 #define X_PACK_ENCODE_BEGIN_OUT(NAME)  \
     template <class __X_PACK_DOC>      \
-    void __x_pack_encode_out(__X_PACK_DOC& __x_pack_obj, const NAME &__x_pack_self, const xpack::Extend *__x_pack_extp) {
+    void __x_pack_encode_out(__X_PACK_DOC& __x_pack_obj, const NAME &__x_pack_self, const xpack::Extend *__x_pack_extp) {(void)__x_pack_extp;
 
 
 #define XPACK(...)   \

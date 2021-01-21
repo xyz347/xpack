@@ -32,6 +32,9 @@ struct Test {
 };
 
 int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+
     Test t;
     string json="{\"name\":\"IPv4\", \"e\":1}";
 

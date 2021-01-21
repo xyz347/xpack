@@ -107,7 +107,7 @@
 		<e> <bi>5</bi> <bs>6</bs></e>
 		<f> <bi>7</bi> <bs>8</bs></f>
 	</qmqsst>
-	<types sch="48">
+	<types s:ch="48">
 		<!--sch>48</sch-->
 		<ch>49</ch>
 		<uch>50</uch>

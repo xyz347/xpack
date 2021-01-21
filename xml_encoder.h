@@ -87,6 +87,7 @@ public:
         _cur = n;
     }
     void ArrayEnd(const char *key) {
+        (void)key;
         _cur = _stack.back();
         _stack.pop_back();
     }
@@ -98,6 +99,7 @@ public:
         _cur = n;
     }
     void ObjectEnd(const char *key) {
+        (void)key;
         _cur = _stack.back();
         _stack.pop_back();
     }

@@ -21,6 +21,9 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+
     vector<int> vi(3);
     vi[0] = 1;
     vi[1] = 2;

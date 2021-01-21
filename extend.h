@@ -47,7 +47,7 @@ struct Alias {
 
         for (size_t i=0; i<l1.size(); ++i) {
             std::vector<std::string> l2;
-            Util::split(l2, l1[i], ':');
+            Util::split(l2, l1[i], ':', 1);
 
             std::vector<std::string> l3;
             Util::split(l3, l2[l2.size()-1], ',');
@@ -84,7 +84,7 @@ struct Extend {
     int ctrl_flag;
     const Alias *alias;
 
-    Extend(int _flag, const Alias *_alias):flag(_flag), alias(_alias), ctrl_flag(0) {
+    Extend(int _flag, const Alias *_alias):flag(_flag), ctrl_flag(0), alias(_alias) {
     }
 
     Extend(const Extend *ext) {

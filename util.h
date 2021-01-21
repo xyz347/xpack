@@ -36,19 +36,25 @@ struct cmp_str {
 
 class Util {
 public:
-    static size_t split(std::vector<std::string>&slice, const std::string&str, char c) {
+    // if n<0 will split all
+    static size_t split(std::vector<std::string>&slice, const std::string&str, char c, int n = -1) {
         size_t last = 0;
         size_t pos = 0;
+        int cnt = 0;
         while (std::string::npos != (pos=str.find(c, last))) {
             slice.push_back(str.substr(last, pos-last));
             last = pos+1;
+            ++cnt;
+            if (n>0 && n>=cnt) {
+                break;
+            }
         }
 
         slice.push_back(str.substr(last));
         return slice.size();
     }
 
-    static size_t split(std::vector<std::string>&slice, const std::string&str, const std::string& sp) {
+    static size_t split(std::vector<std::string>&slice, const std::string&str, const std::string& sp, int n =-1) {
         size_t last = 0;
         size_t pos = 0;
         size_t len = sp.length();
@@ -56,9 +62,14 @@ public:
             slice.push_back(str);
             return 1;
         }
+        int cnt = 0;
         while (std::string::npos != (pos=str.find(sp, last))) {
             slice.push_back(str.substr(last, pos-last));
             last = pos+len;
+            ++cnt;
+            if (n>0 && n>=cnt) {
+                break;
+            }
         }
 
         slice.push_back(str.substr(last));

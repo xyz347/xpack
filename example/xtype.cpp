@@ -94,6 +94,9 @@ struct Group {
 };
 
 int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+
     Group g;
     g.name = "C++";
     g.master = 2019;

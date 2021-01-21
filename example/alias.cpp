@@ -26,6 +26,8 @@ struct Test {
 };
 
 int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
     Test t;
     string json="{\"id\":123, \"name\":\"Pony\"}";
 

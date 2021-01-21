@@ -36,6 +36,9 @@ struct Test:public P1, public P2 {
 };
 
 int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+
     Test t;
     string json="{\"mail\":\"pony@xpack.com\", \"version\":2019, \"id\":123, \"name\":\"Pony\"}";
 
