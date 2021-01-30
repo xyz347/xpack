@@ -105,12 +105,12 @@ struct XTest :public otherns::OtherNS {
     QMap<QString, Base> qmqsst;
 
     XPACK(I(otherns::OtherNS, Base), A(as1, "a1 json:alias1", as2, "a2 json:alias2"),
-          O(types, vi, vvi, vs, vvs, vst, vvst),
+          O(types, vi, vvi, vs, vvs, vvst), A(vst, "xml:vst,vl@base"),
           O(si,li,mi, mst, umst, spst, charray),
           O(qstr, qlst, qvst, qmst, qmqsst));
 #else
     XPACK(I(otherns::OtherNS, Base), A(as1, "a1 json:alias1", as2, "a2 json:alias2"),
-          O(types, vi, vvi, vs, vvs, vst, vvst),
+          O(types, vi, vvi, vs, vvs, vvst), A(vst, "xml:vst,vl@base"),
           O(si,li,mi, mst, umst, spst, charray));
 #endif
 };
@@ -256,7 +256,7 @@ TEST(xml, testXml) {
     xpack::xml::decode_file("test.xml", cd);
     childeq(cd);
 
-    string str = xpack::xml::encode(cd, "root");//, 0, 1, '\t');
+    string str = xpack::xml::encode(cd, "root", 0, 1, '\t');
     XTest cd1;
     cout<<"xml:"<<endl<<str<<endl;
     xpack::xml::decode(str, cd1);

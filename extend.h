@@ -36,34 +36,52 @@ namespace xpack {
 // control flag
 #define X_PACK_CTRL_FLAG_INHERIT (1<<0)
 
-// Alias name. [def ][type:name[,flag]]  flag not support any more
+// Alias name. [def ][type:name[,flag,key@value,flag]]  def not support flag
 struct Alias {
     const char *raw;        // raw name
-    const char *alias;        // alias define
+    const char *alias;      // alias define
+
+    struct Type {
+        std::string name;
+        std::set<std::string> flags;
+        std::map<std::string, std::string> kv_flags;
+    };
 
     Alias(const char *_raw, const char *_alias):raw(_raw), alias(_alias) {
-        std::vector<std::string> l1;
-        Util::split(l1, alias, ' ');
+        std::vector<std::string> tps;
+        Util::split(tps, alias, ' ');
 
-        for (size_t i=0; i<l1.size(); ++i) {
-            std::vector<std::string> l2;
-            Util::split(l2, l1[i], ':', 1);
+        for (size_t i=0; i<tps.size(); ++i) {
+            std::vector<std::string> typeFlag;
+            Util::split(typeFlag, tps[i], ':', 1);
 
-            std::vector<std::string> l3;
-            Util::split(l3, l2[l2.size()-1], ',');
+            if (typeFlag.size() == 1) { // no ':', default name
+                def = tps[i];
+            } else { // type:name[,flags]
+                Type tp;
 
-            if (l2.size() == 2) {
-                types[l2[0]] = l3[0];
-            } else if (l2.size()==1) {
-                def = l3[0];
-            } else {
-                // error format
+                std::vector<std::string> nameFlags;
+                Util::split(nameFlags, typeFlag[1], ',');
+                tp.name = nameFlags[0];
+                if (nameFlags.size() > 1) {
+                    for (size_t j=1; j<nameFlags.size(); ++j) {
+                        std::vector<std::string> kvFlag;
+                        Util::split(kvFlag, nameFlags[j], '@', 1);
+                        if (kvFlag.size() == 1) {
+                            tp.flags.insert(nameFlags[j]);
+                        } else {
+                            tp.kv_flags[kvFlag[0]] = kvFlag[1];
+                        }
+                    }
+                }
+
+                types[typeFlag[0]] = tp;
             }
         }
     }
 
     const char *Name(const char *type) const {
-        std::map<std::string, std::string>::const_iterator iter = types.find(type);
+        std::map<std::string, Type>::const_iterator iter = types.find(type);
         if (iter == types.end()) {
             if (def.empty()) {
                 return raw;
@@ -71,12 +89,26 @@ struct Alias {
                 return def.c_str();
             }
         } else {
-            return iter->second.c_str();
+            return iter->second.name.c_str();
         }
     }
+
+    std::string Flag(const std::string&type, const std::string& flag) const {
+        std::map<std::string, Type>::const_iterator it1 = types.find(type);
+        if (it1 != types.end()) {
+            if (it1->second.flags.find(flag) != it1->second.flags.end()) {
+                return flag;
+            }
+            std::map<std::string, std::string>::const_iterator it2 = it1->second.kv_flags.find(flag);
+            if (it2 != it1->second.kv_flags.end()) {
+                return it2->second;
+            }
+        }
+        return "";
+    }
 private:
-    std::string def;
-    std::map<std::string, std::string> types; // not support flag now
+    std::string def; // default name
+    std::map<std::string, Type> types;
 };
 
 struct Extend {

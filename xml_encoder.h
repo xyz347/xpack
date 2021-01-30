@@ -32,11 +32,20 @@ private:
         Attr(const char*_key, const std::string&_val):key(_key), val(_val){}
     };
     struct Node {
-        Node(const char*_key=NULL) {
+        Node(const char*_key=NULL, const Extend *ext=NULL) {
             if (_key != NULL && strlen(_key)>0) {
                 key = _key;
-            } else {
-                key = "x"; // for vector
+            } else { // vector case
+                if (NULL != ext && NULL != ext->alias) {
+                    std::string vl = ext->alias->Flag("xml", "vl"); // vl:vector label
+                    if (!vl.empty()) {
+                        key = vl;
+                    } else {
+                        key = "x";
+                    }
+                } else {
+                    key = "x"; // for vector
+                }
             }
         }
         ~Node() {
@@ -77,29 +86,31 @@ public:
     }
     inline const char *IndexKey(size_t index) {
         (void)index;
-        return "x";
+        return NULL;//"x";
     }
-    void ArrayBegin(const char *key) {
-        Node *n = new Node(key);
+    void ArrayBegin(const char *key, const Extend *ext) {
+        Node *n = new Node(key, ext);
         _cur->childs.push_back(n);
 
         _stack.push_back(_cur);
         _cur = n;
     }
-    void ArrayEnd(const char *key) {
+    void ArrayEnd(const char *key, const Extend *ext) {
         (void)key;
+        (void)ext;
         _cur = _stack.back();
         _stack.pop_back();
     }
-    void ObjectBegin(const char *key) {
-        Node *n = new Node(key);
+    void ObjectBegin(const char *key, const Extend *ext) {
+        Node *n = new Node(key, ext);
         _cur->childs.push_back(n);
 
         _stack.push_back(_cur);
         _cur = n;
     }
-    void ObjectEnd(const char *key) {
+    void ObjectEnd(const char *key, const Extend *ext) {
         (void)key;
+        (void)ext;
         _cur = _stack.back();
         _stack.pop_back();
     }

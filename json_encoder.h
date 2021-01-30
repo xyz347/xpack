@@ -74,7 +74,8 @@ public:
     }
 
 public:
-    void ArrayBegin(const char *key) {
+    void ArrayBegin(const char *key, const Extend *ext) {
+        (void)ext;
         xpack_set_key(key);
         if (NULL != _writer) {
             _writer->StartArray();
@@ -82,15 +83,17 @@ public:
             _pretty->StartArray();
         }
     }
-    void ArrayEnd(const char *key) {
+    void ArrayEnd(const char *key, const Extend *ext) {
         (void)key;
+        (void)ext;
         if (NULL != _writer) {
             _writer->EndArray();
         } else {
             _pretty->EndArray();
         }
     }
-    void ObjectBegin(const char *key) {
+    void ObjectBegin(const char *key, const Extend *ext) {
+        (void)ext;
         xpack_set_key(key);
         if (NULL != _writer) {
             _writer->StartObject();
@@ -98,8 +101,9 @@ public:
             _pretty->StartObject();
         }
     }
-    void ObjectEnd(const char *key) {
+    void ObjectEnd(const char *key, const Extend *ext) {
         (void)key;
+        (void)ext;
         if (NULL != _writer) {
             _writer->EndObject();
         } else {
