@@ -96,6 +96,7 @@ public:
             try {                                               \
                 val = __VA_ARGS__ v->f();                       \
             } catch (const std::exception&e) {                  \
+                (void)e;                                        \
                 decode_exception("type unmatch", key);          \
             }                                                   \
             ret = true;                                         \
