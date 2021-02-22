@@ -151,17 +151,17 @@ public:
     bool encode(const char*key, const unsigned int& val, const Extend *ext) {
         X_PACK_JSON_ENCODE(val==0, Uint);
     }
-    bool encode(const char*key, const long & val, const Extend *ext) {
+    bool encode(const char*key, const long long& val, const Extend *ext) {
         X_PACK_JSON_ENCODE(val==0, Int64);
     }
-    bool encode(const char*key, const unsigned long & val, const Extend *ext) {
+    bool encode(const char*key, const unsigned long long & val, const Extend *ext) {
         X_PACK_JSON_ENCODE(val==0, Uint64);
     }
-    bool encode(const char*key, const long long &val, const Extend *ext) {
-        return this->encode(key, (const long&)val, ext);
+    bool encode(const char*key, const long &val, const Extend *ext) {
+        return this->encode(key, (const long long&)val, ext);
     }
-    bool encode(const char*key, const unsigned long long &val, const Extend *ext) {
-        return this->encode(key, (const unsigned long&)val, ext);
+    bool encode(const char*key, const unsigned long &val, const Extend *ext) {
+        return this->encode(key, (const unsigned long long&)val, ext);
     }
     bool encode(const char*key, const float & val, const Extend *ext) {
         X_PACK_JSON_ENCODE(val==0, Double);
