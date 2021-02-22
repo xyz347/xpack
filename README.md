@@ -334,12 +334,20 @@ int main(int argc, char *argv[]) {
 
 XML数组
 ----
-- 数组会用"x"作为标签，比如"ids":[1,2,3]，对应的xml是:
+- 数组默认会用"x"作为标签，比如"ids":[1,2,3]，对应的xml是:
 ``` xml
 <ids>
     <x>1</x>
     <x>2</x>
     <x>3</x>
+</ids>
+```
+- 可以用别名的方式来控制数组的标签，比如A(ids,"xml:ids,vl@id")，vl后面跟着一个@xx，xx就是数组的标签，生成的结果就是：
+``` xml
+<ids>
+    <id>1</id>
+    <id>2</id>
+    <id>3</id>
 </ids>
 ```
 
