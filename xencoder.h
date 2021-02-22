@@ -68,11 +68,11 @@ public:
         }
 
         doc_type *dt = (doc_type*)this;
-        dt->ArrayBegin(key);
+        dt->ArrayBegin(key, ext);
         for (size_t i=0; i<s; ++i) {
             dt->encode(dt->IndexKey(i), val[i], ext);
         }
-        dt->ArrayEnd(key);
+        dt->ArrayEnd(key, ext);
         return true;
     }
 
@@ -85,12 +85,12 @@ public:
         }
 
         doc_type *dt = (doc_type*)this;
-        dt->ArrayBegin(key);
+        dt->ArrayBegin(key, ext);
         size_t i = 0;
         for (typename std::list<T>::const_iterator it=val.begin(); it!=val.end(); ++it, ++i) {
             dt->encode(dt->IndexKey(i), *it, ext);
         }
-        dt->ArrayEnd(key);
+        dt->ArrayEnd(key, ext);
         return true;
     }
 
@@ -103,12 +103,12 @@ public:
         }
 
         doc_type *dt = (doc_type*)this;
-        dt->ArrayBegin(key);
+        dt->ArrayBegin(key, ext);
         size_t i = 0;
         for (typename std::set<T>::const_iterator it=val.begin(); it!=val.end(); ++it, ++i) {
             dt->encode(dt->IndexKey(i), *it, ext);
         }
-        dt->ArrayEnd(key);
+        dt->ArrayEnd(key, ext);
         return true;
     }
 
@@ -121,11 +121,11 @@ public:
         }
 
         doc_type *dt = (doc_type*)this;
-        dt->ObjectBegin(key);
+        dt->ObjectBegin(key, ext);
         for (typename std::map<std::string, T>::const_iterator it=val.begin(); it!=val.end(); ++it) {
             dt->encode(it->first.c_str(), it->second, ext);
         }
-        dt->ObjectEnd(key);
+        dt->ObjectEnd(key, ext);
         return true;
     }
 
@@ -135,11 +135,11 @@ public:
         bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
         doc_type *dt = (doc_type*)this;
         if (!inherit) {
-            dt->ObjectBegin(key);
+            dt->ObjectBegin(key, ext);
         }
         val.__x_pack_encode(*dt, val, ext);
         if (!inherit) {
-            dt->ObjectEnd(key);
+            dt->ObjectEnd(key, ext);
         }
         return true;
     }
@@ -150,11 +150,11 @@ public:
         bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
         doc_type *dt = (doc_type*)this;
         if (!inherit) {
-           dt->ObjectBegin(key);
+           dt->ObjectBegin(key, ext);
         }
         __x_pack_encode_out(*dt, val, ext);
         if (!inherit) {
-            dt->ObjectEnd(key);
+            dt->ObjectEnd(key, ext);
         }
         return true;
     }
@@ -175,11 +175,11 @@ public:
         }
 
         doc_type *dt = (doc_type*)this;
-        dt->ObjectBegin(key);
+        dt->ObjectBegin(key, ext);
         for (typename std::unordered_map<std::string, T>::const_iterator it=val.begin(); it!=val.end(); ++it) {
             dt->encode(it->first.c_str(), it->second, ext);
         }
-        dt->ObjectEnd(key);
+        dt->ObjectEnd(key, ext);
         return true;
     }
 
@@ -252,28 +252,28 @@ public:
     // object begin
     doc_type& ob(const char *key) {
         doc_type *dt = (doc_type*)this;
-        dt->ObjectBegin(key);
+        dt->ObjectBegin(key, NULL);
         return *dt;
     }
 
     // object end
     doc_type& oe(const char *key=NULL) {
         doc_type *dt = (doc_type*)this;
-        dt->ObjectEnd(key);
+        dt->ObjectEnd(key, NULL);
         return *dt;
     }
 
     // array begin
     doc_type& ab(const char *key) {
         doc_type *dt = (doc_type*)this;
-        dt->ArrayBegin(key);
+        dt->ArrayBegin(key, NULL);
         return *dt;
     }
 
     // array end
     doc_type& ae(const char *key=NULL) {
         doc_type *dt = (doc_type*)this;
-        dt->ArrayEnd(key);
+        dt->ArrayEnd(key, NULL);
         return *dt;
     }
 };
