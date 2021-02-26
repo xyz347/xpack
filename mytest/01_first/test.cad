@@ -1,0 +1,969 @@
+meta{
+ user_defined_model_pathname="C:\Users\LZR\AppData\Roaming\Autodesk\AutoCAD 2008\R17.1\chs\Plotters\PMP Files\PublishToWeb JPG.pmp
+ user_defined_model_basename="
+ driver_pathname="D:\Program Files (x86)\AutoCAD 2008\drv\gdiplot9.hdi
+ driver_version="1.1-9.1.51.0
+ driver_tag_line="Windows 系统驱动程序 - 由 Autodesk 提供
+ toolkit_version=1
+ driver_type=1
+ canonical_family_name="System
+ show_custom_first=TRUE
+ truetype_as_text=TRUE
+ canonical_model_name="System
+ localized_family_name="系统
+ localized_model_name="系统
+ file_only=FALSE
+ model_abilities="555555555055
+ udm_description="
+ win_device_name="pdfFactory Pro
+ win_driver_name="pdfFactory 5
+ short_net_name="pdfFactory Pro
+ friendly_net_name="FPP5:
+ dm_driver_version=1300
+ default_system_cfg=FALSE
+ platform="2,6,2
+ locale="4E40409
+}
+mod{
+ media{
+  abilities="100004455400144444000005005005000400000000000005000
+  caps_state="00000
+  ui_owner="22212222121111212112221
+  size_max_x=914.40002441 (    0#.3C$ &E@)
+  size_max_y=1219.2000732 (    X,P,DT 5'@)
+ }
+}
+del{
+ media{
+  abilities="100004455400144444000005005005000400000000000005000
+  caps_state="00000
+  ui_owner="22212222121111212112221
+  size_max_x=914.40002441 (    0#.3C$ &E@)
+  size_max_y=1219.2000732 (    X,P,DT 5'@)
+ }
+}
+udm{
+ calibration{
+  _x=1.0
+  _y=1.0
+ }
+ media{
+  abilities="100004455400144444000005005005000400000000000005000
+  caps_state="00000
+  ui_owner="22212222121111212112221
+  size_max_x=914.40002441 (    0#.3C$ &E@)
+  size_max_y=1219.2000732 (    X,P,DT 5'@)
+  description{
+   0{
+    caps_type=2
+    name="UserDefinedRaster Portrait 1115.00W x 1723.00H - (0, 0) x (1114, 1722) =1921145 Pixels
+    media_bounds_urx=1115.0
+    media_bounds_ury=1723.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1114.0
+    printable_bounds_ury=1722.0
+    printable_area=1918308.0000 (     &1%/4'5TP)
+    dimensional=FALSE
+   }
+   1{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1723.00W x 1115.00H - (0, 0) x (1722, 1114) =1921145 Pixels
+    media_bounds_urx=1723.0
+    media_bounds_ury=1115.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1722.0
+    printable_bounds_ury=1114.0
+    printable_area=1918308.0000 (     &1%/4'5TP)
+    dimensional=FALSE
+   }
+   2{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1576.00W x 1218.00H - (0, 0) x (1575, 1217) =1919568 Pixels
+    media_bounds_urx=1576.0
+    media_bounds_ury=1218.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1575.0
+    printable_bounds_ury=1217.0
+    printable_area=1916775.0000 (     &<_/4%(\@)
+    dimensional=FALSE
+   }
+   3{
+    caps_type=2
+    name="UserDefinedRaster Portrait 1218.00W x 1576.00H - (0, 0) x (1217, 1575) =1919568 Pixels
+    media_bounds_urx=1218.0
+    media_bounds_ury=1576.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1217.0
+    printable_bounds_ury=1575.0
+    printable_area=1916775.0000 (     &<_/4%(\@)
+    dimensional=FALSE
+   }
+   4{
+    caps_type=2
+    name="UserDefinedRaster Portrait 1131.00W x 1697.00H - (0, 0) x (1130, 1696) =1919307 Pixels
+    media_bounds_urx=1131.0
+    media_bounds_ury=1697.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1130.0
+    printable_bounds_ury=1696.0
+    printable_area=1916480.0000 (     $ ^/4$\J0)
+    dimensional=FALSE
+   }
+   5{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1697.00W x 1131.00H - (0, 0) x (1696, 1130) =1919307 Pixels
+    media_bounds_urx=1697.0
+    media_bounds_ury=1131.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1696.0
+    printable_bounds_ury=1130.0
+    printable_area=1916480.0000 (     $ ^/4$\J0)
+    dimensional=FALSE
+   }
+   6{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1600.00W x 1200.00H - (0, 0) x (1599, 1199) =1920000 Pixels
+    media_bounds_urx=1600.0
+    media_bounds_ury=1200.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1599.0
+    printable_bounds_ury=1199.0
+    printable_area=1917201.0000 (     !%!/4$8B )
+    dimensional=FALSE
+   }
+   7{
+    caps_type=2
+    name="UserDefinedRaster Portrait 1200.00W x 1600.00H - (0, 0) x (1199, 1599) =1920000 Pixels
+    media_bounds_urx=1200.0
+    media_bounds_ury=1600.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1199.0
+    printable_bounds_ury=1599.0
+    printable_area=1917201.0000 (     !%!/4$8B )
+    dimensional=FALSE
+   }
+   8{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1640.00W x 1171.00H - (0, 0) x (1639, 1170) =1920440 Pixels
+    media_bounds_urx=1640.0
+    media_bounds_ury=1171.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1639.0
+    printable_bounds_ury=1170.0
+    printable_area=1917630.0000 (     +Y"/4$,60)
+    dimensional=FALSE
+   }
+   9{
+    caps_type=2
+    name="UserDefinedRaster Portrait 1171.00W x 1640.00H - (0, 0) x (1170, 1639) =1920440 Pixels
+    media_bounds_urx=1171.0
+    media_bounds_ury=1640.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1170.0
+    printable_bounds_ury=1639.0
+    printable_area=1917630.0000 (     +Y"/4$,60)
+    dimensional=FALSE
+   }
+   10{
+    caps_type=2
+    name="UserDefinedRaster Portrait 1165.00W x 1648.00H - (0, 0) x (1164, 1647) =1919920 Pixels
+    media_bounds_urx=1165.0
+    media_bounds_ury=1648.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1164.0
+    printable_bounds_ury=1647.0
+    printable_area=1917108.0000 (     +1 /4$4^P)
+    dimensional=FALSE
+   }
+   11{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1648.00W x 1165.00H - (0, 0) x (1647, 1164) =1919920 Pixels
+    media_bounds_urx=1648.0
+    media_bounds_ury=1165.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1647.0
+    printable_bounds_ury=1164.0
+    printable_area=1917108.0000 (     +1 /4$4^P)
+    dimensional=FALSE
+   }
+   12{
+    caps_type=2
+    name="UserDefinedRaster Portrait 921.00W x 1423.00H - (0, 0) x (920, 1422) =1310583 Pixels
+    media_bounds_urx=921.0
+    media_bounds_ury=1423.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=920.0
+    printable_bounds_ury=1422.0
+    printable_area=1308240.0000 (     %#V,T%B* )
+    dimensional=FALSE
+   }
+   13{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1423.00W x 921.00H - (0, 0) x (1422, 920) =1310583 Pixels
+    media_bounds_urx=1423.0
+    media_bounds_ury=921.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1422.0
+    printable_bounds_ury=920.0
+    printable_area=1308240.0000 (     %#V,T%B* )
+    dimensional=FALSE
+   }
+   14{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1302.00W x 1006.00H - (0, 0) x (1301, 1005) =1309812 Pixels
+    media_bounds_urx=1302.0
+    media_bounds_ury=1006.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1301.0
+    printable_bounds_ury=1005.0
+    printable_area=1307505.0000 (     ''S,T%?,@)
+    dimensional=FALSE
+   }
+   15{
+    caps_type=2
+    name="UserDefinedRaster Portrait 1006.00W x 1302.00H - (0, 0) x (1005, 1301) =1309812 Pixels
+    media_bounds_urx=1006.0
+    media_bounds_ury=1302.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1005.0
+    printable_bounds_ury=1301.0
+    printable_area=1307505.0000 (     ''S,T%?,@)
+    dimensional=FALSE
+   }
+   16{
+    caps_type=2
+    name="UserDefinedRaster Portrait 935.00W x 1402.00H - (0, 0) x (934, 1401) =1310870 Pixels
+    media_bounds_urx=935.0
+    media_bounds_ury=1402.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=934.0
+    printable_bounds_ury=1401.0
+    printable_area=1308534.0000 (     ';W,T'J<@)
+    dimensional=FALSE
+   }
+   17{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1402.00W x 935.00H - (0, 0) x (1401, 934) =1310870 Pixels
+    media_bounds_urx=1402.0
+    media_bounds_ury=935.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1401.0
+    printable_bounds_ury=934.0
+    printable_area=1308534.0000 (     ';W,T'J<@)
+    dimensional=FALSE
+   }
+   18{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1322.00W x 991.00H - (0, 0) x (1321, 990) =1310102 Pixels
+    media_bounds_urx=1322.0
+    media_bounds_ury=991.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1321.0
+    printable_bounds_ury=990.0
+    printable_area=1307790.0000 (     ([T,T&*LP)
+    dimensional=FALSE
+   }
+   19{
+    caps_type=2
+    name="UserDefinedRaster Portrait 991.00W x 1322.00H - (0, 0) x (990, 1321) =1310102 Pixels
+    media_bounds_urx=991.0
+    media_bounds_ury=1322.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=990.0
+    printable_bounds_ury=1321.0
+    printable_area=1307790.0000 (     ([T,T&*LP)
+    dimensional=FALSE
+   }
+   20{
+    caps_type=2
+    name="UserDefinedRaster Portrait 968.00W x 1355.00H - (0, 0) x (967, 1354) =1311640 Pixels
+    media_bounds_urx=968.0
+    media_bounds_ury=1355.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=967.0
+    printable_bounds_ury=1354.0
+    printable_area=1309318.0000 (     (;Z,T$IT )
+    dimensional=FALSE
+   }
+   21{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1355.00W x 968.00H - (0, 0) x (1354, 967) =1311640 Pixels
+    media_bounds_urx=1355.0
+    media_bounds_ury=968.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1354.0
+    printable_bounds_ury=967.0
+    printable_area=1309318.0000 (     (;Z,T$IT )
+    dimensional=FALSE
+   }
+   22{
+    caps_type=2
+    name="UserDefinedRaster Portrait 962.00W x 1362.00H - (0, 0) x (961, 1361) =1310244 Pixels
+    media_bounds_urx=962.0
+    media_bounds_ury=1362.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=961.0
+    printable_bounds_ury=1361.0
+    printable_area=1307921.0000 (     !'U,T%>S )
+    dimensional=FALSE
+   }
+   23{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1362.00W x 962.00H - (0, 0) x (1361, 961) =1310244 Pixels
+    media_bounds_urx=1362.0
+    media_bounds_ury=962.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1361.0
+    printable_bounds_ury=961.0
+    printable_area=1307921.0000 (     !'U,T%>S )
+    dimensional=FALSE
+   }
+   24{
+    caps_type=2
+    name="UserDefinedRaster Portrait 558.00W x 862.00H - (0, 0) x (557, 861) =480996 Pixels
+    media_bounds_urx=558.0
+    media_bounds_ury=862.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=557.0
+    printable_bounds_ury=861.0
+    printable_area=479577.00000 (     &1%'4$5R@)
+    dimensional=FALSE
+   }
+   25{
+    caps_type=2
+    name="UserDefinedRaster Landscape 862.00W x 558.00H - (0, 0) x (861, 557) =480996 Pixels
+    media_bounds_urx=862.0
+    media_bounds_ury=558.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=861.0
+    printable_bounds_ury=557.0
+    printable_area=479577.00000 (     &1%'4$5R@)
+    dimensional=FALSE
+   }
+   26{
+    caps_type=2
+    name="UserDefinedRaster Portrait 610.00W x 789.00H - (0, 0) x (609, 788) =481290 Pixels
+    media_bounds_urx=610.0
+    media_bounds_ury=789.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=609.0
+    printable_bounds_ury=788.0
+    printable_area=479892.00000 (     %!*'4$F] )
+    dimensional=FALSE
+   }
+   27{
+    caps_type=2
+    name="UserDefinedRaster Landscape 789.00W x 610.00H - (0, 0) x (788, 609) =481290 Pixels
+    media_bounds_urx=789.0
+    media_bounds_ury=610.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=788.0
+    printable_bounds_ury=609.0
+    printable_area=479892.00000 (     %!*'4$F] )
+    dimensional=FALSE
+   }
+   28{
+    caps_type=2
+    name="UserDefinedRaster Portrait 566.00W x 849.00H - (0, 0) x (565, 848) =480534 Pixels
+    media_bounds_urx=566.0
+    media_bounds_ury=849.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=565.0
+    printable_bounds_ury=848.0
+    printable_area=479120.00000 (     $ ^'4'\L )
+    dimensional=FALSE
+   }
+   29{
+    caps_type=2
+    name="UserDefinedRaster Landscape 849.00W x 566.00H - (0, 0) x (848, 565) =480534 Pixels
+    media_bounds_urx=849.0
+    media_bounds_ury=566.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=848.0
+    printable_bounds_ury=565.0
+    printable_area=479120.00000 (     $ ^'4'\L )
+    dimensional=FALSE
+   }
+   30{
+    caps_type=2
+    name="UserDefinedRaster Portrait 586.00W x 820.00H - (0, 0) x (585, 819) =480520 Pixels
+    media_bounds_urx=586.0
+    media_bounds_ury=820.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=585.0
+    printable_bounds_ury=819.0
+    printable_area=479115.00000 (     "P^'4&LK0)
+    dimensional=FALSE
+   }
+   31{
+    caps_type=2
+    name="UserDefinedRaster Landscape 820.00W x 586.00H - (0, 0) x (819, 585) =480520 Pixels
+    media_bounds_urx=820.0
+    media_bounds_ury=586.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=819.0
+    printable_bounds_ury=585.0
+    printable_area=479115.00000 (     "P^'4&LK0)
+    dimensional=FALSE
+   }
+   32{
+    caps_type=2
+    name="UserDefinedRaster Landscape 824.00W x 583.00H - (0, 0) x (823, 582) =480392 Pixels
+    media_bounds_urx=824.0
+    media_bounds_ury=583.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=823.0
+    printable_bounds_ury=582.0
+    printable_area=478986.00000 (     "@\'4%<#0)
+    dimensional=FALSE
+   }
+   33{
+    caps_type=2
+    name="UserDefinedRaster Portrait 583.00W x 824.00H - (0, 0) x (582, 823) =480392 Pixels
+    media_bounds_urx=583.0
+    media_bounds_ury=824.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=582.0
+    printable_bounds_ury=823.0
+    printable_area=478986.00000 (     "@\'4%<#0)
+    dimensional=FALSE
+   }
+   34{
+    caps_type=2
+    name="UserDefinedRaster Portrait 87.00W x 134.00H - (0, 0) x (86, 133) =11658 Pixels
+    media_bounds_urx=87.0
+    media_bounds_ury=134.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=86.0
+    printable_bounds_ury=133.0
+    printable_area=11438.0
+    dimensional=FALSE
+   }
+   35{
+    caps_type=2
+    name="UserDefinedRaster Landscape 134.00W x 87.00H - (0, 0) x (133, 86) =11658 Pixels
+    media_bounds_urx=134.0
+    media_bounds_ury=87.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=133.0
+    printable_bounds_ury=86.0
+    printable_area=11438.0
+    dimensional=FALSE
+   }
+   36{
+    caps_type=2
+    name="UserDefinedRaster Portrait 91.00W x 129.00H - (0, 0) x (90, 128) =11739 Pixels_1
+    media_bounds_urx=91.0
+    media_bounds_ury=129.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=90.0
+    printable_bounds_ury=128.0
+    printable_area=11520.0
+    dimensional=FALSE
+   }
+   37{
+    caps_type=2
+    name="UserDefinedRaster Landscape 124.00W x 96.00H - (0, 0) x (123, 95) =11904 Pixels
+    media_bounds_urx=124.0
+    media_bounds_ury=96.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=123.0
+    printable_bounds_ury=95.0
+    printable_area=11685.0
+    dimensional=FALSE
+   }
+   38{
+    caps_type=2
+    name="UserDefinedRaster Portrait 88.00W x 135.00H - (0, 0) x (87, 134) =11880 Pixels
+    media_bounds_urx=88.0
+    media_bounds_ury=135.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=87.0
+    printable_bounds_ury=134.0
+    printable_area=11658.0
+    dimensional=FALSE
+   }
+   39{
+    caps_type=2
+    name="UserDefinedRaster Landscape 135.00W x 88.00H - (0, 0) x (134, 87) =11880 Pixels
+    media_bounds_urx=135.0
+    media_bounds_ury=88.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=134.0
+    printable_bounds_ury=87.0
+    printable_area=11658.0
+    dimensional=FALSE
+   }
+   40{
+    caps_type=2
+    name="UserDefinedRaster Portrait 96.00W x 124.00H - (0, 0) x (95, 123) =11904 Pixels
+    media_bounds_urx=96.0
+    media_bounds_ury=124.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=95.0
+    printable_bounds_ury=123.0
+    printable_area=11685.0
+    dimensional=FALSE
+   }
+   41{
+    caps_type=2
+    name="UserDefinedRaster Portrait 94.00W x 125.00H - (0, 0) x (93, 124) =11750 Pixels_1
+    media_bounds_urx=94.0
+    media_bounds_ury=125.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=93.0
+    printable_bounds_ury=124.0
+    printable_area=11532.0
+    dimensional=FALSE
+   }
+   42{
+    caps_type=2
+    name="UserDefinedRaster Landscape 125.00W x 94.00H - (0, 0) x (124, 93) =11750 Pixels
+    media_bounds_urx=125.0
+    media_bounds_ury=94.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=124.0
+    printable_bounds_ury=93.0
+    printable_area=11532.0
+    dimensional=FALSE
+   }
+   43{
+    caps_type=2
+    name="UserDefinedRaster Portrait 89.00W x 133.00H - (0, 0) x (88, 132) =11837 Pixels
+    media_bounds_urx=89.0
+    media_bounds_ury=133.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=88.0
+    printable_bounds_ury=132.0
+    printable_area=11616.0
+    dimensional=FALSE
+   }
+   44{
+    caps_type=2
+    name="UserDefinedRaster Landscape 133.00W x 89.00H - (0, 0) x (132, 88) =11837 Pixels
+    media_bounds_urx=133.0
+    media_bounds_ury=89.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=132.0
+    printable_bounds_ury=88.0
+    printable_area=11616.0
+    dimensional=FALSE
+   }
+   45{
+    caps_type=2
+    name="UserDefinedRaster Portrait 94.00W x 125.00H - (0, 0) x (93, 124) =11750 Pixels
+    media_bounds_urx=94.0
+    media_bounds_ury=125.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=93.0
+    printable_bounds_ury=124.0
+    printable_area=11532.0
+    dimensional=FALSE
+   }
+   46{
+    caps_type=2
+    name="UserDefinedRaster Portrait 92.00W x 128.00H - (0, 0) x (91, 127) =11776 Pixels
+    media_bounds_urx=92.0
+    media_bounds_ury=128.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=91.0
+    printable_bounds_ury=127.0
+    printable_area=11557.0
+    dimensional=FALSE
+   }
+   47{
+    caps_type=2
+    name="UserDefinedRaster Landscape 129.00W x 90.00H - (0, 0) x (128, 89) =11610 Pixels
+    media_bounds_urx=129.0
+    media_bounds_ury=90.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=128.0
+    printable_bounds_ury=89.0
+    printable_area=11392.0
+    dimensional=FALSE
+   }
+   48{
+    caps_type=2
+    name="UserDefinedRaster Portrait 91.00W x 129.00H - (0, 0) x (90, 128) =11739 Pixels
+    media_bounds_urx=91.0
+    media_bounds_ury=129.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=90.0
+    printable_bounds_ury=128.0
+    printable_area=11520.0
+    dimensional=FALSE
+   }
+   49{
+    caps_type=2
+    name="UserDefinedRaster Landscape 129.00W x 91.00H - (0, 0) x (128, 90) =11739 Pixels_1
+    media_bounds_urx=129.0
+    media_bounds_ury=91.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=128.0
+    printable_bounds_ury=90.0
+    printable_area=11520.0
+    dimensional=FALSE
+   }
+   50{
+    caps_type=2
+    name="UserDefinedRaster Landscape 129.00W x 91.00H - (0, 0) x (128, 90) =11739 Pixels
+    media_bounds_urx=91.0
+    media_bounds_ury=129.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=90.0
+    printable_bounds_ury=128.0
+    printable_area=11520.0
+    dimensional=FALSE
+   }
+   51{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1149.00W x 826.00H - (0, 0) x (1148, 825) =949074 Pixels
+    media_bounds_urx=1149.0
+    media_bounds_ury=826.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1148.0
+    printable_bounds_ury=825.0
+    printable_area=947100.00000 (     #CG+$$W; )
+    dimensional=FALSE
+   }
+   52{
+    caps_type=2
+    name="UserDefinedRaster Landscape 480.00W x 320.00H - (0, 0) x (479, 319) =153600 Pixels
+    media_bounds_urx=320.0
+    media_bounds_ury=480.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=319.0
+    printable_bounds_ury=479.0
+    printable_area=152801.0
+    dimensional=FALSE
+   }
+   53{
+    caps_type=2
+    name="UserDefinedRaster Landscape 240.00W x 160.00H - (0, 0) x (239, 159) =38400 Pixels
+    media_bounds_urx=160.0
+    media_bounds_ury=240.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=159.0
+    printable_bounds_ury=239.0
+    printable_area=38001.0
+    dimensional=FALSE
+   }
+   54{
+    caps_type=2
+    name="UserDefinedRaster Landscape 119.00W x 84.00H - (0, 0) x (118, 83) =9996 Pixels
+    media_bounds_urx=119.0
+    media_bounds_ury=84.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=118.0
+    printable_bounds_ury=83.0
+    printable_area=9794.0
+    dimensional=FALSE
+   }
+   55{
+    caps_type=2
+    name="UserDefinedRaster Landscape 123.00W x 95.00H - (0, 0) x (122, 94) =11685 Pixels
+    media_bounds_urx=123.0
+    media_bounds_ury=95.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=122.0
+    printable_bounds_ury=94.0
+    printable_area=11468.0
+    dimensional=FALSE
+   }
+   56{
+    caps_type=2
+    name="UserDefinedRaster Portrait 95.00W x 123.00H - (0, 0) x (94, 122) =11685 Pixels
+    media_bounds_urx=95.0
+    media_bounds_ury=123.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=94.0
+    printable_bounds_ury=122.0
+    printable_area=11468.0
+    dimensional=FALSE
+   }
+   57{
+    caps_type=2
+    name="UserDefinedRaster Landscape 122.00W x 95.00H - (0, 0) x (121, 94) =11590 Pixels
+    media_bounds_urx=122.0
+    media_bounds_ury=95.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=121.0
+    printable_bounds_ury=94.0
+    printable_area=11374.0
+    dimensional=FALSE
+   }
+   58{
+    caps_type=2
+    name="UserDefinedRaster Portrait 95.00W x 122.00H - (0, 0) x (94, 121) =11590 Pixels
+    media_bounds_urx=95.0
+    media_bounds_ury=122.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=94.0
+    printable_bounds_ury=121.0
+    printable_area=11374.0
+    dimensional=FALSE
+   }
+   59{
+    caps_type=2
+    name="UserDefinedRaster Landscape 124.00W x 93.00H - (0, 0) x (123, 92) =11532 Pixels
+    media_bounds_urx=124.0
+    media_bounds_ury=93.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=123.0
+    printable_bounds_ury=92.0
+    printable_area=11316.0
+    dimensional=FALSE
+   }
+   60{
+    caps_type=2
+    name="UserDefinedRaster Portrait 93.00W x 124.00H - (0, 0) x (92, 123) =11532 Pixels
+    media_bounds_urx=93.0
+    media_bounds_ury=124.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=92.0
+    printable_bounds_ury=123.0
+    printable_area=11316.0
+    dimensional=FALSE
+   }
+   61{
+    caps_type=2
+    name="UserDefinedRaster Landscape 132.00W x 88.00H - (0, 0) x (131, 87) =11616 Pixels
+    media_bounds_urx=132.0
+    media_bounds_ury=88.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=131.0
+    printable_bounds_ury=87.0
+    printable_area=11397.0
+    dimensional=FALSE
+   }
+   62{
+    caps_type=2
+    name="UserDefinedRaster Portrait 88.00W x 132.00H - (0, 0) x (87, 131) =11616 Pixels
+    media_bounds_urx=88.0
+    media_bounds_ury=132.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=87.0
+    printable_bounds_ury=131.0
+    printable_area=11397.0
+    dimensional=FALSE
+   }
+   63{
+    caps_type=2
+    name="UserDefinedRaster Landscape 127.00W x 91.00H - (0, 0) x (126, 90) =11557 Pixels
+    media_bounds_urx=127.0
+    media_bounds_ury=91.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=126.0
+    printable_bounds_ury=90.0
+    printable_area=11340.0
+    dimensional=FALSE
+   }
+   64{
+    caps_type=2
+    name="UserDefinedRaster Portrait 91.00W x 127.00H - (0, 0) x (90, 126) =11557 Pixels
+    media_bounds_urx=91.0
+    media_bounds_ury=127.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=90.0
+    printable_bounds_ury=126.0
+    printable_area=11340.0
+    dimensional=FALSE
+   }
+   65{
+    caps_type=2
+    name="UserDefinedRaster Portrait 746.00W x 1055.00H - (0, 0) x (745, 1054) =787030 Pixels
+    media_bounds_urx=746.0
+    media_bounds_ury=1055.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=745.0
+    printable_bounds_ury=1054.0
+    printable_area=785230.00000 (     )SV)T$R& )
+    dimensional=FALSE
+   }
+   66{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1055.00W x 746.00H - (0, 0) x (1054, 745) =787030 Pixels
+    media_bounds_urx=1055.0
+    media_bounds_ury=746.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1054.0
+    printable_bounds_ury=745.0
+    printable_area=785230.00000 (     )SV)T$R& )
+    dimensional=FALSE
+   }
+   67{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1050.00W x 750.00H - (0, 0) x (1049, 749) =787500 Pixels
+    media_bounds_urx=1050.0
+    media_bounds_ury=750.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1049.0
+    printable_bounds_ury=749.0
+    printable_area=785701.00000 (     $KZ)T%YX )
+    dimensional=FALSE
+   }
+   68{
+    caps_type=2
+    name="UserDefinedRaster Portrait 750.00W x 1050.00H - (0, 0) x (749, 1049) =787500 Pixels
+    media_bounds_urx=750.0
+    media_bounds_ury=1050.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=749.0
+    printable_bounds_ury=1049.0
+    printable_area=785701.00000 (     $KZ)T%YX )
+    dimensional=FALSE
+   }
+   69{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1087.00W x 725.00H - (0, 0) x (1086, 724) =788075 Pixels
+    media_bounds_urx=1087.0
+    media_bounds_ury=725.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1086.0
+    printable_bounds_ury=724.0
+    printable_area=786264.00000 (     +#^)T%@D0)
+    dimensional=FALSE
+   }
+   70{
+    caps_type=2
+    name="UserDefinedRaster Portrait 725.00W x 1087.00H - (0, 0) x (724, 1086) =788075 Pixels
+    media_bounds_urx=725.0
+    media_bounds_ury=1087.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=724.0
+    printable_bounds_ury=1086.0
+    printable_area=786264.00000 (     +#^)T%@D0)
+    dimensional=FALSE
+   }
+   71{
+    caps_type=2
+    name="UserDefinedRaster Portrait 1009.00W x 8080.00H - (0, 0) x (1008, 8079) =8152720 Pixels
+    media_bounds_urx=1009.0
+    media_bounds_ury=780.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1008.0
+    printable_bounds_ury=779.0
+    printable_area=785232.00000 (     *#V)T%B% )
+    dimensional=FALSE
+   }
+   72{
+    caps_type=2
+    name="UserDefinedRaster Portrait 780.00W x 1009.00H - (0, 0) x (779, 1008) =787020 Pixels
+    media_bounds_urx=780.0
+    media_bounds_ury=1009.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=779.0
+    printable_bounds_ury=1008.0
+    printable_area=785232.00000 (     *#V)T%B% )
+    dimensional=FALSE
+   }
+   73{
+    caps_type=2
+    name="UserDefinedRaster Landscape 1003.00W x 714.00H - (0, 0) x (1002, 713) =716142 Pixels
+    media_bounds_urx=1103.0
+    media_bounds_ury=714.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=1102.0
+    printable_bounds_ury=713.0
+    printable_area=785726.00000 (     'SZ)T'Q[P)
+    dimensional=FALSE
+   }
+   74{
+    caps_type=2
+    name="UserDefinedRaster Portrait 714.00W x 1103.00H - (0, 0) x (713, 1102) =787542 Pixels
+    media_bounds_urx=714.0
+    media_bounds_ury=1103.0
+    printable_bounds_llx=0.0
+    printable_bounds_lly=0.0
+    printable_bounds_urx=713.0
+    printable_bounds_ury=1102.0
+    printable_area=785726.00000 (     'SZ)T'Q[P)
+    dimensional=FALSE
+   }
+  }
+ }
+}
+hidden{
+ media{
+  abilities="100004455400144444000005005005000400000000000005000
+  caps_state="00000
+  ui_owner="22212222121111212112221
+  size_max_x=914.40002441 (    0#.3C$ &E@)
+  size_max_y=1219.2000732 (    X,P,DT 5'@)
+ }
+}
+ 

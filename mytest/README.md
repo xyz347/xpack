@@ -1,26 +1,20 @@
 
-## glog 安装
+### 项目说明
 
-- 从 github 上下载 glog 项目
-  ```shell
-    git clone git@github.com:google/glog.git
-  ```
+对 xpack 的使用测试。
 
-- 选择编译分支
-  ```shell
-    git checkout v0.4.0
-  ```
-  这里选择 tag 为 `v0.4.0` 的版本进行编译
+用于 C/C++ 结构体和 json/xml 之间的序列化与反序列化。
 
-- 采用 cmake 编译安装方式，指定生成动态库
-  ```shell
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/glog -DBUILD_SHARED_LIBS=ON ..
-    make
-    make install
-  ```
 
-## 效率测试
+### 测试目录说明
 
-2-second
+> 01_first
 
-snprintf 要比 std::to_string 节省时间 7.4%
+复杂结构体的 json 与 C/C++ 结构体之间的转换。
+
+
+> 02_second
+
+enum 测试。
+
+

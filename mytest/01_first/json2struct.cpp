@@ -1,7 +1,7 @@
 
 #include <iostream>
 
-#include "caddata.h"
+#include "teststruct.h"
 
 int main(int argc, char *argv[])
 {
@@ -11,8 +11,8 @@ int main(int argc, char *argv[])
     }
     
     struct PublistToWeb ptw;
-    x2struct::X::loadjson(argv[1], ptw, true);
-    std::cout << x2struct::X::tojson(ptw) << std::endl << std::endl;
+    xpack::json::decode_file(argv[1], ptw);
+    std::cout << xpack::json::encode(ptw) << std::endl << std::endl;
     
     return 0;
 }

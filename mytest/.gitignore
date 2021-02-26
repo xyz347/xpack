@@ -1,0 +1,7 @@
+build/CMakeFiles/
+build/CMake*
+build/cmake*
+build/CTest*
+build/Makefile
+build/Testing
+build/*_*
