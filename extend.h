@@ -21,6 +21,7 @@
 #include <cstddef>
 
 #include <map>
+#include <set>
 #include "config.h"
 #include "util.h"
 
