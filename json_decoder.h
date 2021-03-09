@@ -59,7 +59,7 @@ public:
                     break;
                 } else {
                     std::string err_data = str.substr(offset, 32);
-                    err = "Parse json string \""+str+"\" fail. err="+parse_err+". offset="+err_data;
+                    err = "Parse json string fail. err="+parse_err+". offset="+err_data;
                     break;
                 }
             }
