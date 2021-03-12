@@ -24,6 +24,7 @@
 #include <vector>
 #include <list>
 
+#include "extend.h"
 #include "traits.h"
 #include "xtype.h"
 
@@ -42,8 +43,6 @@
 #include <memory>
 #include <unordered_map>
 #endif
-
-#include "extend.h"
 
 namespace xpack {
 
