@@ -30,8 +30,9 @@ struct User {
 struct Group {
     string  name;
     int64_t master;
+    map<int, string> flags;
     vector<User> members;
-    XPACK(O(name, master, members)); // 添加宏定义XPACK在结构体定义结尾
+    XPACK(O(name, master, flags, members)); // 添加宏定义XPACK在结构体定义结尾
 };
 
 int main(int argc, char *argv[]) {
@@ -44,6 +45,8 @@ int main(int argc, char *argv[]) {
     g.members.resize(2);
     g.members[0] = User(1, "Jack", "jack@xpack.com");
     g.members[1] = User(2, "Pony", "pony@xpack.com");
+    g.flags[1] = "a";
+    g.flags[2] = "b";
 
     string json = xpack::json::encode(g);      // 结构体转json
     cout<<json<<endl;

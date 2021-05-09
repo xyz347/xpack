@@ -172,6 +172,17 @@ public:
     bool encode(const char*key, const long double & val, const Extend *ext) {
         X_PACK_JSON_ENCODE(val==0, Double);
     }
+
+    // map<int, T> xml not support use number as label
+    template <class K, class T>
+    typename x_enable_if<numeric<K>::is_integer, bool>::type encode(const char*key, const std::map<K,T>& val, const Extend *ext) {
+        std::map<std::string,T> tmpv;
+
+        for (typename std::map<K,T>::const_iterator iter = val.begin(); iter!=val.end(); ++iter) {
+            tmpv[Util::itoa(iter->first)] = iter->second;
+        }
+        return this->encode(key, tmpv, ext);
+    }
 private:
     void xpack_set_key(const char*key) { // openssl defined set_key macro, so we named it xpack_set_key
         if (NULL!=key && key[0]!='\0') {

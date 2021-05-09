@@ -170,6 +170,24 @@ public:
         XPACK_JSON_DECODE(GetDouble, (long double));
     }
 
+    // map<int, T> xml not support use number as label
+    template <class K, class T>
+    typename x_enable_if<numeric<K>::is_integer, bool>::type decode(const char*key, std::map<K,T>& val, const Extend *ext) {
+        std::map<std::string,T> tmpv;
+        bool ret = this->decode(key, tmpv, ext);
+        if (!ret) {
+            return false;
+        }
+
+        for (typename std::map<std::string,T>::iterator iter = tmpv.begin(); iter!=tmpv.end(); ++iter) {
+            K key;
+            if (Util::atoi(iter->first, key)) {
+                val[key] = iter->second;
+            }
+        }
+        return true;
+    }
+
     // array
     size_t Size() {
         if (_val->IsArray()) {
@@ -263,6 +281,7 @@ private:
     const rapidjson::Value* _val;
     mutable rapidjson::Value::ConstMemberIterator* _iter;
 };
+
 
 }
 
