@@ -19,6 +19,7 @@
 
 #include "json_decoder.h"
 #include "json_encoder.h"
+#include "json_data.h"
 #include "xpack.h"
 
 namespace xpack {

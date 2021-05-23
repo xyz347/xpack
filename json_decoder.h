@@ -25,11 +25,13 @@
 
 #include "xdecoder.h"
 
+
 namespace xpack {
 
 class JsonDecoder:public XDecoder<JsonDecoder> {
 public:
     friend class XDecoder<JsonDecoder>;
+    friend class JsonData;
     using xdoc_type::decode;
 
     JsonDecoder(const std::string& str, bool isfile=false):xdoc_type(NULL, ""),_doc(new rapidjson::Document),_val(_doc) {
@@ -70,6 +72,10 @@ public:
         delete _doc;
         _doc = NULL;
         throw std::runtime_error(err);
+    }
+
+    JsonDecoder(const rapidjson::Value*v):xdoc_type(NULL, ""),_doc(NULL),_val(v) {
+        init();
     }
 
     ~JsonDecoder() {

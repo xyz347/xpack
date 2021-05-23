@@ -13,6 +13,7 @@ xpack
 * [继承](#继承)
 * [枚举](#枚举)
 * [自定义编解码](#自定义编解码)
+* [不定类型](#不定类型)
 * [char数组](#char数组)
 * [第三方类和结构体](#第三方类和结构体)
 * [格式化缩进](#格式化缩进)
@@ -279,6 +280,23 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 ```
+
+不定类型
+----
+- 用于json的schema不确定的场景
+- 用[xpack::JsonData](json_data.h)来接收这些信息
+- 可以参考[例子](example/json-data.cpp)
+- xpack::JsonData主要的方法有：
+    - Type。用于获取类型
+    - IsXXX系列函数。用于判断是否是某种类型，基本等价于return Type()==xxxx;
+    - GetXXX系列函数。用来提取值。
+    - 重载bool。用来判断是否是一个合法的JsonData。
+    - Size。用于数组类型判断元素的个数
+    - `operator [](size_t index)` 用来取数组的第index个元素（从0开始）
+    - `operator [](const char *key)` 用来根据key取Object类型的元素
+    - Begin。用来遍历Object的元素，取第一个。
+    - Next。配合Begin使用，获取下一个元素。
+    - Key。配置Begin和Next使用，遍历的时候获取Key
 
 第三方类和结构体
 ----
