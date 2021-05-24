@@ -54,7 +54,9 @@ static void test(const std::string &data) {
     } else {
         cout<<"unknow type"<<endl;
     }
+    cout<<"re encode:"<<xpack::json::encode(e)<<endl;
 }
+
 
 int main(int argc, char *argv[]) {
     (void)argc;

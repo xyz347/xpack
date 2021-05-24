@@ -220,10 +220,11 @@ private:
 
 template<>
 struct is_xpack_xtype<JsonData> {static bool const value = true;};
-bool xpack_xtype_decode(JsonDecoder &obj, const char*key, JsonData &val, const Extend *ext) {
+
+inline bool xpack_xtype_decode(JsonDecoder &obj, const char*key, JsonData &val, const Extend *ext) {
     return val.xpack_decode(obj, key, ext);
 }
-bool xpack_xtype_encode(JsonEncoder &obj, const char*key, const JsonData &val, const Extend *ext) {
+inline bool xpack_xtype_encode(JsonEncoder &obj, const char*key, const JsonData &val, const Extend *ext) {
     return val.xpack_encode(obj, key, ext);
 }
 
