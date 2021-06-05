@@ -1,7 +1,7 @@
 xpack
 ====
 * 用于在C++结构体和json/xml之间互相转换, bson在[xbson](https://github.com/xyz347/xbson)中支持。
-* 只需要头文件, 无需编译库文件。
+* 只有头文件, 无需编译库文件，所以也没有Makefile。
 * 具体可以参考example的例子
 
 ------
@@ -13,6 +13,7 @@ xpack
 * [继承](#继承)
 * [枚举](#枚举)
 * [自定义编解码](#自定义编解码)
+* [支持新类型](#支持新类型)
 * [不定类型](#不定类型)
 * [char数组](#char数组)
 * [第三方类和结构体](#第三方类和结构体)
@@ -23,58 +24,34 @@ xpack
 
 基本用法
 ----
+- 结构体后面用XPACK宏包含各个变量，XPACK内还需要一个字母，不同字母的意义请参考[FLAG](#flag)
+- 用xpack::json::encode把结构体转json
+- 用xpack::json::decode把json转结构体
 ```C++
 #include <iostream>
-#include "xpack/json.h" // 包含这个头文件
+#include "xpack/json.h" // Json包含这个头文件，xml则包含xpack/xml.h
 
 using namespace std;
 
 struct User {
-    int64_t id;
+    int id;
     string  name;
-    string  mail;
-    User(int64_t i=0, const string& n="", const string& m=""):id(i),name(n),mail(m){}
-    XPACK(O(id, name, mail)); // 添加宏定义XPACK在结构体定义结尾
-};
-
-struct Group {
-    string  name;
-    int64_t master;
-    vector<User> members;
-    XPACK(O(name, master, members)); // 添加宏定义XPACK在结构体定义结尾
+    XPACK(O(id, name)); // 添加宏定义XPACK在结构体定义结尾
 };
 
 int main(int argc, char *argv[]) {
-    Group g;
-    g.name = "C++";
-    g.master = 2019;
-    g.members.resize(2);
-    g.members[0] = User(1, "Jack", "jack@xpack.com");
-    g.members[1] = User(2, "Pony", "pony@xpack.com");
+    User u;
+    string data = "{\"id\":12345, \"name\":\"xpack\"}";
 
-    string json = xpack::json::encode(g);  	// 结构体转json
+    xpack::json::decode(data, u);          // json转结构体
+    cout<<u.id<<';'<<u.name<<endl;
+
+    string json = xpack::json::encode(u);  // 结构体转json
     cout<<json<<endl;
-
-    Group n;
-    xpack::json::decode(json, n); 			// json转结构体
-    cout<<n.name<<endl;
-
-    vector<int> vi;
-    xpack::json::decode("[1,2,3]", vi); 	// 直接转换vector
-    cout<<vi.size()<<','<<vi[1]<<endl;
-
-    map<string, int> m;
-    xpack::json::decode("{\"1\":10, \"2\":20}", m); // 直接转换map
-    cout<<m.size()<<','<<m["2"]<<endl;
 
     return 0;
 }
 ```
-步骤有：
-- 引用头文件 "xpack/json.h"
-- 添加宏定义XPACK在结构体结尾, 里面用"O"包含所有变量
-- 用xpack::json::encode将结构体转json
-- 用xpack::json::decode将json转结构体
 
 容器支持
 ----
@@ -83,35 +60,36 @@ int main(int argc, char *argv[]) {
 - set
 - list
 - map<string, T>
+- map<integer, T> // 仅JSON，XML不支持
 - unordered_map<string, T> (需要C++11支持)
 - shared_ptr (需要C++11支持)
 
 FLAG
 ----
-宏XPACK里面，需要用字母将变量包含起来，比如XPACK(O(a,b))，目前支持的字母有：
+宏XPACK里面，需要用字母将变量包含起来，比如XPACK(O(a,b))，XPACK可以包含多个字母，每个字母可以包含多个变量。目前支持的字母有：
 - X。格式是X(F(flag1, flag2...), member1, member2,...) F里面包含各种FLAG，目前支持的有：
-	- 0 没有任何FLAG
-	- OE omitempty，encode的时候，如果变量是0或者空字符串或者false，则不生成对应的key信息
-	- M mandatory，decode的时候，如果这个字段不存在，则抛出异常，用于一些id字段。
+    - 0 没有任何FLAG
+    - OE omitempty，encode的时候，如果变量是0或者空字符串或者false，则不生成对应的key信息
+    - M mandatory，decode的时候，如果这个字段不存在，则抛出异常，用于一些id字段。
     - ATTR attribute，xml encode的时候，把值放到attribute里面。
 - O。等价于X(F(0), ...) 没有任何FLAG。
 - M。等价于X(F(M)，...) 表示这些字段是必须存在的。
-- A。[别名](#别名)，A(member1, alias1, member2, alias2...)
+- A。[别名](#别名)，A(member1, alias1, member2, alias2...)，用于变量和key名不一样的情况
 - AF。带FLAG的[别名](#别名)，AF(F(flag1, flag2,...), member1, alias1, member2, alias2...)
 - B。[位域](#位域)，B(F(flag1, flag2, ...), member1, member2, ...) **位域不支持别名**
-- I。[继承](#继承)，I(baseclass1, baseclass2....)
+- I。[继承](#继承)，I(baseclass1, baseclass2....)，里面放父类
 - E。[枚举](#枚举):
-	- 如果编译器支持C++11，不需要用E，枚举可以放X/O/M/A里面。
-	- 否则枚举只能放E里面，不支持别名
+    - 如果编译器支持C++11，不需要用E，枚举可以放X/O/M/A里面。
+    - 否则枚举只能放E里面，不支持别名
 
 别名
 ----
 - 用于变量名和key名不一致的场景
 - 格式是A(变量，别名....)或者AF(F(flags), 变量，别名....)，别名的格式是"x t:n"的格式
-	- x表示全局别名，t表示类型(目前支持json)，n表示类型下的别名
-	- 全局别名可以没有，比如"json:_id"是合法的
-	- 类型别名可以没有，比如"_id"是合法的
-	- 有类型别名优先用类型别名，否则用全局别名，都没有，则用变量名
+    - x表示全局别名，t表示类型(目前支持json、xml、bson)，n表示类型下的别名
+    - 全局别名可以没有，比如"json:_id"是合法的
+    - 类型别名可以没有，比如"_id"是合法的
+    - 有类型别名优先用类型别名，否则用全局别名，都没有，则用变量名
 
 ``` C++
 #include <iostream>
@@ -166,8 +144,8 @@ int main(int argc, char *argv[]) {
 
 继承
 ----
-- 使用"I"来包含父类
-- 所有父类都需要包含，比如class Base; class Base1:public Base; class Base2:public Base1;那么在Base2中需要I(Base1, Base)
+- 使用"I"来包含父类。需要用到父类的变量就包含，用不到可以不包含。
+- 父类的父类也需要包含，比如class Base; class Base1:public Base; class Base2:public Base1;那么在Base2中需要I(Base1, Base)
 - 父类也需要定义XPACK/XPACK_OUT宏。
 
 ```C++
@@ -250,6 +228,40 @@ struct Time {
 并不希望编码成{"ts":1218196800} 这种格式，而是希望编码成"2008-08-08 20:00:00"这种格式，这个时候就可以用自定义编解码实现。
 
 - 可以参考[例子](example/xtype.cpp)
+
+支持新类型
+----
+- 可以用[自定义编解码](#自定义编解码)的机制来支持新类型，下面的例子是支持CString的方法
+``` C++
+namespace xpack { // must define in namespace xpack
+
+template<>
+struct is_xpack_xtype<CString> {static bool const value = true;};
+
+// implement decode
+template<class OBJ>
+bool xpack_xtype_decode(OBJ &obj, const char*key, CString &val, const Extend *ext) {
+    std::string str;
+    obj.decode(key, str, ext);
+    if (str.empty()) {
+        return false;
+    }
+
+    // TODO 把str转到val里面去
+    return true;
+}
+
+// implement encode
+template<class OBJ>
+bool xpack_xtype_encode(OBJ &obj, const char*key, const CString &val, const Extend *ext) {
+        std::string str;
+
+        // TODO 把val转到str里面去
+    return obj.encode(key, str, ext);
+}
+
+}
+```
 
 char数组
 ----
