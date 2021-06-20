@@ -183,6 +183,17 @@ public:
         }
         return this->encode(key, tmpv, ext);
     }
+    #ifdef XPACK_SUPPORT_QT
+    template <class K, class T>
+    typename x_enable_if<numeric<K>::is_integer, bool>::type encode(const char*key, const QMap<K,T>& val, const Extend *ext) {
+        std::map<std::string,T> tmpv;
+
+        for (typename QMap<K,T>::const_iterator iter = val.constBegin(); iter!=val.constEnd(); ++iter) {
+            tmpv[Util::itoa(iter.key())] = iter.value();
+        }
+        return this->encode(key, tmpv, ext);
+    }
+    #endif
 private:
     void xpack_set_key(const char*key) { // openssl defined set_key macro, so we named it xpack_set_key
         if (NULL!=key && key[0]!='\0') {
