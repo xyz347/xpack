@@ -171,9 +171,9 @@ public:
         return true;
     }
 
-    // XType 
+    // XType. add && !is_xpack_out<T>::value to fix SFINAE bug of vs2005 
     template <class T>
-    typename x_enable_if<is_xpack_xtype<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
+    typename x_enable_if<is_xpack_xtype<T>::value && !is_xpack_out<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
         return xpack_xtype_decode(*(doc_type*)this, key, val, ext);
     }
 

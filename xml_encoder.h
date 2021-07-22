@@ -114,7 +114,10 @@ public:
         _cur = _stack.back();
         _stack.pop_back();
     }
-
+    bool writeNull(const char*key, const Extend *ext) {
+        static std::string empty;
+        return this->encode(key, empty, ext);
+    }
     // string
     bool encode(const char*key, const std::string &val, const Extend *ext) {
         if (val.empty() && Extend::OmitEmpty(ext)) {

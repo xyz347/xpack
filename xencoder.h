@@ -46,11 +46,12 @@ namespace xpack {
   DOC need implement:
     const char *Type() const; "json/bson/...."
 
-    ArrayBegin(const char *key)  begin encode array
-    ArrayEnd(const char *key)    end encode array
+    ArrayBegin(const char *key, const Extend *ext)  begin encode array
+    ArrayEnd(const char *key, const Extend *ext)    end encode array
 
-    ObjectBegin(const char *key) begin encode object
-    ObjectEnd(const char *key)   end encode object
+    ObjectBegin(const char *key, const Extend *ext) begin encode object
+    ObjectEnd(const char *key, const Extend *ext)   end encode object
+    writeNull(const char *key, const Extend *ext)
 */
 template<typename DOC>
 class XEncoder {
@@ -185,8 +186,8 @@ public:
     // shared_ptr
     template <class T>
     bool encode(const char*key, const std::shared_ptr<T>& val, const Extend *ext) {
-        if (val.get() == NULL) { // if shared ptr is null, omit it anycase
-            return false;
+        if (val.get() == NULL) { // if shared ptr is null
+            return ((doc_type*)this)->writeNull(key, ext);
         }
 
         return ((doc_type*)this)->encode(key, *val, ext);
