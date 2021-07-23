@@ -6,7 +6,7 @@ SRC=$(wildcard *.cpp)
 TAR=$(basename $(SRC))
 
 %:%.cpp
-	$(GPP) -o $@ $< -Wall -Wextra -I ../.. -DXPACK_SUPPORT_CHAR_ARRAY -std=c++11
+	$(GPP) -o $@ -g $< -Wall -Wextra -I ../.. -DXPACK_SUPPORT_CHAR_ARRAY -std=c++11
 	@echo ============ run $@ ================
 	@./$@
 	@-rm $@

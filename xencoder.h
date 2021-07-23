@@ -59,6 +59,28 @@ protected:
     typedef DOC doc_type;
     typedef XEncoder<DOC> xdoc_type;
 public:
+    // for array, not pointer, pointer may crash if not alloc memory
+    template <class T>
+    bool encode(const char*key, const T *val, const Extend *ext) {
+        size_t num;
+        if (NULL==val || 0==sizeof(T)) {
+            num = 0;
+        } else {
+            num = Extend::Vsize(ext)/sizeof(T);
+        }
+        if (num==0 && Extend::OmitEmpty(ext)) {
+            return false;
+        }
+
+        doc_type *dt = (doc_type*)this;
+        dt->ArrayBegin(key, ext);
+        for (size_t i=0; i<num; ++i) {
+            dt->encode(dt->IndexKey(i), val[i], ext);
+        }
+        dt->ArrayEnd(key, ext);
+        return true;
+    }
+
     // vector
     template <class T>
     bool encode(const char*key, const std::vector<T> &val, const Extend *ext) {

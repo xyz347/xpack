@@ -75,6 +75,26 @@ public:
     ~XDecoder(){}
 
 public:
+    // for array, not pointer, pointer may crash if not alloc memory
+    template <class T>
+    bool decode(const char*key, T *val, const Extend *ext) {
+        size_t num;
+        if (NULL==val || 0==sizeof(T) || 0==(num=Extend::Vsize(ext)/sizeof(T))) {
+            return false;
+        }
+
+        doc_type tmp;
+        doc_type *obj = find(key, &tmp, ext);
+        if (NULL == obj) {
+            return false;
+        }
+
+        for (size_t i=0; i<num; ++i) {
+            obj->At(i).decode(NULL, val[i], ext);
+        }
+        return true;
+    }
+
     // vector
     template <class T>
     bool decode(const char*key, std::vector<T> &val, const Extend *ext) {
