@@ -18,9 +18,6 @@
 #ifndef __X_PACK_CONFIG_H
 #define __X_PACK_CONFIG_H
 
-// if need support char [], enable this
-//#define XPACK_SUPPORT_CHAR_ARRAY
-
 // support qt
 //#define XPACK_SUPPORT_QT
 

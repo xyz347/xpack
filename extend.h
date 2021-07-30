@@ -116,8 +116,9 @@ struct Extend {
     int flag;
     int ctrl_flag;
     const Alias *alias;
+    size_t vsize;
 
-    Extend(int _flag, const Alias *_alias):flag(_flag), ctrl_flag(0), alias(_alias) {
+    Extend(int _flag, const Alias *_alias):flag(_flag), ctrl_flag(0), alias(_alias), vsize(0) {
     }
 
     Extend(const Extend *ext) {
@@ -125,10 +126,12 @@ struct Extend {
             flag = ext->flag;
             ctrl_flag = ext->ctrl_flag;
             alias = ext->alias;
+            vsize = ext->vsize;
         } else {
             flag = 0;
             ctrl_flag = 0;
             alias = NULL;
+            vsize = 0;
         }
     }
 
@@ -145,6 +148,14 @@ struct Extend {
             return 0;
         } else {
             return ext->ctrl_flag;
+        }
+    }
+    
+    static size_t Vsize(const Extend *ext) {
+        if (NULL == ext) {
+            return 0;
+        } else {
+            return ext->vsize;
         }
     }
 

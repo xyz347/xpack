@@ -15,7 +15,7 @@ xpack
 * [自定义编解码](#自定义编解码)
 * [支持新类型](#支持新类型)
 * [不定类型](#不定类型)
-* [char数组](#char数组)
+* [数组](#数组)
 * [第三方类和结构体](#第三方类和结构体)
 * [格式化缩进](#格式化缩进)
 * [XML数组](#xml数组)
@@ -254,20 +254,19 @@ bool xpack_xtype_decode(OBJ &obj, const char*key, CString &val, const Extend *ex
 // implement encode
 template<class OBJ>
 bool xpack_xtype_encode(OBJ &obj, const char*key, const CString &val, const Extend *ext) {
-        std::string str;
+    std::string str;
 
-        // TODO 把val转到str里面去
+    // TODO 把val转到str里面去
     return obj.encode(key, str, ext);
 }
 
 }
 ```
 
-char数组
+数组
 ----
-- **缺省是不支持char数组的**
-- 修改[config.h](config.h)，开启XPACK_SUPPORT_CHAR_ARRAY这个宏即可。也可以直接在编译选项加上这个定义。
-- **除了char，其他类型不支持数组**
+- decode的时候如果元素个数超过数组的长度，会截断
+- char数组按有\0结束符处理
 
 ```C++
 #include <iostream>

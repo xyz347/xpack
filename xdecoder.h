@@ -28,9 +28,7 @@
 #include "traits.h"
 #include "xtype.h"
 
-#ifdef XPACK_SUPPORT_CHAR_ARRAY
 #include "string.h"
-#endif
 
 #ifdef XPACK_SUPPORT_QT
 #include <QString>
@@ -75,6 +73,39 @@ public:
     ~XDecoder(){}
 
 public:
+    // for array
+    template <class T, size_t N>
+    inline bool decode(const char*key, T (&val)[N], const Extend *ext) {
+        return this->decode(key, val, N, ext);
+    }
+
+    template <class T>
+    bool decode(const char *key, T *val, size_t N, const Extend *ext) {
+        doc_type tmp;
+        doc_type *obj = find(key, &tmp, ext);
+        if (NULL == obj) {
+            return false;
+        }
+
+        size_t mx = obj->Size();
+        mx = mx>N?N:mx;
+        for (size_t i=0; i<mx; ++i) {
+            obj->At(i).decode(NULL, val[i], ext);
+        }
+        return true;
+    }
+    bool decode(const char*key, char* val, size_t N, const Extend *ext) {
+        std::string str;
+        bool ret = ((doc_type*)this)->decode(key, str, ext);
+        if (ret) {
+            size_t mx = str.length();
+            mx = mx>N-1?N-1:mx;
+            strncpy(val, str.data(), mx);
+            val[mx] = '\0';
+        }
+        return ret;
+    }
+
     // vector
     template <class T>
     bool decode(const char*key, std::vector<T> &val, const Extend *ext) {
@@ -171,9 +202,9 @@ public:
         return true;
     }
 
-    // XType 
+    // XType. add && !is_xpack_out<T>::value to fix SFINAE bug of vs2005 
     template <class T>
-    typename x_enable_if<is_xpack_xtype<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
+    typename x_enable_if<is_xpack_xtype<T>::value && !is_xpack_out<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
         return xpack_xtype_decode(*(doc_type*)this, key, val, ext);
     }
 
@@ -201,7 +232,11 @@ public:
         if (NULL == val.get()) {
             val.reset(new T);
         }
-        return ((doc_type*)this)->decode(key, *val, ext);
+        bool ret = ((doc_type*)this)->decode(key, *val, ext);
+        if (!ret) {
+            val.reset();
+        }
+        return ret;
     }
 
     // enum is_enum implementation is too complicated, so in c++03, we use macro E
@@ -268,17 +303,6 @@ public:
     }
     #endif
 
-    #ifdef XPACK_SUPPORT_CHAR_ARRAY
-    bool decode(const char*key, char val[], const Extend *ext) {
-        std::string str;
-        bool ret = ((doc_type*)this)->decode(key, str, ext);
-        if (ret) {
-            strncpy(val, str.data(), str.length());
-            val[str.length()] = '\0';
-        }
-        return ret;
-    }
-    #endif
 
 protected:
     doc_type* find(const char *key, doc_type *tmp, const Extend *ext) {

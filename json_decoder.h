@@ -193,6 +193,17 @@ public:
         }
         return true;
     }
+    #ifdef XPACK_SUPPORT_QT
+    template <class K, class T>
+    typename x_enable_if<numeric<K>::is_integer, bool>::type decode(const char*key, QMap<K,T>& val, const Extend *ext) {
+        std::map<K, T> sm;
+        bool ret = ((doc_type*)this)->decode(key, sm, ext);
+        if (ret) {
+            val = QMap<K, T>(sm);
+        }
+        return ret;
+    }
+    #endif
 
     // array
     size_t Size() {

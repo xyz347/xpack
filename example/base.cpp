@@ -32,7 +32,8 @@ struct Group {
     int64_t master;
     map<int, string> flags;
     vector<User> members;
-    XPACK(O(name, master, flags, members)); // 添加宏定义XPACK在结构体定义结尾
+    User         arrays[2];
+    XPACK(O(name, master, flags, members, arrays)); // 添加宏定义XPACK在结构体定义结尾
 };
 
 int main(int argc, char *argv[]) {
@@ -45,6 +46,8 @@ int main(int argc, char *argv[]) {
     g.members.resize(2);
     g.members[0] = User(1, "Jack", "jack@xpack.com");
     g.members[1] = User(2, "Pony", "pony@xpack.com");
+    g.arrays[0] = g.members[0];
+    g.arrays[1] = g.members[1];
     g.flags[1] = "a";
     g.flags[2] = "b";
 
@@ -54,6 +57,7 @@ int main(int argc, char *argv[]) {
     Group n;
     xpack::json::decode(json, n);             // json转结构体
     cout<<n.name<<endl;
+    cout<<xpack::json::encode(n)<<endl;
 
     vector<int> vi;
     xpack::json::decode("[1,2,3]", vi);     // 直接转换vector

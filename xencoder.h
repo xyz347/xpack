@@ -46,11 +46,12 @@ namespace xpack {
   DOC need implement:
     const char *Type() const; "json/bson/...."
 
-    ArrayBegin(const char *key)  begin encode array
-    ArrayEnd(const char *key)    end encode array
+    ArrayBegin(const char *key, const Extend *ext)  begin encode array
+    ArrayEnd(const char *key, const Extend *ext)    end encode array
 
-    ObjectBegin(const char *key) begin encode object
-    ObjectEnd(const char *key)   end encode object
+    ObjectBegin(const char *key, const Extend *ext) begin encode object
+    ObjectEnd(const char *key, const Extend *ext)   end encode object
+    writeNull(const char *key, const Extend *ext)
 */
 template<typename DOC>
 class XEncoder {
@@ -58,6 +59,32 @@ protected:
     typedef DOC doc_type;
     typedef XEncoder<DOC> xdoc_type;
 public:
+    // for array
+    template <class T, size_t N>
+    inline bool encode(const char*key, const T (&val)[N], const Extend *ext) {
+        return this->encode(key, val, N, ext);
+    }
+
+    template <class T>
+    bool encode(const char *key, const T *val, size_t N, const Extend *ext) {
+        if (N==0 && Extend::OmitEmpty(ext)) {
+            return false;
+        }
+
+        doc_type *dt = (doc_type*)this;
+        dt->ArrayBegin(key, ext);
+        for (size_t i=0; i<N; ++i) {
+            dt->encode(dt->IndexKey(i), val[i], ext);
+        }
+        dt->ArrayEnd(key, ext);
+        return true;
+    }
+    bool encode(const char*key, const char *val, size_t N, const Extend *ext) {
+        (void)N;
+        std::string str(val);
+        return ((doc_type*)this)->encode(key, str, ext);
+    }
+
     // vector
     template <class T>
     bool encode(const char*key, const std::vector<T> &val, const Extend *ext) {
@@ -185,8 +212,8 @@ public:
     // shared_ptr
     template <class T>
     bool encode(const char*key, const std::shared_ptr<T>& val, const Extend *ext) {
-        if (val.get() == NULL) { // if shared ptr is null, omit it anycase
-            return false;
+        if (val.get() == NULL) { // if shared ptr is null
+            return ((doc_type*)this)->writeNull(key, ext);
         }
 
         return ((doc_type*)this)->encode(key, *val, ext);
@@ -230,13 +257,6 @@ public:
     bool encode(const char*key, const QVector<T>&data, const Extend *ext) {
         std::vector<T> sv = data.toStdVector();
         return ((doc_type*)this)->encode(key, sv, ext);
-    }
-    #endif
-
-    #ifdef XPACK_SUPPORT_CHAR_ARRAY
-    bool encode(const char*key, const char val[], const Extend *ext) {
-        std::string str(val);
-        return ((doc_type*)this)->encode(key, str, ext);
     }
     #endif
 
