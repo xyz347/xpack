@@ -59,26 +59,30 @@ protected:
     typedef DOC doc_type;
     typedef XEncoder<DOC> xdoc_type;
 public:
-    // for array, not pointer, pointer may crash if not alloc memory
+    // for array
+    template <class T, size_t N>
+    inline bool encode(const char*key, const T (&val)[N], const Extend *ext) {
+        return this->encode(key, val, N, ext);
+    }
+
     template <class T>
-    bool encode(const char*key, const T *val, const Extend *ext) {
-        size_t num;
-        if (NULL==val || 0==sizeof(T)) {
-            num = 0;
-        } else {
-            num = Extend::Vsize(ext)/sizeof(T);
-        }
-        if (num==0 && Extend::OmitEmpty(ext)) {
+    bool encode(const char *key, const T *val, size_t N, const Extend *ext) {
+        if (N==0 && Extend::OmitEmpty(ext)) {
             return false;
         }
 
         doc_type *dt = (doc_type*)this;
         dt->ArrayBegin(key, ext);
-        for (size_t i=0; i<num; ++i) {
+        for (size_t i=0; i<N; ++i) {
             dt->encode(dt->IndexKey(i), val[i], ext);
         }
         dt->ArrayEnd(key, ext);
         return true;
+    }
+    bool encode(const char*key, const char *val, size_t N, const Extend *ext) {
+        (void)N;
+        std::string str(val);
+        return ((doc_type*)this)->encode(key, str, ext);
     }
 
     // vector
@@ -253,13 +257,6 @@ public:
     bool encode(const char*key, const QVector<T>&data, const Extend *ext) {
         std::vector<T> sv = data.toStdVector();
         return ((doc_type*)this)->encode(key, sv, ext);
-    }
-    #endif
-
-    #ifdef XPACK_SUPPORT_CHAR_ARRAY
-    bool encode(const char*key, const char val[], const Extend *ext) {
-        std::string str(val);
-        return ((doc_type*)this)->encode(key, str, ext);
     }
     #endif
 

@@ -2,7 +2,7 @@ SRC=$(wildcard *.cpp)
 TAR=$(SRC:.cpp=.exe)
 
 %.exe:%.cpp
-	cl /Fe:${CURDIR}/$@ $< /EHsc -I ../.. -DXPACK_SUPPORT_CHAR_ARRAY
+	cl /Fe:${CURDIR}/$@ $< /EHsc -I ../.. 
 	@echo ============ run $@ ================
 	@$@
 
