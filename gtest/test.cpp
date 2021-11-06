@@ -249,6 +249,13 @@ TEST(json, testJson) {
     XTest cd1;
     xpack::json::decode(tjs, cd1);
     childeq(cd1);
+
+    cout<<"test json with rapidjson value"<<endl;
+    rapidjson::Document doc;
+    doc.Parse(tjs);
+    XTest cd2;
+    xpack::json::decode(doc, cd2);
+    childeq(cd2);
 }
 
 TEST(xml, testXml) {

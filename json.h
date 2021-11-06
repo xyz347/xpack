@@ -32,6 +32,11 @@ public:
         doc.decode(NULL, val, NULL);
     }
     template <class T>
+    static void decode(const rapidjson::Value &data, T &val) {
+        JsonDecoder doc(&data);
+        doc.decode(NULL, val, NULL);
+    }
+    template <class T>
     static void decode_file(const std::string &file_name, T &val) {
         JsonDecoder doc(file_name, true);
         doc.decode(NULL, val, NULL);
