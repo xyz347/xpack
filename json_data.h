@@ -47,6 +47,9 @@ class JsonData {
 public:
     // check type
     JsonType Type() const {
+        if (_val == NULL) {
+            return kNullType;
+        }
         return static_cast<JsonType>(_val->GetType());
     }
     bool IsNull()   const { return _val->IsNull(); }
