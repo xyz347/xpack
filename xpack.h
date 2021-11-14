@@ -88,12 +88,10 @@
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ decode act ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #define X_PACK_DECODE_ACT_O(M)                        \
-        __x_pack_ext.vsize = sizeof(__x_pack_self.M); \
         __x_pack_obj.decode(#M, __x_pack_self.M, &__x_pack_ext);
 
 // enum for not support c++11
 #define X_PACK_DECODE_ACT_E(M)                        \
-        __x_pack_ext.vsize = sizeof(__x_pack_self.M); \
         __x_pack_obj.decode(#M, *((int*)&__x_pack_self.M), &__x_pack_ext);
 
 
@@ -102,7 +100,6 @@
         static xpack::Alias __x_pack_alias(#M, NAME);                     \
         xpack::Extend __x_pack_ext(__x_pack_flag, &__x_pack_alias);       \
         const char *__new_name = __x_pack_alias.Name(__x_pack_obj.Type());\
-        __x_pack_ext.vsize = sizeof(__x_pack_self.M);                     \
         __x_pack_obj.decode(__new_name, __x_pack_self.M, &__x_pack_ext);  \
     }
 
@@ -112,18 +109,16 @@
 // bitfield, not support alias
 #define X_PACK_DECODE_ACT_B(B)                                \
     {                                                         \
-        x_pack_decltype(__x_pack_self.B) __x_pack_tmp;        \
+        x_pack_decltype(__x_pack_self.B) __x_pack_tmp = 0;    \
         __x_pack_obj.decode(#B, __x_pack_tmp, &__x_pack_ext); \
         __x_pack_self.B = __x_pack_tmp;\
     }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~ encode act ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #define X_PACK_ENCODE_ACT_O(M)                        \
-        __x_pack_ext.vsize = sizeof(__x_pack_self.M); \
         __x_pack_obj.encode(#M, __x_pack_self.M, &__x_pack_ext);
 
 #define X_PACK_ENCODE_ACT_E(M)                        \
-        __x_pack_ext.vsize = sizeof(__x_pack_self.M); \
         __x_pack_obj.encode(#M, (const int&)__x_pack_self.M, &__x_pack_ext);
 
 #define X_PACK_ENCODE_ACT_A(M, NAME)                                      \
@@ -131,7 +126,6 @@
         static xpack::Alias __x_pack_alias(#M, NAME);                     \
         xpack::Extend __x_pack_ext(__x_pack_flag, &__x_pack_alias);       \
         const char *__new_name = __x_pack_alias.Name(__x_pack_obj.Type());\
-        __x_pack_ext.vsize = sizeof(__x_pack_self.M);                     \
         __x_pack_obj.encode(__new_name, __x_pack_self.M, &__x_pack_ext);  \
     }
 
