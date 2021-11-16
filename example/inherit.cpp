@@ -32,7 +32,7 @@ struct P2 {
 struct Test:public P1, public P2 {
     long uid;
     string  name;
-    XPACK(I(P1, P2), O(uid, name));
+    XPACK(I(P1, P2), A(uid, "id"), O(name));
 };
 
 int main(int argc, char *argv[]) {
