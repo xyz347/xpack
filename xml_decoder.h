@@ -30,12 +30,38 @@
 
 namespace xpack {
 
-class XmlDecoder:public XDecoder<XmlDecoder> {
+class XmlDecoder:public XDecoder<XmlDecoder>, private noncopyable {
     typedef rapidxml::xml_document<> XML_READER_DOCUMENT;
-    typedef rapidxml::xml_node<> XML_READER_NODE;  
-public:
+    typedef rapidxml::xml_node<> XML_READER_NODE;
     friend class XDecoder<XmlDecoder>;
+
+    class MemberIterator {
+        friend class XmlDecoder;
+    public:
+        MemberIterator(size_t iter, XmlDecoder* parent):_iter(iter),_parent(parent){}
+        bool operator != (const MemberIterator &that) const {
+            return _iter != that._iter;
+        }
+        MemberIterator& operator ++ () {
+            ++_iter;
+            return *this;
+        }
+        const char* Key() const {
+            if (NULL != _parent) {
+                return _parent->get_iter_key(_iter);
+            }
+            return "";
+        }
+        XmlDecoder& Val() const {
+            return _parent->member(*this, *_parent->alloc());
+        }
+    private:
+        size_t _iter;
+        XmlDecoder* _parent;
+    };
+public:
     using xdoc_type::decode;
+    typedef MemberIterator Iterator;
 
     XmlDecoder(const std::string& str, bool isfile=false):xdoc_type(NULL, ""),_doc(new XML_READER_DOCUMENT),_node(NULL) {
         std::string err;
@@ -70,6 +96,7 @@ public:
             }
 
             _node = _doc->first_node(); // root
+            _parent = this;
 
             init();
             return;
@@ -133,97 +160,74 @@ public: // decode
         } else if (v=="0" || v=="false" || v=="FALSE" || v=="False") {
             val = false;
         } else {
-			decode_exception("parse bool fail.", key);
+            decode_exception("parse bool fail.", key);
             return false;
         }
-		return true;
+        return true;
     }
 
     bool decode(const char *key, double &val, const Extend *ext) {
         XPACK_XML_DECODE_CHECK();
-		if (1==v.length() && v[0]=='-') {
-			return false;
-		}
-		
-		const char *data = v.c_str();
-		char *end;
-		double d = strtod(data, &end);
-		if ((size_t)(end-data) == v.length()) {
-			val = d;
-			return true;
-		}
-		decode_exception("parse double fail.", key);
-		return false;
+        if (1==v.length() && v[0]=='-') {
+            return false;
+        }
+
+        const char *data = v.c_str();
+        char *end;
+        double d = strtod(data, &end);
+        if ((size_t)(end-data) == v.length()) {
+            val = d;
+            return true;
+        }
+        decode_exception("parse double fail.", key);
+        return false;
     }
     bool decode(const char *key, float &val, const Extend *ext) {
-		double d;
+        double d;
         bool ret = this->decode(key, d, ext);
-		if (ret) {
-			val = (float)d;
-		}
-		return ret;
+        if (ret) {
+            val = (float)d;
+        }
+        return ret;
     }
     bool decode(const char *key, long double &val, const Extend *ext) {
-		double d;
+        double d;
         bool ret = this->decode(key, d, ext);
-		if (ret) {
-			val = (long double)d;
-		}
-		return ret;
+        if (ret) {
+            val = (long double)d;
+        }
+        return ret;
     }
 
     size_t Size() {
             return _childs.size();
     }
-    XmlDecoder At(size_t index) {
-        if (index < _childs.size()) {
-            return XmlDecoder(_childs[index], this, index);
-        } else {
-            throw std::runtime_error("Out of index");
-        }
-        return XmlDecoder(NULL, NULL, "");
+    XmlDecoder& operator[](size_t index) {
+        XmlDecoder *d = alloc();
+        member(index, *d);
+        return *d;
     }
-    XmlDecoder* Find(const char*key, XmlDecoder*tmp) {
-        node_index::iterator iter;
-        if (_childs_index.end() != (iter=_childs_index.find(key))) {
-            tmp->_key = key;
-            tmp->_parent = this;
-            tmp->_node = _childs[iter->second];
-            tmp->init();
-            return tmp;
-        } else {
-            return NULL;
-        }
+    XmlDecoder& operator[](const char* key) {
+        XmlDecoder *d = alloc();
+        member(key, *d);
+        return *d;
     }
-    XmlDecoder Begin() {
-        if (_childs.size() > 0) {
-            return XmlDecoder(_childs[0], this, _childs[0]->name(), 0);
-        } else {
-            return XmlDecoder(NULL, this, "");
-        }
+    Iterator Begin() {
+        return Iterator(0, this);
     }
-    XmlDecoder Next() {
-        if (NULL == _parent) {
-            throw std::runtime_error("parent null");
-        } else {
-            size_t iter = _iter+1;
-            if (iter < _parent->_childs.size()) {
-                return XmlDecoder(_parent->_childs[iter], _parent, _parent->_childs[iter]->name(), iter);
-            } else {
-                return XmlDecoder(NULL, _parent, "");
-            }
-        }
+    Iterator End() {
+        return Iterator(_childs.size(), this);
     }
     operator bool() const {
         return NULL != _node;
     }
 
 private:
-	// integer. if we named this as decode, clang and msvc will fail
+    // integer. if we named this as decode, clang and msvc will fail
     template <class T>
     typename x_enable_if<numeric<T>::is_integer, bool>::type decode_integer(const char *key, T &val, const Extend *ext) {
         XPACK_XML_DECODE_CHECK();
-		if (Util::atoi(v, val)) {
+        if (Util::atoi(v, val)) {
             return true;
         } else {
             decode_exception("parse int fail. not integer or overflow", key);
@@ -233,16 +237,51 @@ private:
 
     typedef std::map<const char*, size_t, cmp_str> node_index; // index of _childs
 
-    XmlDecoder():xdoc_type(NULL, ""),_doc(NULL),_node(NULL) {
+    XmlDecoder():xdoc_type(NULL, ""),_doc(NULL),_xml_data(NULL),_node(NULL) {
         init();
     }
-    XmlDecoder(const XML_READER_NODE* val, const XmlDecoder*parent, const char*key, size_t iter=0):xdoc_type(parent, key),_doc(NULL),_node(val),_iter(iter) {
-        init();
+
+    XmlDecoder& member(size_t index, XmlDecoder&d) {
+        if (index < _childs.size()) {
+            d.init_base(this, index);
+            d._node = _childs[index];
+            d.init();
+        } else {
+            decode_exception("Out of index", NULL);
+        }
+
+        return d;
     }
-    XmlDecoder(const XML_READER_NODE* val, const XmlDecoder*parent, size_t index):xdoc_type(parent, index),_doc(NULL),_node(val) {
-        init();
+
+    XmlDecoder& member(const char*key, XmlDecoder&d) {
+        node_index::iterator iter;
+        if (_childs_index.end() != (iter=_childs_index.find(key))) {
+            d.init_base(this, key);
+            d._node = _childs[iter->second];
+            d.init();
+        }
+
+        return d;
     }
+
+    XmlDecoder& member(const Iterator &iter, XmlDecoder&d) const {
+        const XML_READER_NODE* node = _childs[iter._iter];
+        d.init_base(iter._parent, node->name());
+        d._node = node;
+        d.init();
+        return d;
+    }
+
+    const char *get_iter_key(size_t iter) const {
+        if (iter < _childs.size()) {
+            return _childs[iter]->name();
+        }
+        return "";
+    }
+
     void init() {
+        _childs.clear();
+        _childs_index.clear();
         if (NULL != _node) {
             XML_READER_NODE *tmp = _node->first_node();
             for (size_t i=0; tmp; tmp=tmp->next_sibling(), ++i) {

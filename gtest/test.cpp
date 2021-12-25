@@ -258,12 +258,39 @@ TEST(json, testJson) {
     childeq(cd2);
 }
 
+
+void jd_swap(xpack::JsonData &out) {
+    xpack::JsonData jd;
+    xpack::json::decode_file("test.json", jd);
+
+    cout<<"==================jsondata swap=================="<<endl;
+    cout<<"jd.bi:"<<jd["bi"].GetInt()<<endl;
+    cout<<"jd.vi[1]:"<<jd["vi"][1].GetInt()<<endl;
+    cout<<"qlst[0].bi:"<<jd["qlst"][size_t(0)]["bi"].GetInt()<<endl;
+    cout<<"==================jsondata swap=================="<<endl;
+
+    out.Swap(jd);
+}
+
+TEST(json, jsondata) {
+    xpack::JsonData jd;
+    xpack::json::decode_file("test.json", jd);
+
+    cout<<"jd.bi:"<<jd["bi"].GetInt()<<endl;
+    cout<<"jd.vi[1]:"<<jd["vi"][1].GetInt()<<endl;
+    cout<<"qlst[0].bi:"<<jd["qlst"][size_t(0)]["bi"].GetInt()<<endl;
+
+    xpack::JsonData out;
+    jd_swap(out);
+    cout<<"qlst[0].bi:"<<out["qlst"][size_t(1)]["bi"].GetInt()<<endl;
+}
+
 TEST(xml, testXml) {
     XTest cd;
     xpack::xml::decode_file("test.xml", cd);
     childeq(cd);
 
-    string str = xpack::xml::encode(cd, "root", 0, 1, '\t');
+    string str = xpack::xml::encode(cd, "root");//, 0, 1, '\t');
     XTest cd1;
     cout<<"xml:"<<endl<<str<<endl;
     xpack::xml::decode(str, cd1);

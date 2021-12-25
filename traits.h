@@ -61,6 +61,15 @@ template <> struct x_decltype_decode<9> {typedef unsigned long type;};
 template <> struct x_decltype_decode<10> {typedef long long type;};
 template <> struct x_decltype_decode<11> {typedef unsigned long long type;};
 
+class noncopyable {
+public:
+    noncopyable(){}
+    ~noncopyable(){}
+private:
+    noncopyable(const noncopyable&v);
+    noncopyable& operator = (const noncopyable&v);
+};
+
 }
 
 #define x_pack_decltype(T) typename xpack::x_decltype_decode<sizeof(xpack::x_decltype_encode(T))>::type

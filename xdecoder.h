@@ -66,9 +66,11 @@ protected:
 
 public:
     // only c++0x support reference initialize, so use pointer
-    XDecoder(const doc_type *parent, const char* key):_parent(parent), _key(key), _index(-1) {
+    XDecoder(const doc_type *parent, const char* key) {
+        init_base(parent, key);
     }
-    XDecoder(const doc_type *parent, size_t index):_parent(parent), _key(NULL), _index(int(index)) {
+    XDecoder(const doc_type *parent, size_t index) {
+        init_base(parent, index);
     }
     ~XDecoder(){}
 
@@ -89,8 +91,10 @@ public:
 
         size_t mx = obj->Size();
         mx = mx>N?N:mx;
+
+        doc_type sub;
         for (size_t i=0; i<mx; ++i) {
-            obj->At(i).decode(NULL, val[i], ext);
+            obj->member(i, sub).decode(NULL, val[i], ext);
         }
         return true;
     }
@@ -115,10 +119,11 @@ public:
             return false;
         }
 
+        doc_type sub;
         size_t s = obj->Size();
         val.resize(s);
         for (size_t i=0; i<s; ++i) {
-            obj->At(i).decode(NULL, val[i], ext);
+            obj->member(i, sub).decode(NULL, val[i], ext);
         }
         return true;
     }
@@ -132,10 +137,11 @@ public:
             return false;
         }
 
+        doc_type sub;
         size_t s = obj->Size();
         for (size_t i=0; i<s; ++i) {
             T _t;
-            obj->At(i).decode(NULL, _t, ext);
+            obj->member(i, sub).decode(NULL, _t, ext);
             val.push_back(_t);
         }
         return true;
@@ -150,10 +156,11 @@ public:
             return false;
         }
 
+        doc_type sub;
         size_t s = obj->Size();
         for (size_t i=0; i<s; ++i) {
             T _t;
-            obj->At(i).decode(NULL, _t, ext);
+            obj->member(i, sub).decode(NULL, _t, ext);
             val.insert(_t);
         }
         return true;
@@ -168,10 +175,11 @@ public:
             return false;
         }
 
-        for (doc_type d=obj->Begin(); d; d=d.Next()) {
+        doc_type sub;
+        for (typename doc_type::Iterator d=obj->Begin(); d!=obj->End(); ++d) {
             T _t;
-            d.decode(NULL, _t, ext);
-            val[d._key] = _t;
+            obj->member(d, sub).decode(NULL, _t, ext);
+            val[sub._key] = _t;
         }
         return true;
     }
@@ -218,11 +226,13 @@ public:
             return false;
         }
 
-        for (doc_type d=obj->Begin(); d; d=d.Next()) {
+        doc_type sub;
+        for (typename doc_type::Iterator d=obj->Begin(); d!=obj->End(); ++d) {
             T _t;
-            d.decode(NULL, _t, ext);
-            val[d._key] = _t;
+            obj->member(d, sub).decode(NULL, _t, ext);
+            val[sub._key] = _t;
         }
+
         return true;
     }
 
@@ -308,17 +318,18 @@ protected:
     doc_type* find(const char *key, doc_type *tmp, const Extend *ext) {
         doc_type *obj = static_cast<doc_type*>(this);
         if (NULL != key) {
-            obj = obj->Find(key, tmp);
-            if (NULL == obj && Extend::Mandatory(ext)) {
+            if (!obj->member(key, *tmp) && Extend::Mandatory(ext)) {
                 decode_exception("mandatory key not found", key);
             }
+            return tmp;
+        } else {
+            return obj;
         }
-        return obj;
     }
 
-    std::string path() {
+    std::string path() const {
         std::vector<std::string> nodes;
-        const doc_type* tmp = static_cast<doc_type*>(this);
+        const doc_type* tmp = static_cast<const doc_type*>(this);
         while (tmp) {
             std::string k;
             k.reserve(32);
@@ -340,7 +351,7 @@ protected:
         }
         return p;
     }
-    void decode_exception(const char* what, const char *key) {
+    void decode_exception(const char* what, const char *key) const {
         std::string err;
         err.reserve(128);
         if (NULL != what) {
@@ -358,9 +369,28 @@ protected:
         throw std::runtime_error(err);
     }
 
+    doc_type* alloc() {
+        doc_type *d = new doc_type();
+        _collector.push_back(d);
+        return d;
+    }
+
+    void init_base(const doc_type *parent, const char* key) {
+        _parent = parent;
+        _key = key;
+        _index = -1;
+    }
+    void init_base(const doc_type *parent, size_t index) {
+        _parent = parent;
+        _index = (int)index;
+        _key = NULL;
+    }
+
     const doc_type* _parent;
     const char* _key;
     int _index;
+
+    std::vector<doc_type*> _collector;
 };
 
 }

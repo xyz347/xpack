@@ -28,11 +28,33 @@
 
 namespace xpack {
 
-class JsonDecoder:public XDecoder<JsonDecoder> {
-public:
+class JsonDecoder:public XDecoder<JsonDecoder>, private noncopyable {
     friend class XDecoder<JsonDecoder>;
     friend class JsonData;
+    class MemberIterator {
+        friend class JsonDecoder;
+    public:
+        MemberIterator(const rapidjson::Value::ConstMemberIterator iter, JsonDecoder* parent):_iter(iter),_parent(parent){}
+        bool operator != (const MemberIterator &that) const {
+            return _iter != that._iter;
+        }
+        MemberIterator& operator ++ () {
+            ++_iter;
+            return *this;
+        }
+        const char *Key() const {
+            return _iter->name.GetString();
+        }
+        JsonDecoder& Val() const {
+            return _parent->member(*this, *(_parent->alloc()));
+        }
+    private:
+        rapidjson::Value::ConstMemberIterator _iter;
+        JsonDecoder* _parent;
+    };
+public:
     using xdoc_type::decode;
+    typedef MemberIterator Iterator;
 
     JsonDecoder(const std::string& str, bool isfile=false):xdoc_type(NULL, ""),_doc(new rapidjson::Document),_val(_doc) {
         std::string err;
@@ -65,7 +87,7 @@ public:
                     break;
                 }
             }
-            init();
+
             return;
         } while (false);
 
@@ -75,17 +97,16 @@ public:
     }
 
     JsonDecoder(const rapidjson::Value*v):xdoc_type(NULL, ""),_doc(NULL),_val(v) {
-        init();
     }
 
     ~JsonDecoder() {
+        for (size_t i=0; i<_collector.size(); ++i) {
+            delete _collector[i];
+        }
+
         if (NULL != _doc) {
             delete _doc;
             _doc = NULL;
-        }
-        if (NULL != _iter) {
-            delete _iter;
-            _iter = NULL;
         }
     }
 
@@ -213,53 +234,25 @@ public:
             return 0;
         }
     }
-    JsonDecoder At(size_t index) {
-        if (_val->IsArray()) {
-            return JsonDecoder(&(*_val)[(rapidjson::SizeType)index], this, index);
-        } else {
-            throw std::runtime_error("Out of index");
-        }
-        return JsonDecoder(NULL, NULL, "");
+
+    JsonDecoder& operator[](size_t index) {
+        JsonDecoder *d = alloc();
+        member(index, *d);
+        return *d;
+    }
+
+    JsonDecoder& operator[](const char*key) {
+        JsonDecoder *d = alloc();
+        member(key, *d);
+        return *d;
     }
 
     // iter
-    JsonDecoder* Find(const char*key, JsonDecoder*tmp) {
-        rapidjson::Value::ConstMemberIterator iter;
-        if (NULL!=_val && _val->MemberEnd()!=(iter=_val->FindMember(key)) && !(iter->value.IsNull())) {
-            tmp->_key = key;
-            tmp->_parent = this;
-            tmp->_val = &iter->value;
-            return tmp;
-        } else {
-            return NULL;
-        }
+    Iterator Begin() {
+        return Iterator(_val->MemberBegin(), this);
     }
-
-    JsonDecoder Begin() {
-        if (_iter != NULL) {
-            delete _iter;
-        }
-        _iter = new(rapidjson::Value::ConstMemberIterator);
-        *_iter = _val->MemberBegin();
-        if (*_iter != _val->MemberEnd()) {
-            return JsonDecoder(&(*_iter)->value, this, (*_iter)->name.GetString());
-        } else {
-            return JsonDecoder(NULL, this, "");
-        }
-    }
-    JsonDecoder Next() {
-        if (NULL == _parent) {
-            throw std::runtime_error("parent null");
-        } else if (NULL == _parent->_iter) {
-            throw std::runtime_error("parent no iter");
-        } else {
-            ++(*_parent->_iter);
-        }
-        if (*_parent->_iter != _parent->_val->MemberEnd()) {
-            return JsonDecoder(&(*_parent->_iter)->value, _parent, (*_parent->_iter)->name.GetString());
-        } else {
-            return JsonDecoder(NULL, _parent, "");
-        }
+    Iterator End() {
+        return Iterator(_val->MemberEnd(), this);
     }
     operator bool() const {
         return NULL != _val;
@@ -267,16 +260,41 @@ public:
 
 private:
     JsonDecoder():xdoc_type(NULL, ""),_doc(NULL),_val(NULL) {
-        init();
     }
-    JsonDecoder(const rapidjson::Value* val, const JsonDecoder*parent, const char*key):xdoc_type(parent, key),_doc(NULL),_val(val) {
-        init();
+
+    JsonDecoder& member(size_t index, JsonDecoder&d) const {
+        if (NULL != _val && _val->IsArray()) {
+            if (index < (size_t)_val->Size()) {
+                d.init_base(this, index);
+                d._val = &(*_val)[(rapidjson::SizeType)index];
+            } else {
+                decode_exception("Out of index", NULL);
+            }
+        } else {
+            decode_exception("not array", NULL);
+        }
+
+        return d;
     }
-    JsonDecoder(const rapidjson::Value* val, const JsonDecoder*parent, size_t index):xdoc_type(parent, index),_doc(NULL),_val(val) {
-        init();
+
+    JsonDecoder& member(const char*key, JsonDecoder&d) const {
+        if (NULL != _val && _val->IsObject()) {
+            rapidjson::Value::ConstMemberIterator iter;
+            if (_val->MemberEnd()!=(iter=_val->FindMember(key)) && !(iter->value.IsNull())) {
+                d.init_base(this, key);
+                d._val = &(iter->value);
+            }
+        } else {
+            decode_exception("not object", key);
+        }
+
+        return d;
     }
-    void init() {
-        _iter = NULL;
+
+    JsonDecoder& member(const Iterator &iter, JsonDecoder&d) const {
+        d.init_base(iter._parent, iter._iter->name.GetString());
+        d._val = &(iter._iter->value);
+        return d;
     }
 
     const rapidjson::Value* get_val(const char *key) {
@@ -296,7 +314,6 @@ private:
 
     rapidjson::Document* _doc;
     const rapidjson::Value* _val;
-    mutable rapidjson::Value::ConstMemberIterator* _iter;
 };
 
 

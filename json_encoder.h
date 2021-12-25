@@ -27,7 +27,7 @@
 
 namespace xpack {
 
-class JsonEncoder:public XEncoder<JsonEncoder> {
+class JsonEncoder:public XEncoder<JsonEncoder>, private noncopyable {
     typedef rapidjson::StringBuffer JSON_WRITER_BUFFER;
     typedef rapidjson::Writer<rapidjson::StringBuffer> JSON_WRITER_WRITER;
     typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> JSON_WRITER_PRETTY;

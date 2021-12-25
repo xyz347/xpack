@@ -187,7 +187,7 @@ public:
 
     // XType 
     template <class T>
-    typename x_enable_if<is_xpack_xtype<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
+    typename x_enable_if<is_xpack_xtype<T>::value&&!is_xpack_out<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
         return xpack_xtype_encode(*(doc_type*)this, key, val, ext);
     }
 

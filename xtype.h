@@ -33,15 +33,15 @@ struct is_xpack_xtype<YOURTYPE> {static bool const value = true;};
 // implement decode
 template<class OBJ>
 bool xpack_xtype_decode(OBJ &obj, const char*key, YOURTYPE &val, const Extend *ext) {
-	// do somethine
-	return true;
+    // do somethine
+    return true;
 }
 
 // implement encode
 template<class OBJ>
 bool xpack_xtype_encode(OBJ &obj, const char*key, const YOURTYPE &val, const Extend *ext) {
-	// do somethine
-	return true;
+    // do somethine
+    return true;
 }
 
 }
