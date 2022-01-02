@@ -149,6 +149,14 @@ public:
         val = _tmp;
         return true;
     }
+    template <class T>
+    static typename x_enable_if<numeric<T>::is_integer, bool>::type atoi(const char*s, T&val) {
+        if (NULL == s) {
+            return false;
+        }
+        std::string _t(s);
+        return atoi(_t, val);
+    }
 };
 
 }

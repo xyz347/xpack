@@ -143,6 +143,7 @@ public:
 
     // JsonData is noncopyable, if need to pass it outside the function, use Swap
     // DO NOT Swap child node. JsonData[0].Swap will crash
+    // If the compiler supports C++11, you should use shared_ptr<JsonData> instead of Swap
     void Swap(JsonData& d) {
 	    rapidjson::MemoryPoolAllocator<> *allocator = _allocator;
     	const rapidjson::Value *val = _val;
