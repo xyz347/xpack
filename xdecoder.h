@@ -310,13 +310,19 @@ protected:
     doc_type* find(const char *key, doc_type *tmp, const Extend *ext) {
         doc_type *obj = static_cast<doc_type*>(this);
         if (NULL != key) {
-            if (!obj->member(key, *tmp) && Extend::Mandatory(ext)) {
-                decode_exception("mandatory key not found", key);
+            if (!obj->member(key, *tmp)) {
+                if (Extend::Mandatory(ext)) {
+                    decode_exception("mandatory key not found", key);
+                } else {
+                    return NULL;
+                }
+            } else {
+                return tmp;
             }
-            return tmp;
         } else {
             return obj;
         }
+        return NULL; // for remove warning
     }
 
     std::string path() const {
