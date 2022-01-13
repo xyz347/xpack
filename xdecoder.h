@@ -49,20 +49,32 @@ namespace xpack {
   DOC need implement:
     const char *Type() const; "json/bson/...."
 
-    DOC *Find(const char *key, DOC *tmp) const; find obj by key;
+    Iterator;
 
-    DOC Begin(); return iter;
-    DOC Next();  iter next;
+    Begin(); return iter;
+    End();  iter next;
     operator bool;
 
     size_t Size() const; if doc is array, return array size;
-    DOC *At(size_t) get member of array;
 */
 template<class DOC>
 class XDecoder {
 protected:
     typedef DOC doc_type;
     typedef XDecoder<DOC> xdoc_type;
+
+    struct KeyConverter{
+        static inline bool toString(const char *key, std::string &k) {
+            k = key;
+            return true;
+        }
+        #ifdef XPACK_SUPPORT_QT
+        static inline bool toQString(const char*key, QString &k) {
+            k = key;
+            return true;
+        }
+        #endif
+    };
 
 public:
     // only c++0x support reference initialize, so use pointer
@@ -98,6 +110,7 @@ public:
         }
         return true;
     }
+    // char[] is special
     bool decode(const char*key, char* val, size_t N, const Extend *ext) {
         std::string str;
         bool ret = ((doc_type*)this)->decode(key, str, ext);
@@ -112,39 +125,14 @@ public:
 
     // vector
     template <class T>
-    bool decode(const char*key, std::vector<T> &val, const Extend *ext) {
-        doc_type tmp;
-        doc_type *obj = find(key, &tmp, ext);
-        if (NULL == obj) {
-            return false;
-        }
-
-        doc_type sub;
-        size_t s = obj->Size();
-        val.resize(s);
-        for (size_t i=0; i<s; ++i) {
-            obj->member(i, sub).decode(NULL, val[i], ext);
-        }
-        return true;
+    inline bool decode(const char*key, std::vector<T> &val, const Extend *ext) {
+        return this->decode_vector(key, val, ext);
     }
 
     // list
     template <class T>
     bool decode(const char*key, std::list<T> &val, const Extend *ext) {
-        doc_type tmp;
-        doc_type *obj = find(key, &tmp, ext);
-        if (NULL == obj) {
-            return false;
-        }
-
-        doc_type sub;
-        size_t s = obj->Size();
-        for (size_t i=0; i<s; ++i) {
-            T _t;
-            obj->member(i, sub).decode(NULL, _t, ext);
-            val.push_back(_t);
-        }
-        return true;
+        return this->decode_list<std::list<T>, T>(key, val, ext);
     }
 
     // set
@@ -169,19 +157,7 @@ public:
     // map
     template <class T>
     bool decode(const char*key, std::map<std::string,T> &val, const Extend *ext) {
-        doc_type tmp;
-        doc_type *obj = find(key, &tmp, ext);
-        if (NULL == obj) {
-            return false;
-        }
-
-        doc_type sub;
-        for (typename doc_type::Iterator d=obj->Begin(); d!=obj->End(); ++d) {
-            T _t;
-            obj->member(d, sub).decode(NULL, _t, ext);
-            val[sub._key] = _t;
-        }
-        return true;
+        return decode_map<std::map<std::string,T>, std::string, T>(key, val, ext, KeyConverter::toString);
     }
 
     // class/struct that defined macro XPACK, !is_xpack_out to avoid inherit __x_pack_value
@@ -212,28 +188,15 @@ public:
 
     // XType. add && !is_xpack_out<T>::value to fix SFINAE bug of vs2005 
     template <class T>
-    typename x_enable_if<is_xpack_xtype<T>::value && !is_xpack_out<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
+    inline typename x_enable_if<is_xpack_xtype<T>::value && !is_xpack_out<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
         return xpack_xtype_decode(*(doc_type*)this, key, val, ext);
     }
 
     #ifdef X_PACK_SUPPORT_CXX0X
     // unordered_map
     template <class T>
-    bool decode(const char*key, std::unordered_map<std::string, T> &val, const Extend *ext) {
-        doc_type tmp;
-        doc_type *obj = find(key, &tmp, ext);
-        if (NULL == obj) {
-            return false;
-        }
-
-        doc_type sub;
-        for (typename doc_type::Iterator d=obj->Begin(); d!=obj->End(); ++d) {
-            T _t;
-            obj->member(d, sub).decode(NULL, _t, ext);
-            val[sub._key] = _t;
-        }
-
-        return true;
+    inline bool decode(const char*key, std::unordered_map<std::string, T> &val, const Extend *ext) {
+        return decode_map<std::unordered_map<std::string,T>, std::string, T>(key, val, ext, KeyConverter::toString);
     }
 
     // shared_ptr
@@ -251,7 +214,7 @@ public:
 
     // enum is_enum implementation is too complicated, so in c++03, we use macro E
     template <class T>
-    typename x_enable_if<std::is_enum<T>::value, bool>::type  decode(const char*key, T& val, const Extend *ext) {
+    inline typename x_enable_if<std::is_enum<T>::value, bool>::type  decode(const char*key, T& val, const Extend *ext) {
         return ((doc_type*)this)->decode(key, *((int*)&val), ext);
     }
     #endif
@@ -267,64 +230,99 @@ public:
     }
 
     template<typename T>
-    bool decode(const char*key, QList<T> &val, const Extend *ext) {
-        std::list<T> sl;
-        bool ret = ((doc_type*)this)->decode(key, sl, ext);
-        if (ret) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-            val = QList<T>::fromStdList(sl);
-#else
-            val = QList<T>(sl.begin(), sl.end());
-#endif
-        }
-        return ret;
+    inline bool decode(const char*key, QList<T> &val, const Extend *ext) {
+        return this->decode_list<QList<T>, T>(key, val, ext);
     }
 
     template<typename T>
-    bool decode(const char*key, QVector<T> &val, const Extend *ext) {
-        std::vector<T> sv;
-        bool ret = ((doc_type*)this)->decode(key, sv, ext);
-        if (ret) {
-            val = QVector<T>::fromStdVector(sv);
-        }
-        return ret;
+    inline bool decode(const char*key, QVector<T> &val, const Extend *ext) {
+        return this->decode_vector(key, val, ext);
     }
 
     template<typename T>
-    bool decode(const char*key, QMap<std::string, T> &val, const Extend *ext) {
-        std::map<std::string, T> sm;
-        bool ret = ((doc_type*)this)->decode(key, sm, ext);
-        if (ret) {
-            val = QMap<std::string, T>(sm);
-        }
-        return ret;
+    inline bool decode(const char*key, QMap<std::string, T> &val, const Extend *ext) {
+        return decode_map<QMap<std::string,T>, std::string, T>(key, val, ext, KeyConverter::toString);
     }
 
     template<typename T>
-    bool decode(const char*key, QMap<QString, T> &val, const Extend *ext) {
-        std::map<std::string, T> sm;
-        bool ret = ((doc_type*)this)->decode(key, sm, ext);
-        if (ret) {
-            for (typename std::map<std::string, T>::const_iterator iter = sm.begin(); iter!=sm.end(); iter++) {
-                val[QString::fromStdString(iter->first)] = iter->second;
-            }
-        }
-        return ret;
+    inline bool decode(const char*key, QMap<QString, T> &val, const Extend *ext) {
+        return decode_map<QMap<QString,T>, QString, T>(key, val, ext, KeyConverter::toQString);
     }
     #endif
+protected:
+    // vector
+    template <class Vector>
+    bool decode_vector(const char*key, Vector &val, const Extend *ext) {
+        doc_type tmp;
+        doc_type *obj = find(key, &tmp, ext);
+        if (NULL == obj) {
+            return false;
+        }
 
+        doc_type sub;
+        size_t s = obj->Size();
+        val.resize(s);
+        for (size_t i=0; i<s; ++i) {
+            obj->member(i, sub).decode(NULL, val[i], ext);
+        }
+        return true;
+    }
+    // list
+    template <class List, class Elem>
+    bool decode_list(const char*key, List &val, const Extend *ext) {
+        doc_type tmp;
+        doc_type *obj = find(key, &tmp, ext);
+        if (NULL == obj) {
+            return false;
+        }
+
+        doc_type sub;
+        size_t s = obj->Size();
+        for (size_t i=0; i<s; ++i) {
+            Elem _t;
+            obj->member(i, sub).decode(NULL, _t, ext);
+            val.push_back(_t);
+        }
+        return true;
+    }
+    // map
+    template <class Map, class Key, class Value>
+    bool decode_map(const char*key, Map &val, const Extend *ext, bool (*convert)(const char*, Key&)) {
+        doc_type tmp;
+        doc_type *obj = find(key, &tmp, ext);
+        if (NULL == obj) {
+            return false;
+        }
+
+        doc_type sub;
+        for (typename doc_type::Iterator d=obj->Begin(); d!=obj->End(); ++d) {
+            Key   _k;
+            Value _t;
+            if (convert(d.Key(), _k) && obj->member(d, sub).decode(NULL, _t, ext)) {
+                val[_k] = _t;
+            }
+        }
+
+        return true;
+    }
 
 protected:
     doc_type* find(const char *key, doc_type *tmp, const Extend *ext) {
         doc_type *obj = static_cast<doc_type*>(this);
         if (NULL != key) {
-            if (!obj->member(key, *tmp) && Extend::Mandatory(ext)) {
-                decode_exception("mandatory key not found", key);
+            if (!obj->member(key, *tmp)) {
+                if (Extend::Mandatory(ext)) {
+                    decode_exception("mandatory key not found", key);
+                } else {
+                    return NULL;
+                }
+            } else {
+                return tmp;
             }
-            return tmp;
         } else {
             return obj;
         }
+        return NULL; // for remove warning
     }
 
     std::string path() const {

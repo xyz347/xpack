@@ -197,32 +197,16 @@ public:
         XPACK_JSON_DECODE(GetDouble, (long double));
     }
 
-    // map<int, T> xml not support use number as label
+    // map<int, T> xml not support use number as label.
+    // So this function is defined here instead of xdecoder.h
     template <class K, class T>
     typename x_enable_if<numeric<K>::is_integer, bool>::type decode(const char*key, std::map<K,T>& val, const Extend *ext) {
-        std::map<std::string,T> tmpv;
-        bool ret = this->decode(key, tmpv, ext);
-        if (!ret) {
-            return false;
-        }
-
-        for (typename std::map<std::string,T>::iterator iter = tmpv.begin(); iter!=tmpv.end(); ++iter) {
-            K key;
-            if (Util::atoi(iter->first, key)) {
-                val[key] = iter->second;
-            }
-        }
-        return true;
+        return decode_map<std::map<K,T>, K, T>(key, val, ext, Util::atoi);
     }
     #ifdef XPACK_SUPPORT_QT
     template <class K, class T>
     typename x_enable_if<numeric<K>::is_integer, bool>::type decode(const char*key, QMap<K,T>& val, const Extend *ext) {
-        std::map<K, T> sm;
-        bool ret = ((doc_type*)this)->decode(key, sm, ext);
-        if (ret) {
-            val = QMap<K, T>(sm);
-        }
-        return ret;
+        return decode_map<QMap<K,T>, K, T>(key, val, ext, Util::atoi);
     }
     #endif
 
