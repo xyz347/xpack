@@ -134,7 +134,19 @@ public:
 
 
     bool decode(const char*key, std::string &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetString);
+        const rapidjson::Value *v = get_val(key);
+        if (NULL != v) {
+            try {
+                val = std::string(v->GetString(), v->GetStringLength());
+            } catch (const std::exception&e) {
+                (void)e;
+                decode_exception("type unmatch", key);
+            }
+            return true;
+        } else if (NULL!=key && Extend::Mandatory(ext)) {
+            decode_exception("mandatory key not found", key);
+        }
+        return false;
     }
     bool decode(const char*key, bool &val, const Extend *ext) {
         const rapidjson::Value *v = get_val(key);
