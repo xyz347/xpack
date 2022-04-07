@@ -1,4 +1,5 @@
 <root>
+    <notused>hello</notused>
 	<bi>1024</bi>
 	<bs>1024</bs>
 	<h>10</h>
@@ -124,4 +125,9 @@
 		<ld>0.618</ld>
 		<b>true</b>
 	</types>
+    <empty_int>0</empty_int>
+    <empty_string></empty_string>
+    <empty_array>
+    	<x>1</x>
+    </empty_array>
 </root>

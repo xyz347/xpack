@@ -31,6 +31,7 @@ namespace xpack {
 #define X_PACK_FLAG_0 0
 #define X_PACK_FLAG_OE (1<<0) // omitempty, in encode
 #define X_PACK_FLAG_M  (1<<1) // mandatory, in decode
+#define X_PACK_FLAG_EN (1<<2) // empty as null, in json encode
 
 #define X_PACK_FLAG_ATTR (1<<15) // for xml encode, encode in attribute
 
@@ -150,6 +151,9 @@ struct Extend {
     
     static bool OmitEmpty(const Extend *ext) {
         return NULL!=ext && (ext->flag&X_PACK_FLAG_OE);
+    }
+    static bool EmptyNull(const Extend *ext) {
+        return NULL!=ext && (ext->flag&X_PACK_FLAG_EN);
     }
     static bool Mandatory(const Extend *ext) {
         return NULL!=ext && (ext->flag&X_PACK_FLAG_M);

@@ -69,6 +69,10 @@ public:
         return NULL;
     }
 
+    bool empty_null(const Extend *ext) const {
+        return Extend::EmptyNull(ext);
+    }
+
     std::string String() {
         return _buf->GetString();
     }
@@ -113,8 +117,12 @@ public:
 
 public:
     #define X_PACK_JSON_ENCODE(cond, f)  \
-        if ((cond) && Extend::OmitEmpty(ext)){ \
-            return false;                \
+        if ((cond)){                     \
+            if (Extend::OmitEmpty(ext)) {\
+                return false;            \
+            } else if (Extend::EmptyNull(ext)) {\
+                return writeNull(key, ext); \
+            }                            \
         }                                \
         xpack_set_key(key);              \
         if (NULL != _writer) {           \

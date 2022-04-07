@@ -59,6 +59,14 @@ protected:
     typedef DOC doc_type;
     typedef XEncoder<DOC> xdoc_type;
 public:
+    #define XPACK_WRITE_EMPTY(cond) \
+    if (cond) { \
+        if (Extend::OmitEmpty(ext)) { \
+            return false;\
+        } else if (((doc_type*)this)->empty_null(ext)) {\
+           return ((doc_type*)this)->writeNull(key, ext);\
+        }\
+    }
     // for array
     template <class T, size_t N>
     inline bool encode(const char*key, const T (&val)[N], const Extend *ext) {
@@ -67,9 +75,7 @@ public:
 
     template <class T>
     bool encode(const char *key, const T *val, size_t N, const Extend *ext) {
-        if (N==0 && Extend::OmitEmpty(ext)) {
-            return false;
-        }
+        XPACK_WRITE_EMPTY((N==0))
 
         doc_type *dt = (doc_type*)this;
         dt->ArrayBegin(key, ext);
@@ -89,9 +95,7 @@ public:
     template <class T>
     bool encode(const char*key, const std::vector<T> &val, const Extend *ext) {
         size_t s = val.size();
-        if (s==0 && Extend::OmitEmpty(ext)) {
-            return false;
-        }
+        XPACK_WRITE_EMPTY((s==0))
 
         doc_type *dt = (doc_type*)this;
         dt->ArrayBegin(key, ext);
@@ -106,9 +110,7 @@ public:
     template <class T>
     bool encode(const char*key, const std::list<T> &val, const Extend *ext) {
         size_t s = val.size();
-        if (s==0 && Extend::OmitEmpty(ext)) {
-            return false;
-        }
+        XPACK_WRITE_EMPTY((s==0))
 
         doc_type *dt = (doc_type*)this;
         dt->ArrayBegin(key, ext);
@@ -124,9 +126,7 @@ public:
     template <class T>
     bool encode(const char*key, const std::set<T> &val, const Extend *ext) {
         size_t s = val.size();
-        if (s==0 && Extend::OmitEmpty(ext)) {
-            return false;
-        }
+        XPACK_WRITE_EMPTY((s==0))
 
         doc_type *dt = (doc_type*)this;
         dt->ArrayBegin(key, ext);
@@ -142,9 +142,7 @@ public:
     template <class T>
     bool encode(const char*key, const std::map<std::string, T> &val, const Extend *ext) {
         size_t s = val.size();
-        if (s==0 && Extend::OmitEmpty(ext)) {
-            return false;
-        }
+        XPACK_WRITE_EMPTY((s==0))
 
         doc_type *dt = (doc_type*)this;
         dt->ObjectBegin(key, ext);
@@ -196,9 +194,7 @@ public:
     template <class T>
     bool encode(const char*key, const std::unordered_map<std::string, T> &val, const Extend *ext) {
         size_t s = val.size();
-        if (s==0 && Extend::OmitEmpty(ext)) {
-            return false;
-        }
+        XPACK_WRITE_EMPTY((s==0))
 
         doc_type *dt = (doc_type*)this;
         dt->ObjectBegin(key, ext);
@@ -221,7 +217,7 @@ public:
 
     // enum is_enum implementation is too complicated, so in c++03, we use macro E
     template <class T>
-    typename x_enable_if<std::is_enum<T>::value, bool>::type  decode(const char*key, const T& val, const Extend *ext) {
+    typename x_enable_if<std::is_enum<T>::value, bool>::type  encode(const char*key, const T& val, const Extend *ext) {
         return ((doc_type*)this)->encode(key, (const int&)val, ext);
     }
     #endif // cxx
@@ -295,6 +291,12 @@ public:
         dt->ArrayEnd(key, NULL);
         return *dt;
     }
+
+    bool empty_null(const Extend *ext) const {
+        (void)ext;
+        return false;
+    }
+    #undef XPACK_WRITE_EMPTY
 };
 
 }

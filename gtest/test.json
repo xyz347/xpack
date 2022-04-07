@@ -1,4 +1,5 @@
 {
+    "notused":"hello",
 	"bi":1024,
 	"bs":"1024",
 	"h":10,
@@ -40,5 +41,8 @@
 		"d":   3.14,
 		"ld":  0.618,
 		"b":   true
-	}
+	},
+    "empty_int":0,
+    "empty_string":"",
+    "empty_array":[1]
 }

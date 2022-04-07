@@ -89,6 +89,10 @@ struct XTest :public otherns::OtherNS {
     list<int>                   li;
     map<string, int>            mi;
     map<string, Base>           mst;
+
+    int empty_int;
+    string empty_string;
+    int empty_array[1];
 #ifdef XGTEST
     unordered_map<string, Base> umst;
 #else
@@ -107,11 +111,11 @@ struct XTest :public otherns::OtherNS {
     XPACK(I(otherns::OtherNS, Base), A(as1, "a1 json:alias1", as2, "a2 json:alias2"),
           O(types, vi, vvi, vs, vvs, vvst), A(vst, "xml:vst,vl@base"),
           O(si,li,mi, mst, umst, spst, charray),
-          O(qstr, qlst, qvst, qmst, qmqsst));
+          O(qstr, qlst, qvst, qmst, qmqsst), X(F(EN), empty_int, empty_string, empty_array));
 #else
     XPACK(I(otherns::OtherNS, Base), A(as1, "a1 json:alias1", as2, "a2 json:alias2"),
           O(types, vi, vvi, vs, vvs, vvst), A(vst, "xml:vst,vl@base"),
-          O(si,li,mi, mst, umst, spst, charray));
+          O(si,li,mi, mst, umst, spst, charray), X(F(EN), empty_int, empty_string, empty_array));
 #endif
 };
 
