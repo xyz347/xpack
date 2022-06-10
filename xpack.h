@@ -20,7 +20,7 @@
 
 #include "extend.h"
 #include "l1l2_expand.h"
-
+#include "traits.h"
 
 /*
     work with X_PACK_N to expand macro
@@ -97,9 +97,12 @@
         CUSTOM##_decode(__x_pack_obj, #M, __x_pack_self.M, &__x_pack_ext);
 
 // enum for not support c++11
+#ifndef X_PACK_SUPPORT_CXX0X
 #define X_PACK_DECODE_ACT_E(ARG, M)                        \
         __x_pack_obj.decode(#M, *((int*)&__x_pack_self.M), &__x_pack_ext);
-
+#else
+#define X_PACK_DECODE_ACT_E X_PACK_DECODE_ACT_O
+#endif
 
 #define X_PACK_DECODE_ACT_A(ARG, M, NAME)                                 \
     {                                                                     \
@@ -126,8 +129,12 @@
 #define X_PACK_ENCODE_ACT_C(CUSTOM, M)                        \
         CUSTOM##_encode(__x_pack_obj, #M, __x_pack_self.M, &__x_pack_ext);
 
+#ifndef X_PACK_SUPPORT_CXX0X
 #define X_PACK_ENCODE_ACT_E(ARG, M)                        \
         __x_pack_obj.encode(#M, (const int&)__x_pack_self.M, &__x_pack_ext);
+#else
+#define X_PACK_ENCODE_ACT_E X_PACK_ENCODE_ACT_O
+#endif
 
 #define X_PACK_ENCODE_ACT_A(ARG, M, NAME)                                 \
     {                                                                     \
