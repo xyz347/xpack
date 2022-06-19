@@ -20,7 +20,7 @@
 
 #include "extend.h"
 #include "l1l2_expand.h"
-
+#include "traits.h"
 
 /*
     work with X_PACK_N to expand macro
@@ -44,8 +44,8 @@
 */
 
 // flag only work for this member
-#define X_EXPAND_FLAG_F(...)    int __x_pack_flag = 0 X_PACK_N2(X_PACK_L2, X_PACK_ACT_FLAG, __VA_ARGS__) ;
-#define X_PACK_ACT_FLAG(F)        | X_PACK_FLAG_##F
+#define X_EXPAND_FLAG_F(...)    int __x_pack_flag = 0 X_PACK_N2(X_PACK_L2, X_PACK_ACT_FLAG, 0, __VA_ARGS__) ;
+#define X_PACK_ACT_FLAG(ARG, F) | X_PACK_FLAG_##F
 
 /*
   X(F(x,y,z), member1, member2, ....)
@@ -61,41 +61,50 @@
 //=======DECODE
 #define X_PACK_L1_DECODE(x)             { X_PACK_L1_DECODE_##x }
 //----
-#define X_PACK_L1_DECODE_X(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_DECODE_ACT_O, __VA_ARGS__)
-#define X_PACK_L1_DECODE_E(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_DECODE_ACT_E, __VA_ARGS__)
-#define X_PACK_L1_DECODE_B(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_DECODE_ACT_B, __VA_ARGS__)
-#define X_PACK_L1_DECODE_AF(FLAG, ...)  X_EXPAND_FLAG_##FLAG X_PACK_N2(X_PACK_L2_2, X_PACK_DECODE_ACT_A, __VA_ARGS__) // extend define in ACTION
+#define X_PACK_L1_DECODE_X(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_DECODE_ACT_O, 0, __VA_ARGS__)
+#define X_PACK_L1_DECODE_E(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_DECODE_ACT_E, 0, __VA_ARGS__)
+#define X_PACK_L1_DECODE_B(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_DECODE_ACT_B, 0, __VA_ARGS__)
+#define X_PACK_L1_DECODE_AF(FLAG, ...)  X_EXPAND_FLAG_##FLAG X_PACK_N2(X_PACK_L2_2, X_PACK_DECODE_ACT_A, 0, __VA_ARGS__) // extend define in ACTION
+//-----customer decoder---------
+#define X_PACK_L1_DECODE_C(CUSTOM, FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_DECODE_ACT_C, CUSTOM, __VA_ARGS__)
 
 #define X_PACK_L1_DECODE_O(...)         X_PACK_L1_DECODE_X(F(0), __VA_ARGS__)
 #define X_PACK_L1_DECODE_M(...)         X_PACK_L1_DECODE_X(F(M), __VA_ARGS__)
 #define X_PACK_L1_DECODE_A(...)         X_PACK_L1_DECODE_AF(F(0), __VA_ARGS__)
 
-#define X_PACK_L1_DECODE_I(...)         X_PACK_N2(X_PACK_L2, X_PACK_DECODE_ACT_I, __VA_ARGS__)
+#define X_PACK_L1_DECODE_I(...)         X_PACK_N2(X_PACK_L2, X_PACK_DECODE_ACT_I, 0, __VA_ARGS__)
 //=======ENCODE
 #define X_PACK_L1_ENCODE(x) { X_PACK_L1_ENCODE_##x }
 //-----
-#define X_PACK_L1_ENCODE_X(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_ENCODE_ACT_O, __VA_ARGS__)
-#define X_PACK_L1_ENCODE_E(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_ENCODE_ACT_E, __VA_ARGS__)
-#define X_PACK_L1_ENCODE_B(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_ENCODE_ACT_B, __VA_ARGS__)
-#define X_PACK_L1_ENCODE_AF(FLAG, ...)  X_EXPAND_FLAG_##FLAG X_PACK_N2(X_PACK_L2_2, X_PACK_ENCODE_ACT_A, __VA_ARGS__) // extend define in ACTION
+#define X_PACK_L1_ENCODE_X(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_ENCODE_ACT_O, 0, __VA_ARGS__)
+#define X_PACK_L1_ENCODE_E(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_ENCODE_ACT_E, 0, __VA_ARGS__)
+#define X_PACK_L1_ENCODE_B(FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_ENCODE_ACT_B, 0, __VA_ARGS__)
+#define X_PACK_L1_ENCODE_AF(FLAG, ...)  X_EXPAND_FLAG_##FLAG X_PACK_N2(X_PACK_L2_2, X_PACK_ENCODE_ACT_A, 0, __VA_ARGS__) // extend define in ACTION
+#define X_PACK_L1_ENCODE_C(CUSTOM, FLAG, ...)   X_EXPAND_FLAG_##FLAG xpack::Extend __x_pack_ext(__x_pack_flag, NULL); X_PACK_N2(X_PACK_L2, X_PACK_ENCODE_ACT_C, CUSTOM, __VA_ARGS__)
 
 #define X_PACK_L1_ENCODE_O(...)         X_PACK_L1_ENCODE_X(F(0), __VA_ARGS__)
 #define X_PACK_L1_ENCODE_M(...)         X_PACK_L1_ENCODE_X(F(M), __VA_ARGS__)
 #define X_PACK_L1_ENCODE_A(...)         X_PACK_L1_ENCODE_AF(F(0), __VA_ARGS__)
 //-----
-#define X_PACK_L1_ENCODE_I(...)         X_PACK_N2(X_PACK_L2, X_PACK_ENCODE_ACT_I, __VA_ARGS__)
+#define X_PACK_L1_ENCODE_I(...)         X_PACK_N2(X_PACK_L2, X_PACK_ENCODE_ACT_I, 0, __VA_ARGS__)
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ decode act ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#define X_PACK_DECODE_ACT_O(M)                        \
+#define X_PACK_DECODE_ACT_O(ARG, M)                        \
         __x_pack_obj.decode(#M, __x_pack_self.M, &__x_pack_ext);
 
+#define X_PACK_DECODE_ACT_C(CUSTOM, M)                     \
+        CUSTOM##_decode(__x_pack_obj, #M, __x_pack_self.M, &__x_pack_ext);
+
 // enum for not support c++11
-#define X_PACK_DECODE_ACT_E(M)                        \
+#ifndef X_PACK_SUPPORT_CXX0X
+#define X_PACK_DECODE_ACT_E(ARG, M)                        \
         __x_pack_obj.decode(#M, *((int*)&__x_pack_self.M), &__x_pack_ext);
+#else
+#define X_PACK_DECODE_ACT_E X_PACK_DECODE_ACT_O
+#endif
 
-
-#define X_PACK_DECODE_ACT_A(M, NAME)                                      \
+#define X_PACK_DECODE_ACT_A(ARG, M, NAME)                                 \
     {                                                                     \
         static xpack::Alias __x_pack_alias(#M, NAME);                     \
         xpack::Extend __x_pack_ext(__x_pack_flag, &__x_pack_alias);       \
@@ -104,10 +113,10 @@
     }
 
 // Inheritance B::__x_pack_decode(__x_pack_obj)
-#define X_PACK_DECODE_ACT_I(P)   __x_pack_obj.decode(NULL, static_cast<P&>(__x_pack_self), NULL);
+#define X_PACK_DECODE_ACT_I(ARG, P)   __x_pack_obj.decode(NULL, static_cast<P&>(__x_pack_self), NULL);
 
 // bitfield, not support alias
-#define X_PACK_DECODE_ACT_B(B)                                \
+#define X_PACK_DECODE_ACT_B(ARG, B)                           \
     {                                                         \
         x_pack_decltype(__x_pack_self.B) __x_pack_tmp = 0;    \
         __x_pack_obj.decode(#B, __x_pack_tmp, &__x_pack_ext); \
@@ -115,13 +124,19 @@
     }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~ encode act ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#define X_PACK_ENCODE_ACT_O(M)                        \
+#define X_PACK_ENCODE_ACT_O(ARG, M)                        \
         __x_pack_obj.encode(#M, __x_pack_self.M, &__x_pack_ext);
+#define X_PACK_ENCODE_ACT_C(CUSTOM, M)                        \
+        CUSTOM##_encode(__x_pack_obj, #M, __x_pack_self.M, &__x_pack_ext);
 
-#define X_PACK_ENCODE_ACT_E(M)                        \
+#ifndef X_PACK_SUPPORT_CXX0X
+#define X_PACK_ENCODE_ACT_E(ARG, M)                        \
         __x_pack_obj.encode(#M, (const int&)__x_pack_self.M, &__x_pack_ext);
+#else
+#define X_PACK_ENCODE_ACT_E X_PACK_ENCODE_ACT_O
+#endif
 
-#define X_PACK_ENCODE_ACT_A(M, NAME)                                      \
+#define X_PACK_ENCODE_ACT_A(ARG, M, NAME)                                 \
     {                                                                     \
         static xpack::Alias __x_pack_alias(#M, NAME);                     \
         xpack::Extend __x_pack_ext(__x_pack_flag, &__x_pack_alias);       \
@@ -129,10 +144,10 @@
         __x_pack_obj.encode(__new_name, __x_pack_self.M, &__x_pack_ext);  \
     }
 
-#define X_PACK_ENCODE_ACT_B(M)      \
+#define X_PACK_ENCODE_ACT_B(ARG, M)      \
         __x_pack_obj.encode(#M, __x_pack_self.M, &__x_pack_ext);
 
-#define X_PACK_ENCODE_ACT_I(P)                                                                             \
+#define X_PACK_ENCODE_ACT_I(ARG, P)                                                                        \
         {                                                                                                  \
             xpack::Extend __x_pack_tmp_ext(0,NULL); __x_pack_tmp_ext.ctrl_flag |= X_PACK_CTRL_FLAG_INHERIT;\
             __x_pack_obj.encode(NULL, static_cast<const P&>(__x_pack_self), &__x_pack_tmp_ext);            \

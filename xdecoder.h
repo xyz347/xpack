@@ -40,6 +40,7 @@
 #ifdef X_PACK_SUPPORT_CXX0X
 #include <memory>
 #include <unordered_map>
+#include <type_traits>
 #endif
 
 namespace xpack {
@@ -215,7 +216,12 @@ public:
     // enum is_enum implementation is too complicated, so in c++03, we use macro E
     template <class T>
     inline typename x_enable_if<std::is_enum<T>::value, bool>::type  decode(const char*key, T& val, const Extend *ext) {
-        return ((doc_type*)this)->decode(key, *((int*)&val), ext);
+        typename std::underlying_type<T>::type tmp;
+        bool ret = ((doc_type*)this)->decode(key, tmp, ext);
+        if (ret) {
+            val = (T)tmp;
+        }
+        return ret;
     }
     #endif
 
