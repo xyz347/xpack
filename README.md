@@ -70,8 +70,10 @@ FLAG
 - X。格式是X(F(flag1, flag2...), member1, member2,...) F里面包含各种FLAG，目前支持的有：
     - 0 没有任何FLAG
     - OE omitempty，encode的时候，如果变量是0或者空字符串或者false，则不生成对应的key信息
+    - EN empty as null, 用于json的encode，OE是直接不生成empty的字段，EN则是生成一个null
     - M mandatory，decode的时候，如果这个字段不存在，则抛出异常，用于一些id字段。
     - ATTR attribute，xml encode的时候，把值放到attribute里面。
+- C。格式是C(customcodec, F(flag1,flags...), member1, member2,...)用于自定义编解码函数，详情请参考[自定义编解码](#自定义编解码)
 - O。等价于X(F(0), ...) 没有任何FLAG。
 - M。等价于X(F(M)，...) 表示这些字段是必须存在的。
 - A。[别名](#别名)，A(member1, alias1, member2, alias2...)，用于变量和key名不一样的情况
@@ -226,8 +228,18 @@ struct Time {
 };
 ```
 并不希望编码成{"ts":1218196800} 这种格式，而是希望编码成"2008-08-08 20:00:00"这种格式，这个时候就可以用自定义编解码实现。
+这里有两种方式：
+- **推荐**用C来包含需要自定义编解码的变量（简称方法1）
+- 使用xtype（简称方法2）可以参考[例子](example/xtype.cpp)
 
-- 可以参考[例子](example/xtype.cpp)
+两种方法本质上都是自己去实现encode/decode，但是有以下区别：
+- 方法1能支持基本类型(int/string等）和非基本类型的自定义编解码；方法2只支持非基本类型的自定义编解码
+- 方法1是精细到变量级别，同样的类型，可以某个变量用自定义编解码，其他用默认编解码，方法2是类型级别，一旦某个类型定义了xtype，那该类型所有变量都用自定义编解码。
+
+因此推荐方法1。方法1的实现可以参考该[例子](example/custom.cpp)。步骤有
+- 用C包含需要自定义编解码的变量：C(customcodec, F(flag1, flag2,...), member1, member2, ...)
+- 实现customcodec_encode和customcodec_decode函数。注意需要放到xpack这个namespace下
+
 
 支持新类型
 ----
@@ -235,12 +247,9 @@ struct Time {
 ``` C++
 namespace xpack { // must define in namespace xpack
 
-template<>
-struct is_xpack_xtype<CString> {static bool const value = true;};
-
 // implement decode
 template<class OBJ>
-bool xpack_xtype_decode(OBJ &obj, const char*key, CString &val, const Extend *ext) {
+bool cstring_decode(OBJ &obj, const char*key, CString &val, const Extend *ext) {
     std::string str;
     obj.decode(key, str, ext);
     if (str.empty()) {
@@ -253,7 +262,7 @@ bool xpack_xtype_decode(OBJ &obj, const char*key, CString &val, const Extend *ex
 
 // implement encode
 template<class OBJ>
-bool xpack_xtype_encode(OBJ &obj, const char*key, const CString &val, const Extend *ext) {
+bool cstring_encode(OBJ &obj, const char*key, const CString &val, const Extend *ext) {
     std::string str;
 
     // TODO 把val转到str里面去
@@ -261,6 +270,9 @@ bool xpack_xtype_encode(OBJ &obj, const char*key, const CString &val, const Exte
 }
 
 }
+
+// cstring类型的变量就可以这么包含
+// C(cstring, F(0), val1, val2, ...)
 ```
 
 数组
