@@ -95,10 +95,11 @@ struct XTest :public otherns::OtherNS {
     int empty_array[1];
 #ifdef XGTEST
     unordered_map<string, Base> umst;
+    shared_ptr<Base>            spst;
 #else
     map<string, Base> umst;
+    Base              spst;
 #endif
-    shared_ptr<Base>            spst;
     char                        charray[16];
 #ifdef XPACK_SUPPORT_QT
     // Qt
@@ -307,6 +308,8 @@ int main(int argc, char *argv[]) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 #else
+    (void)argc;
+    (void)argv;
     XTest j1;
     XTest j2;
     string s1;

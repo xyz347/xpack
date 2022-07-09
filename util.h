@@ -97,6 +97,22 @@ public:
         return std::string(&buf[i+1], sizeof(buf)-i-1);
     }
 
+    #ifdef X_PACK_SUPPORT_CXX0X
+    template <class E>
+    inline static typename x_enable_if<std::is_enum<E>::value, std::string>::type itoa(const E& val) {
+        return itoa((typename std::underlying_type<E>::type)val);
+    }
+    template <class E>
+    static typename x_enable_if<std::is_enum<E>::value, bool>::type atoi(const std::string& key, E& val) {
+        typename std::underlying_type<E>::type tmp;
+        bool ret = atoi(key, tmp);
+        if (ret) {
+            val = (E)tmp;
+        }
+        return ret;
+    }
+    #endif
+
     // not support float. and only decimal
     template <class T>
     static typename x_enable_if<numeric<T>::is_integer, bool>::type atoi(const std::string&s, T&val) {

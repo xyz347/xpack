@@ -116,8 +116,9 @@ public:
 
 public:
     // decode
-    #define XPACK_JSON_DECODE(f, ...)                           \
-        const rapidjson::Value *v = get_val(key);               \
+    #define XPACK_JSON_DECODE(nullVal, f, ...)                  \
+        bool isNull;                                            \
+        const rapidjson::Value *v = get_val(key, isNull);       \
         bool ret = false;                                       \
         if (NULL != v) {                                        \
             try {                                               \
@@ -127,6 +128,9 @@ public:
                 decode_exception("type unmatch", key);          \
             }                                                   \
             ret = true;                                         \
+        } else if (isNull) {                                    \
+            val = nullVal;                                      \
+            ret = true;                                         \
         } else if (NULL!=key && Extend::Mandatory(ext)) {       \
             decode_exception("mandatory key not found", key);   \
         }                                                       \
@@ -134,7 +138,8 @@ public:
 
 
     bool decode(const char*key, std::string &val, const Extend *ext) {
-        const rapidjson::Value *v = get_val(key);
+        bool isNull;
+        const rapidjson::Value *v = get_val(key, isNull);
         if (NULL != v) {
             try {
                 val = std::string(v->GetString(), v->GetStringLength());
@@ -143,14 +148,20 @@ public:
                 decode_exception("type unmatch", key);
             }
             return true;
+        } else if (isNull) {
+            return true;
         } else if (NULL!=key && Extend::Mandatory(ext)) {
             decode_exception("mandatory key not found", key);
         }
         return false;
     }
     bool decode(const char*key, bool &val, const Extend *ext) {
-        const rapidjson::Value *v = get_val(key);
-        if (NULL == v) {
+        bool isNull;
+        const rapidjson::Value *v = get_val(key, isNull);
+        if (isNull) {
+            val = false;
+            return true;
+        } else if (NULL == v) {
             if (NULL!=key && Extend::Mandatory(ext)) {
                 decode_exception("mandatory key not found", key);
             }
@@ -167,46 +178,46 @@ public:
         }
     }
     bool decode(const char*key, char &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetInt, (char));
+        XPACK_JSON_DECODE('\0', GetInt, (char));
     }
     bool decode(const char*key, signed char &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetInt, (char));
+        XPACK_JSON_DECODE(0, GetInt, (char));
     }
     bool decode(const char*key, unsigned char &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetInt, (unsigned char));
+        XPACK_JSON_DECODE(0, GetInt, (unsigned char));
     }
     bool decode(const char*key, short &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetInt, (short));
+        XPACK_JSON_DECODE(0, GetInt, (short));
     }
     bool decode(const char*key, unsigned short &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetInt, (unsigned short));
+        XPACK_JSON_DECODE(0, GetInt, (unsigned short));
     }
     bool decode(const char*key, int &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetInt);
+        XPACK_JSON_DECODE(0, GetInt);
     }
     bool decode(const char*key, unsigned int &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetUint);
+        XPACK_JSON_DECODE(0, GetUint);
     }
     bool decode(const char*key, long &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetInt64, (long));
+        XPACK_JSON_DECODE(0, GetInt64, (long));
     }
     bool decode(const char*key, unsigned long &val, const Extend *ext) {
-       XPACK_JSON_DECODE(GetUint64, (unsigned long));
+       XPACK_JSON_DECODE(0, GetUint64, (unsigned long));
     }
     bool decode(const char*key, long long &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetInt64, (long long));
+        XPACK_JSON_DECODE(0, GetInt64, (long long));
     }
     bool decode(const char*key, unsigned long long &val, const Extend *ext) {
-       XPACK_JSON_DECODE(GetUint64, (unsigned long long));
+       XPACK_JSON_DECODE(0, GetUint64, (unsigned long long));
     }
     bool decode(const char*key, float &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetFloat);
+        XPACK_JSON_DECODE(0, GetFloat);
     }
     bool decode(const char*key, double &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetDouble);
+        XPACK_JSON_DECODE(0, GetDouble);
     }
     bool decode(const char*key, long double &val, const Extend *ext) {
-        XPACK_JSON_DECODE(GetDouble, (long double));
+        XPACK_JSON_DECODE(0, GetDouble, (long double));
     }
 
     // map<int, T> xml not support use number as label.
@@ -215,6 +226,15 @@ public:
     typename x_enable_if<numeric<K>::is_integer, bool>::type decode(const char*key, std::map<K,T>& val, const Extend *ext) {
         return decode_map<std::map<K,T>, K, T>(key, val, ext, Util::atoi);
     }
+
+    #ifdef X_PACK_SUPPORT_CXX0X
+    // enum is_enum implementation is too complicated, so not support in c++03
+    template <class K, class T>
+    typename x_enable_if<std::is_enum<K>::value, bool>::type decode(const char*key, std::map<K,T>& val, const Extend *ext) {
+        return decode_map<std::map<K,T>, K, T>(key, val, ext, Util::atoi);
+    }
+    #endif
+
     #ifdef XPACK_SUPPORT_QT
     template <class K, class T>
     typename x_enable_if<numeric<K>::is_integer, bool>::type decode(const char*key, QMap<K,T>& val, const Extend *ext) {
@@ -293,13 +313,19 @@ private:
         return d;
     }
 
-    const rapidjson::Value* get_val(const char *key) {
+    const rapidjson::Value* get_val(const char *key, bool &isNull) {
+        isNull = false;
         if (NULL == key) {
             return _val;
         } else if (NULL != _val) {
             rapidjson::Value::ConstMemberIterator iter = _val->FindMember(key);
-            if (iter != _val->MemberEnd() && !(iter->value.IsNull())) {
-                return &iter->value;
+            if (iter != _val->MemberEnd()) {
+                if (!(iter->value.IsNull())) {
+                    return &iter->value;
+                } else {
+                    isNull = true;
+                    return NULL;
+                }
             } else {
                 return NULL;
             }

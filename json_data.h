@@ -188,8 +188,11 @@ public:
     }
 
     bool xpack_decode(JsonDecoder &obj, const char*key, const Extend *ext) {
-        const rapidjson::Value *v = obj.get_val(key);
-        if (NULL == v) {
+        bool isNull;
+        const rapidjson::Value *v = obj.get_val(key, isNull);
+        if (isNull) {
+            return true;
+        } else if (NULL == v) {
             if (NULL!=key && Extend::Mandatory(ext)) {
                 obj.decode_exception("mandatory key not found", key);
             }

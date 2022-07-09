@@ -196,22 +196,21 @@ public:
     // map<int, T> xml not support use number as label
     template <class K, class T>
     typename x_enable_if<numeric<K>::is_integer, bool>::type encode(const char*key, const std::map<K,T>& val, const Extend *ext) {
-        std::map<std::string,T> tmpv;
-
-        for (typename std::map<K,T>::const_iterator iter = val.begin(); iter!=val.end(); ++iter) {
-            tmpv[Util::itoa(iter->first)] = iter->second;
-        }
-        return this->encode(key, tmpv, ext);
+        return encode_map<const std::map<K,T>, K>(key, val, ext, Util::itoa);
     }
+
+    #ifdef X_PACK_SUPPORT_CXX0X
+    // enum is_enum implementation is too complicated, so not support in c++03
+    template <class K, class T>
+    typename x_enable_if<std::is_enum<K>::value, bool>::type  encode(const char*key, const std::map<K,T>& val, const Extend *ext) {
+        return encode_map<const std::map<K,T>, K>(key, val, ext, Util::itoa);
+    }
+    #endif
+
     #ifdef XPACK_SUPPORT_QT
     template <class K, class T>
     typename x_enable_if<numeric<K>::is_integer, bool>::type encode(const char*key, const QMap<K,T>& val, const Extend *ext) {
-        std::map<std::string,T> tmpv;
-
-        for (typename QMap<K,T>::const_iterator iter = val.constBegin(); iter!=val.constEnd(); ++iter) {
-            tmpv[Util::itoa(iter.key())] = iter.value();
-        }
-        return this->encode(key, tmpv, ext);
+        return encode_qmap<const QMap<K,T>, K>(key, val, ext, Util::itoa);
     }
     #endif
 private:
