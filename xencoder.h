@@ -95,63 +95,29 @@ public:
     // vector
     template <class T>
     bool encode(const char*key, const std::vector<T> &val, const Extend *ext) {
-        size_t s = val.size();
-        XPACK_WRITE_EMPTY((s==0))
-
-        doc_type *dt = (doc_type*)this;
-        dt->ArrayBegin(key, ext);
-        for (size_t i=0; i<s; ++i) {
-            dt->encode(dt->IndexKey(i), val[i], ext);
-        }
-        dt->ArrayEnd(key, ext);
-        return true;
+        return encode_list<std::vector<T> >(key, val, ext);
     }
 
     // list
     template <class T>
     bool encode(const char*key, const std::list<T> &val, const Extend *ext) {
-        size_t s = val.size();
-        XPACK_WRITE_EMPTY((s==0))
-
-        doc_type *dt = (doc_type*)this;
-        dt->ArrayBegin(key, ext);
-        size_t i = 0;
-        for (typename std::list<T>::const_iterator it=val.begin(); it!=val.end(); ++it, ++i) {
-            dt->encode(dt->IndexKey(i), *it, ext);
-        }
-        dt->ArrayEnd(key, ext);
-        return true;
+        return encode_list<std::list<T> >(key, val, ext);
     }
 
     // set
     template <class T>
     bool encode(const char*key, const std::set<T> &val, const Extend *ext) {
-        size_t s = val.size();
-        XPACK_WRITE_EMPTY((s==0))
+        return encode_list<std::set<T> >(key, val, ext);
+    }
 
-        doc_type *dt = (doc_type*)this;
-        dt->ArrayBegin(key, ext);
-        size_t i = 0;
-        for (typename std::set<T>::const_iterator it=val.begin(); it!=val.end(); ++it, ++i) {
-            dt->encode(dt->IndexKey(i), *it, ext);
-        }
-        dt->ArrayEnd(key, ext);
-        return true;
+    static inline std::string strToStr(const std::string &k) {
+        return k;
     }
 
     // map
     template <class T>
     bool encode(const char*key, const std::map<std::string, T> &val, const Extend *ext) {
-        size_t s = val.size();
-        XPACK_WRITE_EMPTY((s==0))
-
-        doc_type *dt = (doc_type*)this;
-        dt->ObjectBegin(key, ext);
-        for (typename std::map<std::string, T>::const_iterator it=val.begin(); it!=val.end(); ++it) {
-            dt->encode(it->first.c_str(), it->second, ext);
-        }
-        dt->ObjectEnd(key, ext);
-        return true;
+        return encode_map<const std::map<std::string,T>, std::string>(key, val, ext, strToStr);
     }
 
     // class/struct that defined macro XPACK
@@ -194,16 +160,7 @@ public:
     // unordered_map
     template <class T>
     bool encode(const char*key, const std::unordered_map<std::string, T> &val, const Extend *ext) {
-        size_t s = val.size();
-        XPACK_WRITE_EMPTY((s==0))
-
-        doc_type *dt = (doc_type*)this;
-        dt->ObjectBegin(key, ext);
-        for (typename std::unordered_map<std::string, T>::const_iterator it=val.begin(); it!=val.end(); ++it) {
-            dt->encode(it->first.c_str(), it->second, ext);
-        }
-        dt->ObjectEnd(key, ext);
-        return true;
+        return encode_map<const std::unordered_map<std::string,T>, std::string>(key, val, ext, strToStr);
     }
 
     // shared_ptr
@@ -218,7 +175,7 @@ public:
 
     // enum is_enum implementation is too complicated, so in c++03, we use macro E
     template <class T>
-    typename x_enable_if<std::is_enum<T>::value, bool>::type  encode(const char*key, const T& val, const Extend *ext) {
+    typename x_enable_if<std::is_enum<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
         typename std::underlying_type<T>::type tmp = (typename std::underlying_type<T>::type)val;
         return ((doc_type*)this)->encode(key, tmp, ext);
     }
@@ -231,32 +188,75 @@ public:
     }
 
     template<typename T>
-    bool encode(const char*key, const QList<T>&data, const Extend *ext) {
-        std::list<T> sl = std::list<T>(data.begin(), data.end());
-        return ((doc_type*)this)->encode(key, sl, ext);
+    bool encode(const char*key, const QList<T>&val, const Extend *ext) {
+        return encode_list<QList<T> >(key, val, ext);
+    }
+
+    static inline std::string qstrToStr(const QString& str) {
+        return str.toStdString();
     }
 
     template<typename T>
-    bool encode(const char*key, const QMap<std::string, T>&data, const Extend *ext) {
-        std::map<std::string, T> sm = data.toStdMap();
-        return ((doc_type*)this)->encode(key, sm, ext);
+    bool encode(const char*key, const QMap<std::string, T>&val, const Extend *ext) {
+        return encode_qmap<const QMap<std::string,T>, std::string>(key, val, ext, strToStr);
     }
 
     template<typename T>
-    bool encode(const char*key, const QMap<QString, T>&data, const Extend *ext) {
-        std::map<std::string, T> sm;
-        for (typename QMap<QString, T>::const_iterator iter=data.begin(); iter!=data.end(); ++iter) {
-            sm[iter.key().toStdString()] = iter.value();
-        }
-        return ((doc_type*)this)->encode(key, sm, ext);
+    bool encode(const char*key, const QMap<QString, T>&val, const Extend *ext) {
+        return encode_qmap<const QMap<QString,T>, QString>(key, val, ext, qstrToStr);
     }
 
     template<typename T>
-    bool encode(const char*key, const QVector<T>&data, const Extend *ext) {
-        std::vector<T> sv = data.toStdVector();
-        return ((doc_type*)this)->encode(key, sv, ext);
+    bool encode(const char*key, const QVector<T>&val, const Extend *ext) {
+        return encode_list<QVector<T> >(key, val, ext);
     }
     #endif
+
+    // list
+    template <class LIST>
+    bool encode_list(const char*key, const LIST &val, const Extend *ext) {
+        size_t s = val.size();
+        XPACK_WRITE_EMPTY((s==0))
+
+        doc_type *dt = (doc_type*)this;
+        dt->ArrayBegin(key, ext);
+        size_t i = 0;
+        for (typename LIST::const_iterator it=val.begin(); it!=val.end(); ++it, ++i) {
+            dt->encode(dt->IndexKey(i), *it, ext);
+        }
+        dt->ArrayEnd(key, ext);
+        return true;
+    }
+
+    // map
+    template <class Map, class Key>
+    bool encode_map(const char*key, Map &val, const Extend *ext, std::string (*convert)(const Key&)) {
+        size_t s = val.size();
+        XPACK_WRITE_EMPTY((s==0))
+
+        doc_type *dt = (doc_type*)this;
+        dt->ObjectBegin(key, ext);
+        for (typename Map::const_iterator it=val.begin(); it!=val.end(); ++it) {
+            dt->encode(convert(it->first).c_str(), it->second, ext);
+        }
+        dt->ObjectEnd(key, ext);
+        return true;
+    }
+
+    // qmap
+    template <class Map, class Key>
+    bool encode_qmap(const char*key, Map &val, const Extend *ext, std::string (*convert)(const Key&)) {
+        size_t s = val.size();
+        XPACK_WRITE_EMPTY((s==0))
+
+        doc_type *dt = (doc_type*)this;
+        dt->ObjectBegin(key, ext);
+        for (typename Map::const_iterator it=val.begin(); it!=val.end(); ++it) {
+            dt->encode(convert(it.key()).c_str(), it.value(), ext);
+        }
+        dt->ObjectEnd(key, ext);
+        return true;
+    }
 
     // wrapper for encode manual
     template <class T>

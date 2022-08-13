@@ -64,19 +64,6 @@ protected:
     typedef DOC doc_type;
     typedef XDecoder<DOC> xdoc_type;
 
-    struct KeyConverter{
-        static inline bool toString(const char *key, std::string &k) {
-            k = key;
-            return true;
-        }
-        #ifdef XPACK_SUPPORT_QT
-        static inline bool toQString(const char*key, QString &k) {
-            k = key;
-            return true;
-        }
-        #endif
-    };
-
 public:
     // only c++0x support reference initialize, so use pointer
     XDecoder(const doc_type *parent, const char* key) {
@@ -155,10 +142,16 @@ public:
         return true;
     }
 
+    template <class STR>
+    static inline bool strToStr(const std::string& key, STR &k) {
+        k = key.c_str();
+        return true;
+    }
+
     // map
     template <class T>
     bool decode(const char*key, std::map<std::string,T> &val, const Extend *ext) {
-        return decode_map<std::map<std::string,T>, std::string, T>(key, val, ext, KeyConverter::toString);
+        return decode_map<std::map<std::string,T>, std::string, T>(key, val, ext, strToStr<std::string>);
     }
 
     // class/struct that defined macro XPACK, !is_xpack_out to avoid inherit __x_pack_value
@@ -197,7 +190,7 @@ public:
     // unordered_map
     template <class T>
     inline bool decode(const char*key, std::unordered_map<std::string, T> &val, const Extend *ext) {
-        return decode_map<std::unordered_map<std::string,T>, std::string, T>(key, val, ext, KeyConverter::toString);
+        return decode_map<std::unordered_map<std::string,T>, std::string, T>(key, val, ext, strToStr<std::string>);
     }
 
     // shared_ptr
@@ -247,12 +240,12 @@ public:
 
     template<typename T>
     inline bool decode(const char*key, QMap<std::string, T> &val, const Extend *ext) {
-        return decode_map<QMap<std::string,T>, std::string, T>(key, val, ext, KeyConverter::toString);
+        return decode_map<QMap<std::string,T>, std::string, T>(key, val, ext, strToStr<std::string>);
     }
 
     template<typename T>
     inline bool decode(const char*key, QMap<QString, T> &val, const Extend *ext) {
-        return decode_map<QMap<QString,T>, QString, T>(key, val, ext, KeyConverter::toQString);
+        return decode_map<QMap<QString,T>, QString, T>(key, val, ext, strToStr<QString>);
     }
     #endif
 protected:
@@ -293,7 +286,7 @@ protected:
     }
     // map
     template <class Map, class Key, class Value>
-    bool decode_map(const char*key, Map &val, const Extend *ext, bool (*convert)(const char*, Key&)) {
+    bool decode_map(const char*key, Map &val, const Extend *ext, bool (*convert)(const std::string&, Key&)) {
         doc_type tmp;
         doc_type *obj = find(key, &tmp, ext);
         if (NULL == obj) {
