@@ -33,19 +33,9 @@ private:
     };
     struct Node {
         Node(const char*_key=NULL, const Extend *ext=NULL) {
-            if (_key != NULL && strlen(_key)>0) {
+            (void)ext;
+            if (_key != NULL) {
                 key = _key;
-            } else { // vector case
-                if (NULL != ext && NULL != ext->alias) {
-                    std::string vl = ext->alias->Flag("xml", "vl"); // vl:vector label
-                    if (!vl.empty()) {
-                        key = vl;
-                    } else {
-                        key = "x";
-                    }
-                } else {
-                    key = "x"; // for vector
-                }
             }
         }
         ~Node() {
@@ -59,6 +49,8 @@ private:
         std::string val;        // value for this node, only for leaf node
         std::list<Attr>  attrs; // attribute
         std::list<Node*> childs;// child nodes
+
+        std::string vec_key;    // key for vector
     };
 
 public:
@@ -86,10 +78,25 @@ public:
     }
     inline const char *IndexKey(size_t index) {
         (void)index;
-        return NULL;//"x";
+        return _cur->vec_key.c_str();
     }
     void ArrayBegin(const char *key, const Extend *ext) {
         Node *n = new Node(key, ext);
+
+        if (NULL!=_cur && !_cur->vec_key.empty()) { // vector<vector<...>>
+            n->vec_key = n->key;
+        } else if (NULL != ext && NULL != ext->alias) {
+            if (!ext->alias->Flag("xml", "vl", &n->vec_key)) {  // forward compatible, support vector label
+                if (ext->alias->Flag("xml", "sbs")) {           // no top label, vector item will side by side
+                    n->vec_key.swap(n->key); // n->vec_key=key and n->key="";
+                } else {
+                    n->vec_key = n->key;     // has top level
+                }
+            }
+        } else {
+            n->vec_key = n->key;
+        }
+
         _cur->childs.push_back(n);
 
         _stack.push_back(_cur);
@@ -261,9 +268,15 @@ private:
     }
     void appendNode(const Node *nd, int depth) {
         bool indentEnd = true;
-        indent(depth);
-        _output.push_back('<');
-        _output += nd->key;
+
+        if (!nd->key.empty()) { // for array that without label
+            indent(depth);
+            _output.push_back('<');
+            _output += nd->key;
+        } else if (depth > 0) {
+            depth--;
+        }
+
         std::list<Attr>::const_iterator it;
         for (it=nd->attrs.begin(); it!=nd->attrs.end(); ++it) {
             _output.push_back(' ');
@@ -272,26 +285,33 @@ private:
             _output += it->val;
             _output.push_back('"');
         }
+
         if (nd->val.empty() && nd->childs.size()==0) {
             _output += "/>";
             return;
-        } else if (!nd->val.empty()) {
+        }
+
+        if (!nd->key.empty()) {
             _output.push_back('>');
+        }
+        if (!nd->val.empty()) {
             _output += nd->val;
             indentEnd = false;
         } else {
-            _output.push_back('>');
             std::list<Node*>::const_iterator it;
             for (it=nd->childs.begin(); it!=nd->childs.end(); ++it) {
                 appendNode(*it, depth+1);
             }
         }
-        if (indentEnd) {
-            indent(depth);
+
+        if (!nd->key.empty()) {
+            if (indentEnd) {
+                indent(depth);
+            }
+            _output += "</";
+            _output += nd->key;
+            _output.push_back('>');
         }
-        _output += "</";
-        _output += nd->key;
-        _output.push_back('>');
     }
     void merge() {
         if (_output.length() > 0 || _root.childs.size()==0) {

@@ -122,7 +122,7 @@ public:
 
     // class/struct that defined macro XPACK
     template <class T>
-    typename x_enable_if<T::__x_pack_value&&!is_xpack_out<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
+    typename x_enable_if<T::__x_pack_value&&!is_xpack_out<T>::value && !is_xpack_xtype<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
         bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
         doc_type *dt = (doc_type*)this;
         if (!inherit) {

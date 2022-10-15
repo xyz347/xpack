@@ -50,11 +50,13 @@ namespace xpack {
   DOC need implement:
     const char *Type() const; "json/bson/...."
 
-    Iterator;
+    Iterator; // for iterate map
 
     Begin(); return iter;
     End();  iter next;
     operator bool;
+
+    member; get member by name or index
 
     size_t Size() const; if doc is array, return array size;
 */
@@ -94,7 +96,7 @@ public:
 
         doc_type sub;
         for (size_t i=0; i<mx; ++i) {
-            obj->member(i, sub).decode(NULL, val[i], ext);
+            obj->member(i, sub, ext).decode(NULL, val[i], ext);
         }
         return true;
     }
@@ -136,7 +138,7 @@ public:
         size_t s = obj->Size();
         for (size_t i=0; i<s; ++i) {
             T _t;
-            obj->member(i, sub).decode(NULL, _t, ext);
+            obj->member(i, sub, ext).decode(NULL, _t, ext);
             val.insert(_t);
         }
         return true;
@@ -156,7 +158,7 @@ public:
 
     // class/struct that defined macro XPACK, !is_xpack_out to avoid inherit __x_pack_value
     template <class T>
-    typename x_enable_if<T::__x_pack_value&&!is_xpack_out<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
+    typename x_enable_if<T::__x_pack_value&&!is_xpack_out<T>::value && !is_xpack_xtype<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
         doc_type tmp;
         doc_type *obj = find(key, &tmp, ext);
         if (NULL == obj) {
@@ -262,7 +264,7 @@ protected:
         size_t s = obj->Size();
         val.resize(s);
         for (size_t i=0; i<s; ++i) {
-            obj->member(i, sub).decode(NULL, val[i], ext);
+            obj->member(i, sub, ext).decode(NULL, val[i], ext);
         }
         return true;
     }
@@ -279,7 +281,7 @@ protected:
         size_t s = obj->Size();
         for (size_t i=0; i<s; ++i) {
             Elem _t;
-            obj->member(i, sub).decode(NULL, _t, ext);
+            obj->member(i, sub, ext).decode(NULL, _t, ext);
             val.push_back(_t);
         }
         return true;
@@ -309,7 +311,7 @@ protected:
     doc_type* find(const char *key, doc_type *tmp, const Extend *ext) {
         doc_type *obj = static_cast<doc_type*>(this);
         if (NULL != key) {
-            if (!obj->member(key, *tmp)) {
+            if (!obj->member(key, *tmp, ext)) {
                 if (Extend::Mandatory(ext)) {
                     decode_exception("mandatory key not found", key);
                 } else {
@@ -354,15 +356,18 @@ protected:
         if (NULL != what) {
             err.append(what);
         }
-        err.append("[");
+        err.append(". (path:");
+
         std::string p = path();
-        if (!p.empty()) {
-            err.append(p).append(".");
-        }
+        err.append(p);
         if (NULL != key) {
+            if (!p.empty()) {
+                err.append(".");
+            }
             err.append(key);
         }
-        err.append("]");
+
+        err.append(")");
         throw std::runtime_error(err);
     }
 

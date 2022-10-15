@@ -96,7 +96,6 @@ public:
             }
 
             _node = _doc->first_node(); // root
-            _parent = this;
 
             init();
             return;
@@ -204,12 +203,12 @@ public: // decode
     }
     XmlDecoder& operator[](size_t index) {
         XmlDecoder *d = alloc();
-        member(index, *d);
+        member(index, *d, NULL);
         return *d;
     }
     XmlDecoder& operator[](const char* key) {
         XmlDecoder *d = alloc();
-        member(key, *d);
+        member(key, *d, NULL);
         return *d;
     }
     Iterator Begin() {
@@ -241,7 +240,8 @@ private:
         init();
     }
 
-    XmlDecoder& member(size_t index, XmlDecoder&d) {
+    XmlDecoder& member(size_t index, XmlDecoder&d, const Extend *ext) {
+        (void)ext;
         if (index < _childs.size()) {
             d.init_base(this, index);
             d._node = _childs[index];
@@ -253,12 +253,23 @@ private:
         return d;
     }
 
-    XmlDecoder& member(const char*key, XmlDecoder&d) {
+    XmlDecoder& member(const char*key, XmlDecoder&d, const Extend *ext) {
         node_index::iterator iter;
         if (_childs_index.end() != (iter=_childs_index.find(key))) {
             d.init_base(this, key);
             d._node = _childs[iter->second];
-            d.init();
+
+            if (!Extend::AliasFlag(ext, "xml", "sbs")) {
+                d.init();
+            } else {
+                d._childs.clear();
+                d._childs_index.clear();
+                for (size_t i=0; i<_childs.size(); ++i) {
+                    if (0 == strcmp(key, _childs[i]->name())) {
+                        d._childs.push_back(_childs[i]);
+                    }
+                }
+            }
         }
 
         return d;

@@ -95,18 +95,21 @@ struct Alias {
         }
     }
 
-    std::string Flag(const std::string&type, const std::string& flag) const {
+    bool Flag(const std::string&type, const std::string& flag, std::string *value=NULL) const {
         std::map<std::string, Type>::const_iterator it1 = types.find(type);
         if (it1 != types.end()) {
             if (it1->second.flags.find(flag) != it1->second.flags.end()) {
-                return flag;
+                return true;
             }
             std::map<std::string, std::string>::const_iterator it2 = it1->second.kv_flags.find(flag);
             if (it2 != it1->second.kv_flags.end()) {
-                return it2->second;
+                if (NULL != value) {
+                    *value = it2->second;
+                }
+                return true;
             }
         }
-        return "";
+        return false;
     }
 private:
     std::string def; // default name
@@ -147,6 +150,13 @@ struct Extend {
         } else {
             return ext->ctrl_flag;
         }
+    }
+
+    static bool AliasFlag(const Extend *ext, const std::string&type, const std::string& flag, std::string *value=NULL) {
+        if (NULL==ext || NULL==ext->alias) {
+            return false;
+        }
+        return ext->alias->Flag(type, flag, value);
     }
     
     static bool OmitEmpty(const Extend *ext) {

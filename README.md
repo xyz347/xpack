@@ -88,8 +88,8 @@ FLAG
 - 用于变量名和key名不一致的场景
 - 格式是A(变量，别名....)或者AF(F(flags), 变量，别名....)，别名的格式是"x t:n"的格式
     - x表示全局别名，t表示类型(目前支持json、xml、bson)，n表示类型下的别名
-    - 全局别名可以没有，比如"json:_id"是合法的
-    - 类型别名可以没有，比如"_id"是合法的
+    - 全局别名可以没有，比如`json:_id`是合法的
+    - 类型别名可以没有，比如`_id`是合法的
     - 有类型别名优先用类型别名，否则用全局别名，都没有，则用变量名
 
 ``` C++
@@ -238,7 +238,10 @@ struct Time {
 - xtype是类型级别的，也就是一旦某个类型用xtype封装之后，那么自定义的encode/decode就对这个类型生效。xtype无法作用于基本类型（int/string等）
 - C方法能支持基本类型(int/string等）和非基本类型，但是仅作用于用C包含的变量，比如int a;int b; O(a), C(custome_int, F(0), b);那么a还是用默认的编解码，b才是用自定义的编解码。
 
-C方法优先于xtype，也就是用C包含的变量，一定会用C里面指定的编解码方法。
+1. xtype优先于XPACK宏，也就是定义了xtype的，会优先使用xtype的encode/decode
+2. C方法优先于xtype，也就是用C包含的变量，一定会用C里面指定的编解码方法。
+
+用这两个特性，可以实现一些比较灵活的编解码控制，比如这个[例子](example/xtype_advance.cpp)实现了一个根据变量情况来编码的功能，如果Sub.type==1则encode seq1，否则encode seq2. `__x_pack_decode`和`__x_pack_encode`是XPACK宏给结构体添加的decode/encode函数，自定义编解码函数可以通过这些函数调用xpack默认的编解码功能。
 
 
 数组
@@ -341,21 +344,27 @@ int main(int argc, char *argv[]) {
 
 XML数组
 ----
-- 数组默认会用"x"作为标签，比如"ids":[1,2,3]，对应的xml是:
+- 数组默认会用变量名作为元素的标签，比如"ids":[1,2,3]，对应的xml是:
 ``` xml
 <ids>
-    <x>1</x>
-    <x>2</x>
-    <x>3</x>
+    <ids>1</ids>
+    <ids>2</ids>
+    <ids>3</ids>
 </ids>
 ```
-- 可以用别名的方式来控制数组的标签，比如A(ids,"xml:ids,vl@id")，vl后面跟着一个@xx，xx就是数组的标签，生成的结果就是：
+- 可以用别名的方式来控制数组的元素的标签，比如A(ids,"xml:ids,vl@id")，vl后面跟着一个@xx，xx就是数组的标签，生成的结果就是：
 ``` xml
 <ids>
     <id>1</id>
     <id>2</id>
     <id>3</id>
 </ids>
+```
+- 如果希望数组直接展开，而不是在外面包一层，可以用别名加"sbs"的flag来实现，比如A(ids, "xml:ids,sbs")，**注意，sbs标签仅能用于数组，其他地方使用可能会崩溃**
+``` xml
+<ids>1</ids>
+<ids>2</ids>
+<ids>3</ids>
 ```
 
 Qt支持
