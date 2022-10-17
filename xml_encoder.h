@@ -287,7 +287,9 @@ private:
         }
 
         if (nd->val.empty() && nd->childs.size()==0) {
-            _output += "/>";
+            if (!nd->key.empty()) {
+                _output += "/>";
+            }
             return;
         }
 
