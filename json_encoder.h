@@ -77,6 +77,14 @@ public:
         return _buf->GetString();
     }
 
+    void SetMaxDecimalPlaces(int maxDecimalPlaces) {
+        if (NULL != _writer) {
+            _writer->SetMaxDecimalPlaces(maxDecimalPlaces);
+        } else {
+            _pretty->SetMaxDecimalPlaces(maxDecimalPlaces);
+        }
+    }
+
 public:
     void ArrayBegin(const char *key, const Extend *ext) {
         (void)ext;

@@ -57,7 +57,7 @@ public:
     friend class XEncoder<XmlEncoder>;
     using xdoc_type::encode;
 
-    XmlEncoder(int indentCount=-1, char indentChar=' '):_indentCount(indentCount),_indentChar(indentChar) {
+    XmlEncoder(int indentCount=-1, char indentChar=' '):_indentCount(indentCount),_indentChar(indentChar),_decimalPlaces(324) {
         if (_indentCount > 0) {
             if (_indentChar!=' ' && _indentChar!='\t') {
                 throw std::runtime_error("indentChar must be space or tab");
@@ -71,6 +71,14 @@ public:
     std::string String() {
         merge();
         return _output;
+    }
+
+    void SetMaxDecimalPlaces(int maxDecimalPlaces) {
+        if (maxDecimalPlaces >= 1) {
+            _decimalPlaces = maxDecimalPlaces;
+        } else {
+            _decimalPlaces = 1;
+        }
     }
 public:
     inline const char *Type() const {
@@ -253,6 +261,7 @@ private:
             return false;
         } else {
             std::ostringstream os;
+            os.precision(_decimalPlaces+1);
             os<<val;
             std::string fval = os.str();
 
@@ -344,6 +353,8 @@ private:
 
     int  _indentCount;
     char _indentChar;
+
+    int _decimalPlaces;
 };
 
 }
