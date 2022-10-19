@@ -61,6 +61,7 @@ public:
         std::string data;
 
         do {
+            const unsigned int parseFlags = rapidjson::kParseNanAndInfFlag;
             if (isfile) {
                 std::ifstream fs(str.c_str(), std::ifstream::binary);
                 if (!fs) {
@@ -69,9 +70,9 @@ public:
                 }
                 std::string _tmp((std::istreambuf_iterator<char>(fs)), std::istreambuf_iterator<char>());
                 data.swap(_tmp);
-                _doc->Parse(data);
+                _doc->Parse<parseFlags>(data);
             } else  {
-                _doc->Parse(str);
+                _doc->Parse<parseFlags>(str);
             }
 
             if (_doc->HasParseError()) {
