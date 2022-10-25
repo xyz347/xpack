@@ -1,12 +1,16 @@
+MAKEFLAGS += --no-builtin-rules
+MAKEFLAGS += --no-builtin-variables
 SRC=$(wildcard *.cpp)
-TAR=$(SRC:.cpp=.exe)
+TAR=$(SRC:.cpp=)
 
-%.exe:%.cpp
-	@cl /Fe:${CURDIR}/$@ /nologo /wd4819 $< /EHsc -I ../.. 
-	@echo ============ run $@ ================
-	@$@
+%:%.cpp
+	cl /Fe:${CURDIR}/$@.exe /nologo /wd4819 $< /EHsc -I ../..
+	@echo ============ run $@.exe ================
+	@$@.exe
+	@del $@.exe $@.obj
 
 tar:$(TAR)
 	@echo -------test done-------
-	@-del *.obj
-	@-del *.exe
+
+clean:
+	@-del *.obj *.exe

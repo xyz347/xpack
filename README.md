@@ -13,6 +13,7 @@ xpack
 * [继承](#继承)
 * [枚举](#枚举)
 * [自定义编解码](#自定义编解码)
+* [union](#union)
 * [不定类型](#不定类型)
 * [数组](#数组)
 * [第三方类和结构体](#第三方类和结构体)
@@ -243,6 +244,9 @@ struct Time {
 
 用这两个特性，可以实现一些比较灵活的编解码控制，比如这个[例子](example/xtype_advance.cpp)实现了一个根据变量情况来编码的功能，如果Sub.type==1则encode seq1，否则encode seq2. `__x_pack_decode`和`__x_pack_encode`是XPACK宏给结构体添加的decode/encode函数，自定义编解码函数可以通过这些函数调用xpack默认的编解码功能。
 
+union
+----
+可以使用[自定义编解码](#自定义编解码)来处理联合体，可以参考[范例](example/union1.cpp)
 
 数组
 ----

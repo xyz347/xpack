@@ -101,10 +101,6 @@ public:
     }
 
     ~JsonDecoder() {
-        for (size_t i=0; i<_collector.size(); ++i) {
-            delete _collector[i];
-        }
-
         if (NULL != _doc) {
             delete _doc;
             _doc = NULL;
@@ -131,7 +127,9 @@ public:
             ret = true;                                         \
         } else if (isNull) {                                    \
             val = nullVal;                                      \
-            ret = true;                                         \
+            if (0==(Extend::CtrlFlag(ext)&X_PACK_CTRL_FLAG_IGNORE_NULL)) {\
+                ret = true;                                     \
+            }                                                   \
         } else if (NULL!=key && Extend::Mandatory(ext)) {       \
             decode_exception("mandatory key not found", key);   \
         }                                                       \

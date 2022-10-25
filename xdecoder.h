@@ -74,7 +74,11 @@ public:
     XDecoder(const doc_type *parent, size_t index) {
         init_base(parent, index);
     }
-    ~XDecoder(){}
+    ~XDecoder(){
+        for (size_t i=0; i<_collector.size(); ++i) {
+            delete _collector[i];
+        }
+    }
 
 public:
     // for array
@@ -198,10 +202,17 @@ public:
     // shared_ptr
     template <class T>
     bool decode(const char*key, std::shared_ptr<T>& val, const Extend *ext) {
+        Extend tmpExt(0, NULL);
+        if (NULL != ext) {
+            tmpExt.flag = ext->flag;
+            tmpExt.ctrl_flag = ext->ctrl_flag;
+            tmpExt.alias = ext->alias;
+        }
+        tmpExt.ctrl_flag |= X_PACK_CTRL_FLAG_IGNORE_NULL;
         if (NULL == val.get()) {
             val.reset(new T);
         }
-        bool ret = ((doc_type*)this)->decode(key, *val, ext);
+        bool ret = ((doc_type*)this)->decode(key, *val, &tmpExt);
         if (!ret) {
             val.reset();
         }
@@ -250,6 +261,19 @@ public:
         return decode_map<QMap<QString,T>, QString, T>(key, val, ext, strToStr<QString>);
     }
     #endif
+
+    // we call xpack_xtype_decode directly instead of call find first, so in xpack_xtype_decode the obj is key's parent,
+    // if user need to get the decoder of this key, need to call find.
+    doc_type* find(const char *key, const Extend *ext) {
+        doc_type *obj = static_cast<doc_type*>(this);
+        if (key == NULL) {
+            return obj;
+        }
+
+        doc_type *doc = alloc();
+        return this->find(key, doc, ext);
+    }
+
 protected:
     // vector
     template <class Vector>

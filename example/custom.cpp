@@ -29,7 +29,8 @@ struct Test {
 namespace xpack {
 
 template <class OBJ>
-bool hexint_decode( OBJ&obj, const char *name, unsigned int&data, const xpack::Extend *ext) {
+bool hexint_decode(OBJ&obj, Test&t, const char *name, unsigned int&data, const xpack::Extend *ext) {
+    (void)t;
     string raw;
     bool ret = obj.decode(name, raw, ext);
     if (ret) {
@@ -39,7 +40,8 @@ bool hexint_decode( OBJ&obj, const char *name, unsigned int&data, const xpack::E
 }
 
 template <class OBJ>
-bool hexint_encode(OBJ&obj, const char *name, const unsigned &data, const xpack::Extend *ext) {
+bool hexint_encode(OBJ&obj, const Test&t, const char *name, const unsigned &data, const xpack::Extend *ext) {
+    (void)t;
     char buf[64];
     sprintf(buf, "%x", data);
     bool ret = obj.encode(name, buf, ext);
