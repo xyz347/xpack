@@ -241,6 +241,12 @@ public:
     }
     #endif
 
+    // json special
+    template <class T>
+    typename x_enable_if<is_xpack_json_type<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
+        return xpack_json_type_decode(*this, key, val, ext);
+    }
+
     // array
     size_t Size() {
         if (_val->IsArray()) {

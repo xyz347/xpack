@@ -113,7 +113,11 @@
     }
 
 // Inheritance B::__x_pack_decode(__x_pack_obj)
-#define X_PACK_DECODE_ACT_I(ARG, P)   __x_pack_obj.decode(NULL, static_cast<P&>(__x_pack_self), NULL);
+#define X_PACK_DECODE_ACT_I(ARG, P)                                                                        \
+        {                                                                                                  \
+            xpack::Extend __x_pack_tmp_ext(0,NULL); __x_pack_tmp_ext.ctrl_flag |= X_PACK_CTRL_FLAG_INHERIT;\
+            __x_pack_obj.decode(NULL, static_cast<P&>(__x_pack_self), &__x_pack_tmp_ext);                  \
+        }
 
 // bitfield, not support alias
 #define X_PACK_DECODE_ACT_B(ARG, B)                           \
