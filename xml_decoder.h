@@ -122,6 +122,13 @@ public:
         return "xml";
     }
 
+    const char * Name() {
+        if (NULL != _node) {
+            return _node->name();
+        }
+        return NULL;
+    }
+
 public: // decode
     #define XPACK_XML_DECODE_CHECK()                              \
         bool exists; std::string v = get_val(key, exists);        \
@@ -148,8 +155,38 @@ public: // decode
 
     // string
     bool decode(const char *key, std::string &val, const Extend *ext) {
-        XPACK_XML_DECODE_CHECK();
-        val = v;
+        if (!Extend::AliasFlag(ext, "xml", "cdata")) {
+            XPACK_XML_DECODE_CHECK();
+            val = v;
+        } else {
+            const XML_READER_NODE *cur = NULL;
+            const XML_READER_NODE *tmp = NULL;
+            if (key == NULL) {
+                tmp = _node->first_node();
+                cur = _node;
+            } else {
+                node_index::iterator iter = _childs_index.find(key);
+                if (_childs_index.end() != iter) {
+                    cur = _childs[iter->second];
+                    tmp = cur->first_node();
+                } else if (Extend::Mandatory(ext)) {
+                    decode_exception("mandatory key not found", key);
+                }
+            }
+            if (NULL != tmp) {
+                if (tmp->type() == rapidxml::node_cdata || tmp->type() == rapidxml::node_data) {
+                    val = tmp->value();
+                } else {
+                    decode_exception("not cdata type", key);
+                }
+            } else if (NULL != cur) { // if node contain text not CDATA, get it
+                val = cur->value();
+            } else if (Extend::Mandatory(ext)) {
+                decode_exception("mandatory key not found", key);
+            } else {
+                return false;
+            }
+        }
         return true;
     }
     bool decode(const char *key, bool &val, const Extend *ext) {

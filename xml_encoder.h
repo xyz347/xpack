@@ -139,9 +139,13 @@ public:
             return false;
         } else if (Extend::Attribute(ext)) {
             _cur->attrs.push_back(Attr(key, StringQuote(val)));
-        } else {
+        } else if (!Extend::AliasFlag(ext, "xml", "cdata")) {
             Node *n = new Node(key);
             n->val = StringQuote(val);
+            _cur->childs.push_back(n);
+        } else {
+            Node *n = new Node(key);
+            n->val = "<![CDATA[" + val + "]]>";
             _cur->childs.push_back(n);
         }
         return true;

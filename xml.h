@@ -22,6 +22,31 @@
 #include "xpack.h"
 
 namespace xpack {
+/*
+for xml like
+<user>
+    <name>Pony</name>
+    <age>20</age>
+</user>
+
+Just define such a structure
+struct User {
+    string name;
+    int age;
+    XPACK(O(name, age));
+};
+
+!!!!NO NEED!!! to define:
+struct Data {
+    User user;
+    XPACK(O(user));
+};
+
+xml::decode will skip the root node, so for the xml defined above,
+it only needs to be decode like this:
+User u;
+xpack::xml::decode(str, u);
+*/
 
 class xml {
 public:
@@ -35,7 +60,6 @@ public:
         XmlDecoder doc(file_name, true);
         doc.decode(NULL, val, NULL);
     }
-
     template <class T>
     static std::string encode(const T &val, const std::string&root) {
         XmlEncoder doc(-1);
