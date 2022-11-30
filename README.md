@@ -19,6 +19,7 @@ xpack
 * [第三方类和结构体](#第三方类和结构体)
 * [格式化缩进](#格式化缩进)
 * [XML数组](#xml数组)
+* [CDATA](#cdata)
 * [Qt支持](#qt支持)
 * [重要说明](#重要说明)
 
@@ -73,6 +74,7 @@ FLAG
     - EN empty as null, 用于json的encode，OE是直接不生成empty的字段，EN则是生成一个null
     - M mandatory，decode的时候，如果这个字段不存在，则抛出异常，用于一些id字段。
     - ATTR attribute，xml encode的时候，把值放到attribute里面。
+    - SL single line, json encode的时候，对于数组，放在一行里面
 - C。格式是C(customcodec, F(flag1,flags...), member1, member2,...)用于自定义编解码函数，详情请参考[自定义编解码](#自定义编解码)
 - O。等价于X(F(0), ...) 没有任何FLAG。
 - M。等价于X(F(M)，...) 表示这些字段是必须存在的。
@@ -370,6 +372,12 @@ XML数组
 <ids>2</ids>
 <ids>3</ids>
 ```
+
+CDATA
+----
+- 对于CDATA类型，需要用"cdata"的flag来实现，比如A(data, "xml:data,cdata")
+- cdata只能用std::string来接收
+- 如果变量对应的xml不是CDATA结构，会按普通字符串来处理比如`<data>hello</data>`也可以解析成功
 
 Qt支持
 ----

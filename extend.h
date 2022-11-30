@@ -32,6 +32,7 @@ namespace xpack {
 #define X_PACK_FLAG_OE (1<<0) // omitempty, in encode
 #define X_PACK_FLAG_M  (1<<1) // mandatory, in decode
 #define X_PACK_FLAG_EN (1<<2) // empty as null, in json encode
+#define X_PACK_FLAG_SL (1<<3) // encode as one line, currently only supports json vector
 
 #define X_PACK_FLAG_ATTR (1<<15) // for xml encode, encode in attribute
 

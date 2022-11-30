@@ -92,6 +92,9 @@ public:
         if (NULL != _writer) {
             _writer->StartArray();
         } else {
+            if (Extend::Flag(ext) & X_PACK_FLAG_SL) {
+                _pretty->SetFormatOptions(rapidjson::kFormatSingleLineArray);
+            }
             _pretty->StartArray();
         }
     }
@@ -102,6 +105,9 @@ public:
             _writer->EndArray();
         } else {
             _pretty->EndArray();
+            if (Extend::Flag(ext) & X_PACK_FLAG_SL) {
+                _pretty->SetFormatOptions(rapidjson::kFormatDefault);
+            }
         }
     }
     void ObjectBegin(const char *key, const Extend *ext) {
@@ -223,10 +229,10 @@ public:
     #endif
 
     // json special
-    template <class T>
-    typename x_enable_if<is_xpack_json_type<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
-        return xpack_json_type_encode(*this, key, val, ext);
-    }
+    // template <class T>
+    // typename x_enable_if<is_xpack_json_type<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
+    //     return xpack_json_type_encode(*this, key, val, ext);
+    // }
 private:
     void xpack_set_key(const char*key) { // openssl defined set_key macro, so we named it xpack_set_key
         if (NULL!=key && key[0]!='\0') {

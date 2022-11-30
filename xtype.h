@@ -23,11 +23,11 @@ namespace xpack {
 template <class T>
 struct is_xpack_xtype {static bool const value = false;};
 
-template <class T>
-struct is_xpack_json_type {static bool const value = false;};
+// template <class T>
+// struct is_xpack_json_type {static bool const value = false;};
 
-template <class T>
-struct is_xpack_xml_type {static bool const value = false;};
+// template <class T>
+// struct is_xpack_xml_type {static bool const value = false;};
 
 
 /*
