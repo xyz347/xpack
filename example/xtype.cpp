@@ -15,7 +15,6 @@
 */
 
 #include <iostream>
-#include "xpack/xtype.h"
 #include "xpack/json.h"
 #include "xpack/xml.h"
 

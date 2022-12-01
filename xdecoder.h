@@ -26,7 +26,6 @@
 
 #include "extend.h"
 #include "traits.h"
-#include "xtype.h"
 
 #include "string.h"
 
@@ -125,7 +124,7 @@ public:
 
     // list
     template <class T>
-    bool decode(const char*key, std::list<T> &val, const Extend *ext) {
+    inline bool decode(const char*key, std::list<T> &val, const Extend *ext) {
         return this->decode_list<std::list<T>, T>(key, val, ext);
     }
 
@@ -156,40 +155,26 @@ public:
 
     // map
     template <class T>
-    bool decode(const char*key, std::map<std::string,T> &val, const Extend *ext) {
+    inline bool decode(const char*key, std::map<std::string,T> &val, const Extend *ext) {
         return decode_map<std::map<std::string,T>, std::string, T>(key, val, ext, strToStr<std::string>);
     }
 
     // class/struct that defined macro XPACK, !is_xpack_out to avoid inherit __x_pack_value
     template <class T>
-    typename x_enable_if<T::__x_pack_value&&!is_xpack_out<T>::value && !is_xpack_xtype<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
-        doc_type tmp;
-        doc_type *obj = find(key, &tmp, ext);
-        if (NULL == obj) {
-            return false;
-        }
-
-        val.__x_pack_decode(*obj, val, ext);
-        return true;
+    inline XPACK_IS_XPACK(T) decode(const char*key, T& val, const Extend *ext) {
+        return decode_xpack(key, val, ext);
     }
 
     // class/struct that defined macro XPACK_OUT
     template <class T>
-    typename x_enable_if<is_xpack_out<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
-        doc_type tmp;
-        doc_type *obj = find(key, &tmp, ext);
-        if (NULL == obj) {
-            return false;
-        }
-
-        __x_pack_decode_out(*obj, val, ext);
-        return true;
+    inline XPACK_IS_XOUT(T) decode(const char*key, T& val, const Extend *ext) {
+        return decode_xpack_out(key, val, ext);
     }
 
     // XType. add && !is_xpack_out<T>::value to fix SFINAE bug of vs2005 
     template <class T>
-    inline typename x_enable_if<is_xpack_xtype<T>::value && !is_xpack_out<T>::value, bool>::type decode(const char*key, T& val, const Extend *ext) {
-        return xpack_xtype_decode(*(doc_type*)this, key, val, ext);
+    inline XPACK_IS_XTYPE(T) decode(const char*key, T& val, const Extend *ext) {
+        return decode_xtype(key, val, ext);
     }
 
     #ifdef X_PACK_SUPPORT_CXX0X
@@ -261,6 +246,38 @@ public:
         return decode_map<QMap<QString,T>, QString, T>(key, val, ext, strToStr<QString>);
     }
     #endif
+
+    // only for class/struct that defined XPACK
+    template <class T>
+    bool decode_xpack(const char*key, T& val, const Extend *ext) {
+        doc_type tmp;
+        doc_type *obj = find(key, &tmp, ext);
+        if (NULL == obj) {
+            return false;
+        }
+
+        val.__x_pack_decode(*obj, val, ext);
+        return true;
+    }
+
+    // only for class/struct that defined macro XPACK_OUT
+    template <class T>
+    bool decode_xpack_out(const char*key, T& val, const Extend *ext) {
+        doc_type tmp;
+        doc_type *obj = find(key, &tmp, ext);
+        if (NULL == obj) {
+            return false;
+        }
+
+        __x_pack_decode_out(*obj, val, ext);
+        return true;
+    }
+
+    // only for XType
+    template <class T>
+    inline bool decode_xtype(const char*key, T& val, const Extend *ext) {
+        return xpack_xtype_decode(*(doc_type*)this, key, val, ext);
+    }
 
     // we call xpack_xtype_decode directly instead of call find first, so in xpack_xtype_decode the obj is key's parent,
     // if user need to get the decoder of this key, need to call find.

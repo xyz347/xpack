@@ -227,12 +227,6 @@ public:
         return encode_qmap<const QMap<K,T>, K>(key, val, ext, Util::itoa);
     }
     #endif
-
-    // json special
-    // template <class T>
-    // typename x_enable_if<is_xpack_json_type<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
-    //     return xpack_json_type_encode(*this, key, val, ext);
-    // }
 private:
     void xpack_set_key(const char*key) { // openssl defined set_key macro, so we named it xpack_set_key
         if (NULL!=key && key[0]!='\0') {

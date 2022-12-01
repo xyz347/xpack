@@ -26,7 +26,6 @@
 #include "extend.h"
 #include "traits.h"
 #include "numeric.h"
-#include "xtype.h"
 
 #ifdef XPACK_SUPPORT_QT
 #include <QString>
@@ -86,7 +85,7 @@ public:
         dt->ArrayEnd(key, ext);
         return true;
     }
-    bool encode(const char*key, const char *val, size_t N, const Extend *ext) {
+    inline bool encode(const char*key, const char *val, size_t N, const Extend *ext) {
         (void)N;
         std::string str(val);
         return ((doc_type*)this)->encode(key, str, ext);
@@ -94,19 +93,19 @@ public:
 
     // vector
     template <class T>
-    bool encode(const char*key, const std::vector<T> &val, const Extend *ext) {
+    inline bool encode(const char*key, const std::vector<T> &val, const Extend *ext) {
         return encode_list<std::vector<T> >(key, val, ext);
     }
 
     // list
     template <class T>
-    bool encode(const char*key, const std::list<T> &val, const Extend *ext) {
+    inline bool encode(const char*key, const std::list<T> &val, const Extend *ext) {
         return encode_list<std::list<T> >(key, val, ext);
     }
 
     // set
     template <class T>
-    bool encode(const char*key, const std::set<T> &val, const Extend *ext) {
+    inline bool encode(const char*key, const std::set<T> &val, const Extend *ext) {
         return encode_list<std::set<T> >(key, val, ext);
     }
 
@@ -116,50 +115,32 @@ public:
 
     // map
     template <class T>
-    bool encode(const char*key, const std::map<std::string, T> &val, const Extend *ext) {
+    inline bool encode(const char*key, const std::map<std::string, T> &val, const Extend *ext) {
         return encode_map<const std::map<std::string,T>, std::string>(key, val, ext, strToStr);
     }
 
-    // class/struct that defined macro XPACK
+    // class/struct that defined XPACK
     template <class T>
-    typename x_enable_if<T::__x_pack_value&&!is_xpack_out<T>::value && !is_xpack_xtype<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
-        bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
-        doc_type *dt = (doc_type*)this;
-        if (!inherit) {
-            dt->ObjectBegin(key, ext);
-        }
-        val.__x_pack_encode(*dt, val, ext);
-        if (!inherit) {
-            dt->ObjectEnd(key, ext);
-        }
-        return true;
+    inline XPACK_IS_XPACK(T) encode(const char*key, const T& val, const Extend *ext) {
+        return encode_xpack(key, val, ext);
     }
 
-    // class/struct that defined macro XPACK_OUT
+    // class/struct that defined XPACK_OUT
     template <class T>
-    typename x_enable_if<is_xpack_out<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
-        bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
-        doc_type *dt = (doc_type*)this;
-        if (!inherit) {
-           dt->ObjectBegin(key, ext);
-        }
-        __x_pack_encode_out(*dt, val, ext);
-        if (!inherit) {
-            dt->ObjectEnd(key, ext);
-        }
-        return true;
+    inline XPACK_IS_XOUT(T) encode(const char*key, const T& val, const Extend *ext) {
+        return encode_xpack_out(key, val, ext);
     }
 
-    // XType. add && !is_xpack_out<T>::value to fix SFINAE bug of vs2005
+    // XType
     template <class T>
-    typename x_enable_if<is_xpack_xtype<T>::value && !is_xpack_out<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
-        return xpack_xtype_encode(*(doc_type*)this, key, val, ext);
+    inline XPACK_IS_XTYPE(T) encode(const char*key, const T& val, const Extend *ext) {
+        return encode_xtype(key, val, ext);
     }
 
     #ifdef X_PACK_SUPPORT_CXX0X
     // unordered_map
     template <class T>
-    bool encode(const char*key, const std::unordered_map<std::string, T> &val, const Extend *ext) {
+    inline bool encode(const char*key, const std::unordered_map<std::string, T> &val, const Extend *ext) {
         return encode_map<const std::unordered_map<std::string,T>, std::string>(key, val, ext, strToStr);
     }
 
@@ -180,6 +161,41 @@ public:
         return ((doc_type*)this)->encode(key, tmp, ext);
     }
     #endif // cxx
+
+    // only for class/struct that defined XPACK
+    template <class T>
+    bool encode_xpack(const char*key, const T& val, const Extend *ext) {
+        bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
+        doc_type *dt = (doc_type*)this;
+        if (!inherit) {
+            dt->ObjectBegin(key, ext);
+        }
+        val.__x_pack_encode(*dt, val, ext);
+        if (!inherit) {
+            dt->ObjectEnd(key, ext);
+        }
+        return true;
+    }
+
+    // only for class/struct that defined XPACK_OUT
+    template <class T>
+    bool encode_xpack_out(const char*key, const T& val, const Extend *ext) {
+        bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
+        doc_type *dt = (doc_type*)this;
+        if (!inherit) {
+           dt->ObjectBegin(key, ext);
+        }
+        __x_pack_encode_out(*dt, val, ext);
+        if (!inherit) {
+            dt->ObjectEnd(key, ext);
+        }
+        return true;
+    }
+
+    template <class T>
+    inline bool encode_xtype(const char*key, const T &val, const Extend *ext) {
+        return xpack_xtype_encode(*(doc_type*)this, key, val, ext);
+    }
 
     #ifdef XPACK_SUPPORT_QT
     bool encode(const char*key, const QString &val, const Extend *ext) {

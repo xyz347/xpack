@@ -34,6 +34,10 @@ struct x_enable_if<true, T> { typedef T type; };
 template <class T>
 struct is_xpack_out{static bool const value = false;};
 
+template <class T>
+struct is_xpack_xtype {static bool const value = false;};
+
+
 // for bitfield, declare raw type. thx https://stackoverflow.com/a/12199635/5845104
 template<int N> struct x_size { char value[N]; };
 x_size<1> x_decltype_encode(char);
@@ -73,6 +77,32 @@ private:
 }
 
 #define x_pack_decltype(T) typename xpack::x_decltype_decode<sizeof(xpack::x_decltype_encode(T))>::type
+
+
+// fix SFINAE bug of vs2005, so vs2005(or pre version) not support XPACK_OUT define xtype.
+// can use custom
+// The priority of xtype is the highest
+#if defined _MSC_VER &&  _MSC_VER<=1400
+#define XPACK_IS_XTYPE(T) typename x_enable_if<is_xpack_xtype<T>::value && !is_xpack_out<T>::value, bool>::type
+#else
+#define XPACK_IS_XTYPE(T) typename x_enable_if<is_xpack_xtype<T>::value, bool>::type
+#endif
+
+/*
+struct A {
+    XPACK(...);
+};
+struct B : public A{
+};
+XPACK_OUT(B, ...);
+
+in this case, B::__x_pack_value is true and should hit xpack_out, so 
+XPACK_IS_XPACK need to add !is_xpack_out<T>::value
+*/
+
+#define XPACK_IS_XOUT(T) typename x_enable_if<is_xpack_out<T>::value && !is_xpack_xtype<T>::value, bool>::type
+
+#define XPACK_IS_XPACK(T) typename x_enable_if<T::__x_pack_value && !is_xpack_out<T>::value && !is_xpack_xtype<T>::value, bool>::type
 
 #endif
 
