@@ -156,9 +156,17 @@ public:
 
     // enum is_enum implementation is too complicated, so in c++03, we use macro E
     template <class T>
-    typename x_enable_if<std::is_enum<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
+    typename x_enable_if<std::is_enum<T>::value && !is_xpack_xtype<T>::value, bool>::type encode(const char*key, const T& val, const Extend *ext) {
         typename std::underlying_type<T>::type tmp = (typename std::underlying_type<T>::type)val;
         return ((doc_type*)this)->encode(key, tmp, ext);
+    }
+
+    // assert pointer
+    template <class T>
+    typename x_enable_if<std::is_pointer<T>::value, bool>::type encode(const char*key, const T &val, const Extend *ext) {
+        static_assert(!std::is_pointer<T>::value, "no support pointer, use shared_ptr please");
+        (void)key;(void)val;(void)ext;
+        return false;
     }
     #endif // cxx
 
