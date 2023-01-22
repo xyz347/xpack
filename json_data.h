@@ -27,6 +27,67 @@ so the other way around
 
 namespace xpack {
 
+#if defined(X_PACK_SUPPORT_CXX0X)
+    template <class T>
+    using x_shared_ptr = std::shared_ptr<T>;
+#elif defined(_GNU_SOURCE)
+// A very crude implementation of shared_ptr
+template <class T>
+class x_shared_ptr {
+public:
+    x_shared_ptr(T *p = NULL):ptr(p) {
+        if (NULL != p) {
+            counter = new int;
+            *counter = 1;
+        } else {
+            counter = NULL;
+        }
+    }
+    x_shared_ptr(const x_shared_ptr &src) {
+        ptr = src.ptr;
+        counter = src.counter;
+        add_ref(1);
+    }
+    ~x_shared_ptr() {
+        add_ref(-1);
+    }
+    x_shared_ptr& operator = (const x_shared_ptr &src) {
+        add_ref(-1);
+        ptr = src.ptr;
+        counter = src.counter;
+        add_ref(1);
+        return *this;
+    }
+    void reset(T *p = NULL) {
+        *this = x_shared_ptr(p);
+    }
+    T* operator ->() {
+        return ptr;
+    }
+    T* get() {
+        return ptr;
+    }
+    T& operator *() {
+        return *ptr;
+    }
+private:
+    void add_ref(int cnt) {
+        if (counter == NULL) {
+            return;
+        }
+        int ncnt = __sync_add_and_fetch(counter, cnt);
+        if (0 == ncnt) {
+            delete counter;
+            delete ptr;
+        }
+    }
+    T   *ptr;
+    mutable int *counter;
+};
+#else
+    #error need support c++11 or use gnu compiler
+#endif
+
 // wrapper for rapidjson::Value.
 // If we use other json parser someday, users won’t have to modify the code.
 // Most of the code is copied from rapidjson.
@@ -43,8 +104,8 @@ enum JsonType {
 
 class JsonEncoder;
 
-// Currently JsonData is read-only and may support modification in the future
-class JsonData:private noncopyable {
+
+class JsonData {
     class MemberIterator {
     public:
         MemberIterator(rapidjson::Value::ConstMemberIterator iter, JsonData* parent):_iter(iter),_parent(parent){}
@@ -58,58 +119,85 @@ class JsonData:private noncopyable {
         const char *Key() const {
             return _iter->name.GetString();
         }
-        JsonData& Val() const {
-            return _parent->member(&(_iter->value), *(_parent->alloc()));
+        JsonData Val() const {
+            JsonData d(*_parent);
+            d._res.node = &(_iter->value);
+            return d;
         }
     private:
         rapidjson::Value::ConstMemberIterator _iter;
         JsonData* _parent;
     };
+
+    // maintain the memory
+    struct Resource {
+        x_shared_ptr<rapidjson::Value> root; // release root first
+        x_shared_ptr<rapidjson::MemoryPoolAllocator<> > allocator;
+        const rapidjson::Value *node; // current node
+
+        Resource() :node(NULL) {
+        }
+        ~Resource() {
+        }
+
+        void reset(const rapidjson::Value *v = NULL, bool initNull = false) {
+            root.reset();
+            allocator.reset();
+
+            if (NULL != v || initNull) {
+                allocator.reset(new rapidjson::MemoryPoolAllocator<>());
+                if (NULL != v) {
+                    root.reset(new rapidjson::Value(*v, *allocator, true));
+                } else {
+                    root.reset(new rapidjson::Value());
+                }
+                node = root.get();
+            }
+        }
+    };
 public:
     typedef MemberIterator Iterator;
+
     // check type
     JsonType Type() const {
-        if (_val == NULL) {
-            return kNullType;
-        }
-        return static_cast<JsonType>(_val->GetType());
+        return static_cast<JsonType>(_res.node->GetType());
     }
-    bool IsNull()   const { return _val->IsNull(); }
-    bool IsBool()   const { return _val->IsBool(); }
-    bool IsObject() const { return _val->IsObject(); }
-    bool IsArray()  const { return _val->IsArray(); }
-    bool IsNumber() const { return _val->IsNumber(); }
-    bool IsDouble() const { return _val->IsDouble(); }
-    bool IsString() const { return _val->IsString(); }
+    bool IsNull()   const { return _res.node->IsNull(); }
+    bool IsBool()   const { return _res.node->IsBool(); }
+    bool IsObject() const { return _res.node->IsObject(); }
+    bool IsArray()  const { return _res.node->IsArray(); }
+    bool IsNumber() const { return _res.node->IsNumber(); }
+    bool IsDouble() const { return _res.node->IsDouble(); }
+    bool IsString() const { return _res.node->IsString(); }
 
-    std::string GetString() const {return _val->GetString(); }
-    bool GetBool() const {return _val->GetBool();}
-    int GetInt() const {return _val->GetInt();}
-    unsigned int GetUint() const {return _val->GetUint();}
-    int64_t GetInt64() const {return _val->GetInt64();}
-    uint64_t GetUint64() const {return _val->GetUint64();}
-    float GetFloat() const {return _val->GetFloat();}
-    double GetDouble() const {return _val->GetDouble();}
+    std::string GetString() const {return _res.node->GetString(); }
+    bool GetBool() const {return _res.node->GetBool();}
+    int GetInt() const {return _res.node->GetInt();}
+    unsigned int GetUint() const {return _res.node->GetUint();}
+    int64_t GetInt64() const {return _res.node->GetInt64();}
+    uint64_t GetUint64() const {return _res.node->GetUint64();}
+    float GetFloat() const {return _res.node->GetFloat();}
+    double GetDouble() const {return _res.node->GetDouble();}
 
     // check is valid JsonData
     operator bool() const {
-        return NULL != _val;
+        return NULL != _res.node;
     }
 
     // get array size
     size_t Size() const {
-        if (_val->IsArray()) {
-            return (size_t)_val->Size();
+        if (_res.node->IsArray()) {
+            return (size_t)_res.node->Size();
         } else {
             return 0;
         }
     }
 
-    JsonData& operator[](size_t index) {
-        JsonData *d = alloc();
-        if (NULL != _val && _val->IsArray()) {
-            if (index < (size_t)_val->Size()) {
-                d->_val = &(*_val)[(rapidjson::SizeType)index];
+    JsonData operator[](const size_t index) const {
+        JsonData d(*this);
+        if (NULL != _res.node && _res.node->IsArray()) {
+            if (index < (size_t)_res.node->Size()) {
+                d._res.node = &(*_res.node)[(rapidjson::SizeType)index];
             } else {
                 // TODO decode_exception("Out of index", NULL);
             }
@@ -117,95 +205,65 @@ public:
             // TODO decode_exception("not array", NULL);
         }
 
-        return *d;
+        return d;
     }
 
-    JsonData& operator[](const char*key) {
-        JsonData *d = alloc();
-        if (NULL != _val && _val->IsObject()) {
+    JsonData operator[](const char*key) const {
+        JsonData d(*this);
+        if (NULL != _res.node && _res.node->IsObject()) {
             rapidjson::Value::ConstMemberIterator iter;
-            if (_val->MemberEnd() != (iter=_val->FindMember(key))) {
-                d->_val = &(iter->value);
+            if (_res.node->MemberEnd() != (iter=_res.node->FindMember(key))) {
+                d._res.node = &(iter->value);
             }
         } else {
             // TODO decode_exception("not object", key);
         }
-        return *d;
+        return d;
     }
 
     // iter
     Iterator Begin() {
-        return Iterator(_val->MemberBegin(), this);
+        return Iterator(_res.node->MemberBegin(), this);
     }
     Iterator End() {
-        return Iterator(_val->MemberEnd(), this);
-    }
-
-    // JsonData is noncopyable, if need to pass it outside the function, use Swap
-    // DO NOT Swap child node. JsonData[0].Swap will crash
-    // If the compiler supports C++11, you should use shared_ptr<JsonData> instead of Swap
-    void Swap(JsonData& d) {
-	    rapidjson::MemoryPoolAllocator<> *allocator = _allocator;
-    	const rapidjson::Value *val = _val;
-    	bool alloc = _alloc;
-    	std::string raw_data = _raw_data;
-
-        _allocator = d._allocator;
-        _val = d._val;
-        _alloc = d._alloc;
-        _raw_data = d._raw_data;
-
-        d._allocator = allocator;
-        d._val = val;
-        d._alloc = alloc;
-        d._raw_data = raw_data;
+        return Iterator(_res.node->MemberEnd(), this);
     }
 
     template <class T>
     bool decode(T &val) const {
-        JsonDecoder d(_val);
+        JsonDecoder d(_res.node);
         return d.decode(NULL, val, NULL);
     }
 
     std::string String() {
-        if (_raw_data.empty()) {
+        if (_json_string.empty()) {
             JsonEncoder e(-1);
             xpack_encode(e, NULL, NULL);
-            _raw_data = e.String();
+            _json_string = e.String();
         }
-        return _raw_data;
+        return _json_string;
     }
 public:
     //friend class JsonDecoder;
-    JsonData():_allocator(NULL),_val(NULL), _alloc(false) {
-    }
-    ~JsonData() {
-        reset();
-        if (NULL != _allocator) {
-            delete _allocator;
-            _allocator = NULL;
-        }
-    }
-
     bool xpack_decode(JsonDecoder &obj, const char*key, const Extend *ext) {
         bool isNull;
         const rapidjson::Value *v = obj.get_val(key, isNull);
         if (isNull) {
-            return true;
+            _res.reset(NULL, true);
         } else if (NULL == v) {
             if (NULL!=key && Extend::Mandatory(ext)) {
                 obj.decode_exception("mandatory key not found", key);
             }
             return false;
         } else {
-            copy(v);
-            return true;
+            _res.reset(v, false);
         }
+        return true;
     }
     bool xpack_encode(JsonEncoder &obj, const char*key, const Extend *ext) const {
         switch (Type()){
         case kNullType:
-            return false; // not support write null now
+            return obj.writeNull(key, ext);
         case kFalseType:
         case kTrueType:
             return obj.encode(key, GetBool(), ext);
@@ -219,9 +277,9 @@ public:
             }
         case kObjectType:
             obj.ObjectBegin(key, ext);
-            for (rapidjson::Value::ConstMemberIterator iter = _val->MemberBegin(); iter!=_val->MemberEnd(); ++iter){
+            for (rapidjson::Value::ConstMemberIterator iter = _res.node->MemberBegin(); iter!=_res.node->MemberEnd(); ++iter){
                 JsonData d;
-                d._val = &iter->value;
+                d._res.node = &iter->value;
                 d.xpack_encode(obj, iter->name.GetString(), ext);
             }
             obj.ObjectEnd(key, ext);
@@ -231,7 +289,7 @@ public:
                 size_t max = Size();
                 for (size_t i = 0; i<max; ++i) {
                     JsonData d;
-                    d._val = &(*_val)[(rapidjson::SizeType)i];
+                    d._res.node = &(*_res.node)[(rapidjson::SizeType)i];
                     d.xpack_encode(obj, NULL, ext);
                 }
                 obj.ArrayEnd(key, ext);
@@ -242,46 +300,9 @@ public:
     }
 
 private:
-    JsonData(const rapidjson::Value *v):_allocator(NULL), _val(v), _alloc(false) {
-    }
-    JsonData* alloc() {
-        JsonData *d = new JsonData();
-        _collector.push_back(d);
-        return d;
-    }
-    // after xpack::json::decode, JsonDecoder will destruct, so we need copy data
-    // to JsonData, and copy can only be called by decode
-    void copy(const rapidjson::Value *v) {
-        if (NULL == _allocator) {
-            _allocator = new rapidjson::MemoryPoolAllocator<>();
-        }
-        reset();
-        _val = new rapidjson::Value(*v, *_allocator, true);
-        _alloc = true;
-    }
-    void reset() {
-        if (_alloc && _val!=NULL) {
-            delete _val;
-            _val = NULL;
-            _alloc = false;
-        }
-        for (size_t i=0; i<_collector.size(); ++i) {
-            delete _collector[i];
-        }
-        _collector.clear();
-    }
-    JsonData& member(const rapidjson::Value *v, JsonData&d) const {
-        d._val = v;
-        return d;
-    }
+    Resource _res;
 
-    rapidjson::MemoryPoolAllocator<> *_allocator;
-    const rapidjson::Value *_val;
-    bool _alloc;
-
-    std::vector<JsonData*> _collector;
-
-    std::string _raw_data;
+    std::string _json_string;
 };
 
 template<>

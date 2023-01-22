@@ -159,19 +159,34 @@ enum Enum1 {
     E0 = 0,
     E1 = 1,
 };
+#ifdef X_PACK_SUPPORT_CXX0X
 enum class Enum2:int64_t {
     E2 = 2,
     E3 = 3,
 };
+#else
+enum Enum2 {
+    E2 = 2,
+    E3 = 3,
+};
+#endif
 struct EnumBase {
     Enum1 e1;
     Enum2 e2;
 #ifndef XPACK_OUT_TEST
+    #ifdef X_PACK_SUPPORT_CXX0X
     XPACK(O(e1), E(F(0), e2));
+    #else
+    XPACK(E(F(0), e1, e2));
+    #endif
 };
 #else
 };
+#ifdef X_PACK_SUPPORT_CXX0X
 XPACK_OUT(EnumBase, O(e1), E(F(0), e2));
+#else
+XPACK_OUT(EnumBase, E(F(0), e1, e2));
+#endif
 #endif
 void checkEnumBase(const EnumBase&a, const EnumBase&b) {
     EXPECT_EQ(a.e1, b.e1);
@@ -180,7 +195,11 @@ void checkEnumBase(const EnumBase&a, const EnumBase&b) {
 TEST(enum, base) {
     EnumBase eb;
     eb.e1 = E0;
+#ifdef X_PACK_SUPPORT_CXX0X
     eb.e2 = Enum2::E3;
+#else
+    eb.e2 = E3;
+#endif
 
     string s1 = xpack::json::encode(eb);
     EnumBase j1;
@@ -192,6 +211,7 @@ TEST(enum, base) {
     xpack::xml::decode(s2, j2);
     checkEnumBase(j2, eb);
 }
+#ifdef X_PACK_SUPPORT_CXX0X
 TEST(enum, map) {
     map<Enum2, int> m;
     m[Enum2::E2] = 2;
@@ -203,7 +223,7 @@ TEST(enum, map) {
     EXPECT_EQ(j1[Enum2::E2], 2);
     EXPECT_EQ(j1[Enum2::E3], 3);
 }
-
+#endif
 
 // ++++++++++++++++inherit+++++++++++++++++++++++++++++
 struct InheritBase {
@@ -687,8 +707,13 @@ TEST(custom, hex) {
 struct FlagEN {
     int a;
     string b;
+#ifdef X_PACK_SUPPORT_CXX0X
     shared_ptr<int> c;
+#else
+    int c;
+#endif
     XPACK(X(F(EN), a, b, c));
+    FlagEN(){c=0;}
 };
 TEST(flags, EN) {
     FlagEN fe;
@@ -701,7 +726,11 @@ TEST(flags, EN) {
     xpack::json::decode(s, f1);
     EXPECT_EQ(f1.a, 1);
     EXPECT_EQ(f1.b, "");
+#ifdef X_PACK_SUPPORT_CXX0X
     EXPECT_EQ(f1.c.get(), (int*)NULL);
+#else
+    EXPECT_EQ(f1.c, 0);
+#endif
 }
 struct FlagM {
     int a;
@@ -767,6 +796,22 @@ TEST(flags, vectorlabel) {
     EXPECT_EQ(f1.c[1], 6);
 }
 
+TEST(jsondata, memory) {
+    xpack::JsonData *jd = new xpack::JsonData;
+
+    xpack::json::decode("[0, 1, 2, 3]", *jd);
+    EXPECT_TRUE(jd->IsArray());
+    EXPECT_TRUE((*jd)[(size_t)0].IsNumber());
+    EXPECT_EQ((*jd)[1].GetInt64(), 1);
+
+    xpack::JsonData s = *jd;
+    delete jd;
+
+    EXPECT_TRUE(s.IsArray());
+    EXPECT_TRUE(s[(size_t)0].IsNumber());
+    EXPECT_EQ(s[1].GetInt64(), 1);    
+}
+
 // ++++++++++++++++++bug history+++++++++++++++++++++++
 TEST(bughis, notexists) {
     Base b(9, "");
@@ -781,7 +826,11 @@ TEST(bughis, notexists) {
 struct OmitEmpty{
     int a;
     vector<int> b;
+#ifdef X_PACK_SUPPORT_CXX0X
     shared_ptr<Base> c;
+#else
+    Base c;
+#endif
     XPACK(X(F(OE), a, b, c));
 };
 TEST(bughis, omitempty) {
@@ -789,7 +838,9 @@ TEST(bughis, omitempty) {
     oe.a = 0;
     oe.b.push_back(0);
     oe.b.push_back(0);
+#ifdef X_PACK_SUPPORT_CXX0X
     oe.c.reset(new Base(0, ""));
+#endif
 
     string s = xpack::json::encode(oe);
     EXPECT_EQ(s, "{\"b\":[0,0],\"c\":{\"a\":0,\"b\":\"\"}}");
@@ -804,11 +855,28 @@ TEST(bughis, omitempty) {
     EXPECT_EQ(s, "<root><a>1</a><c><a>0</a><b/></c></root>");
 }
 
+#ifdef X_PACK_SUPPORT_CXX0X
+struct SharedPtrNull{
+    shared_ptr<xpack::JsonData> jd;
+    XPACK(O(jd));
+};
+TEST(bughis, shared_ptr_null) {
+    SharedPtrNull sn;
+
+    xpack::json::decode("{\"jd\":null}", sn);
+    EXPECT_TRUE(sn.jd);
+    EXPECT_TRUE(sn.jd->IsNull());
+    EXPECT_FALSE(sn.jd->IsArray());
+}
+#endif
+
 int main(int argc, char *argv[]) {
 #ifdef XGTEST
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 #else
+    (void)argc;
+    (void)argv;
     TC_CONTAINER::RUN();
     return 0;
 #endif

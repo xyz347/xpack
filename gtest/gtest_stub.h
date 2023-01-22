@@ -26,6 +26,9 @@
 #include <QString>
 #endif
 
+#include <xpack/traits.h>
+#include <xpack/numeric.h>
+
 // test callback function
 typedef void(*test_case)();
 
@@ -93,23 +96,25 @@ public:
 // type convert to support std::cout
 class TV {
 public:
+#ifdef X_PACK_SUPPORT_CXX0X
     template <class TYPE>
-    static const typename std::enable_if<!std::is_enum<TYPE>::value, TYPE>::type& tv(const TYPE &d) {
+    static typename std::enable_if<std::is_enum<TYPE>::value, int64_t>::type tv(const TYPE &d) {
+        return (int64_t)d;
+    }
+    template <class TYPE>
+    static typename std::enable_if<!std::is_enum<TYPE>::value, TYPE>::type tv(const TYPE &d) {
         return d;
     }
+    static const char* tv(const char* d) {
+        return d;
+    }
+#else
     template <class TYPE>
-    static const typename std::enable_if<std::is_enum<TYPE>::value, long long>::type tv(const TYPE &d) {
-        return (long long)d;
+    static const TYPE& tv(const TYPE&d) {
+        return d;
     }
-    static const int tv(const signed char &d) {
-        return (int)d;
-    }
-    static const int tv(const char &d) {
-        return (int)d;
-    }
-    static const int tv(const unsigned char &d) {
-        return (int)d;
-    }
+#endif
+
     #ifdef XPACK_SUPPORT_QT
     static std::string tv(const QString &d) {
         return d.toStdString();
