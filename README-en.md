@@ -92,6 +92,7 @@ Alias
     - x stands for global alias, not required
     - t stands for type(currently support json/xml/bson), n stands for type alias, type alias is not required
     - The order of precedence is: type alias, global alias, variable name
+    - For example, `id bson:_id`, in bson will use `_id` and json/xml will use `id`
 - Type alias can take some type flags, format is "t:n,flag1,flag2,...", currently supported flags are:
     - cdata. For xml, indicates that it is cdata
     - sbs. For xml vector, In normal, `vector<int> nums` will be encoded into `<nums><nums>1</nums><nums>2</nums><nums>`, in sbs is `<nums>1</nums><nums>2</nums>`
@@ -231,13 +232,13 @@ struct Time {
     long ts; //unix timestamp
 };
 ```
-Don't want to encode to {"ts":1218196800} but want to encode to "2008-08-08 20:00:00"
+Don't want to encode to {"ts":1218196800} but "2008-08-08 20:00:00"
 
 There are two ways to achieve:
 - Use xtype. You can refer to this [example](example/xtype.cpp)
-- Use 'C' include members need to custome codec(Hereinafter referred to as the C method), You can refer to this [example](example/custom.cpp)
+- Use 'C' include members need to custome codec(Hereinafter referred to as the `C method`), You can refer to this [example](example/custom.cpp)
 
-Both methods need to implement custom codec, but there are the some differences:
+Both methods need to implement custom codec, but there are some differences:
 - xtype is at the type level, that is, once a certain type is encapsulated with xtype, the custom encode/decode will take effect for this type. xtype cannot be used for basic types (int/string, etc.)
 - The C method can support basic types (int/string, etc.) and non-basic types, but only works on variables contained in C, such as 
 ```C++
