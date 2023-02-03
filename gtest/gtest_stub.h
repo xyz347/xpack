@@ -155,6 +155,13 @@ do {\
     }\
 }while(false)
 
+#define EXPECT_FALSE(a) \
+do {\
+    if ((a)) {\
+        std::cout<<std::endl<<"+++++++++++++++++++++++++++"<<__FILE__<<':'<<__LINE__<<'['<<__FUNCTION__<<']'<<"EXPECT_FALSE fail."<<std::endl;\
+        ++Status::c();\
+    }\
+}while(false)
 
 #endif
 

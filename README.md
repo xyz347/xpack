@@ -1,5 +1,6 @@
 xpack
 ====
+[English](README-en.md)
 * 用于在C++结构体和json/xml之间互相转换, bson在[xbson](https://github.com/xyz347/xbson)中支持。
 * 只有头文件, 无需编译库文件，所以也没有Makefile。
 * 具体可以参考example的例子

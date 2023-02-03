@@ -131,8 +131,8 @@ class JsonData {
 
     // maintain the memory
     struct Resource {
-        x_shared_ptr<rapidjson::Value> root; // release root first
         x_shared_ptr<rapidjson::MemoryPoolAllocator<> > allocator;
+        x_shared_ptr<rapidjson::Value> root; // release root first
         const rapidjson::Value *node; // current node
 
         Resource() :node(NULL) {
