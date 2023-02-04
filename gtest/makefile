@@ -4,20 +4,37 @@ endif
 
 MFLAG=-Wall -Wextra
 
+INC=-I ../..
+LIB=-pthread
+
+# c11 default on
 ifneq ($(c11),off)
-MFLAG+=-DXGTEST -std=c++11
+  MFLAG+=-std=c++11
+  # gtest default off
+  ifeq ($(gtest),on)
+    INC+=-I ../../googletest/googletest/include
+    LIB+=-L ../../googletest/lib -lgtest
+    MFLAG+=-DXGTEST
+  endif
+endif
+
+# QT default off
+ifeq ($(qt),on)
+    INC+=-I /usr/include/qt4  -I /usr/include/qt4/QtCore
+    LIB+=-lQtCore
+    MFLAG+=-DXPACK_SUPPORT_QT
 endif
 
 ifneq ($(xout),)
 MFLAG+=-DXPACK_OUT_TEST
 endif
 
-INC=-I ../.. -I ../../googletest/googletest/include  -I /usr/include/qt4  -I /usr/include/qt4/QtCore
-LIB=-L ../../googletest/lib -l gtest -pthread -lQtCore
-
-
-json:
-	$(GPP) -o $@ -g $(MFLAG) test.cpp -DXPACK_SUPPORT_QT $(INC) $(LIB)
+xtest:
+	$(GPP) -o $@ -g $(MFLAG) test.cpp  $(INC) $(LIB)
 	@-valgrind --tool=memcheck --leak-check=full ./$@
-	#@- ./$@
+	@-rm $@
+
+test:
+	$(GPP) -o $@ -g $(MFLAG) test.cpp  $(INC) $(LIB)
+	@-./$@
 	@-rm $@

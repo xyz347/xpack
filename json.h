@@ -19,7 +19,9 @@
 
 #include "json_decoder.h"
 #include "json_encoder.h"
+#if defined(X_PACK_SUPPORT_CXX0X) || defined (_GNU_SOURCE)
 #include "json_data.h"
+#endif
 #include "xpack.h"
 
 namespace xpack {
