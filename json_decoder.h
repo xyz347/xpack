@@ -20,8 +20,8 @@
 #include <fstream>
 
 #include "rapidjson_custom.h"
-#include "thirdparty/rapidjson/document.h"
-#include "thirdparty/rapidjson/error/en.h"
+#include "rapidjson/document.h"
+#include "rapidjson/error/en.h"
 
 #include "xdecoder.h"
 

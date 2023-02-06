@@ -24,7 +24,7 @@
 #include <cstdlib>
 #include <string.h>
 
-#include "thirdparty/rapidxml/rapidxml.hpp"
+#include "rapidxml/rapidxml.hpp"
 
 #include "xdecoder.h"
 
