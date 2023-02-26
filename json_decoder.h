@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2021 Duowan Inc. All rights reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,9 +70,9 @@ public:
                 }
                 std::string _tmp((std::istreambuf_iterator<char>(fs)), std::istreambuf_iterator<char>());
                 data.swap(_tmp);
-                _doc->Parse<parseFlags>(data);
+                _doc->Parse<parseFlags>(data.data(), data.length());
             } else  {
-                _doc->Parse<parseFlags>(str);
+                _doc->Parse<parseFlags>(str.data(), str.length());
             }
 
             if (_doc->HasParseError()) {

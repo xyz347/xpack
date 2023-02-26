@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2021 Duowan Inc. All rights reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -79,6 +79,9 @@ public:
     // not support float.
     template <class T>
     static typename x_enable_if<numeric<T>::is_integer, std::string>::type itoa(const T&val) {
+        #ifdef X_PACK_SUPPORT_CXX0X
+        return std::to_string(val);
+        #else
         char buf[128];
         size_t i = sizeof(buf)-1;
 
@@ -86,7 +89,7 @@ public:
             return std::string("0");
         }
 
-        T _tmp = val>0?val:-val;
+        T _tmp = val>=0?val:val*-1;
         while (_tmp > 0) {
             buf[i--] = char(int('0')+int(_tmp%10));
             _tmp /= 10;
@@ -95,6 +98,7 @@ public:
             buf[i--] = '-';
         }
         return std::string(&buf[i+1], sizeof(buf)-i-1);
+        #endif
     }
 
     #ifdef X_PACK_SUPPORT_CXX0X

@@ -22,6 +22,7 @@ xpack
 * [XML数组](#xml数组)
 * [CDATA](#cdata)
 * [Qt支持](#qt支持)
+* [MySQL](#mysql)
 * [重要说明](#重要说明)
 
 基本用法
@@ -384,6 +385,22 @@ Qt支持
 ----
 - 修改config.h，开启XPACK_SUPPORT_QT这个宏(或者在编译选项开启)
 - 当前支持 QString/QMap/QList/QVector 
+
+MySQL
+----
+- 目前仅支持decode，还不支持encode
+- 未经过完整测试，使用需要谨慎
+- 当前支持类型有：
+    - string。简单测试。
+    - 整型。简单测试。
+    - 浮点型。未测试。
+    - 用整型（比如time_t)接收TIME/DATETIME/TIMESTAMP。未测试。
+    - 自定义类型转换，is_xpack_mysql_xtype，类似于xtype。未测试。
+- api有两个(xpack::mysql::) ：
+    - `static void decode(MYSQL_RES *result, T &val)`
+        - 用来将MYSQL_RES转成结构体或者vector<>，如果是非vector，则只转换第一个row
+    - `static void decode(MYSQL_RES *result, const std::string&field, T &val)`
+        - 用来解析某个字段，用于只想获得某个字段内容的场景，比如select id from mytable where name = lilei，只想获得id信息。val支持vector
 
 
 重要说明

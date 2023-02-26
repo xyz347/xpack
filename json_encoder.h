@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2021 Duowan Inc. All rights reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -130,7 +130,7 @@ public:
     }
 
 public:
-    #define X_PACK_JSON_ENCODE(cond, f)  \
+    #define X_PACK_JSON_ENCODE_ARG(cond, f, ...)  \
         if ((cond)){                     \
             if (Extend::OmitEmpty(ext)) {\
                 return false;            \
@@ -140,11 +140,13 @@ public:
         }                                \
         xpack_set_key(key);              \
         if (NULL != _writer) {           \
-            _writer->f(val);             \
+            _writer->f(__VA_ARGS__);     \
         } else {                         \
-            _pretty->f(val);             \
+            _pretty->f(__VA_ARGS__);     \
         }                                \
         return true
+
+	#define X_PACK_JSON_ENCODE(cond, f) X_PACK_JSON_ENCODE_ARG(cond, f, val)
 
     bool writeNull(const char*key, const Extend *ext) {
         if (Extend::OmitEmpty(ext)) {
@@ -159,7 +161,7 @@ public:
         return true;
     }
     bool encode(const char*key, const std::string &val, const Extend *ext) {
-        X_PACK_JSON_ENCODE(val.empty(), String);
+        X_PACK_JSON_ENCODE_ARG(val.empty(), String, val.data(), val.length());
     }
     bool encode(const char*key, const bool &val, const Extend *ext) {
         X_PACK_JSON_ENCODE(!val, Bool);

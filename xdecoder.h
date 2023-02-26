@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2021 Duowan Inc. All rights reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -239,10 +239,12 @@ public:
         return this->decode_list<QList<T>, T>(key, val, ext);
     }
 
+    #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0) //https://www.qt.io/blog/qlist-changes-in-qt-6
     template<typename T>
     inline bool decode(const char*key, QVector<T> &val, const Extend *ext) {
         return this->decode_vector(key, val, ext);
     }
+    #endif
 
     template<typename T>
     inline bool decode(const char*key, QMap<std::string, T> &val, const Extend *ext) {

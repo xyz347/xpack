@@ -11,10 +11,6 @@
   #define RAPIDJSON_ASSERT(x) if(!(x)) throw std::runtime_error(#x)
 #endif
 
-#ifndef RAPIDJSON_HAS_STDSTRING
-  #define RAPIDJSON_HAS_STDSTRING 1
-#endif
-
 #ifndef RAPIDJSON_WRITE_DEFAULT_FLAGS
 #define RAPIDJSON_WRITE_DEFAULT_FLAGS kWriteNanAndInfFlag
 #endif

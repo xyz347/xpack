@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2021 Duowan Inc. All rights reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,37 +20,37 @@
 namespace xpack {
 
 template <class T>
-struct numeric{static bool const value = false; static bool const is_integer = false;static bool const is_float = false;};
+struct numeric{static bool const value = false; static bool const is_integer = false;static bool const is_float = false;static bool const is_signed = false;};
 
 template<>
-struct numeric<char>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<char>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
-struct numeric<signed char>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<signed char>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
 struct numeric<unsigned char>{static bool const value = true; static bool const is_integer = true;};
 
 template<>
-struct numeric<short>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<short>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
 struct numeric<unsigned short>{static bool const value = true; static bool const is_integer = true;};
 
 template<>
-struct numeric<int>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<int>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
 struct numeric<unsigned int>{static bool const value = true; static bool const is_integer = true;};
 
 template<>
-struct numeric<long>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<long>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
 struct numeric<unsigned long>{static bool const value = true; static bool const is_integer = true;};
 
 template<>
-struct numeric<long long>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<long long>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
 struct numeric<unsigned long long>{static bool const value = true; static bool const is_integer = true;};

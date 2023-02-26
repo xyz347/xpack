@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2021 Duowan Inc. All rights reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -89,7 +89,7 @@ private:
 #endif
 
 // wrapper for rapidjson::Value.
-// If we use other json parser someday, users won’t have to modify the code.
+// If we use other json parser someday, users won't have to modify the code.
 // Most of the code is copied from rapidjson.
 
 enum JsonType {

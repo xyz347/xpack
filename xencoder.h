@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2021 Duowan Inc. All rights reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -230,10 +230,13 @@ public:
         return encode_qmap<const QMap<QString,T>, QString>(key, val, ext, qstrToStr);
     }
 
+    #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0) //https://www.qt.io/blog/qlist-changes-in-qt-6
     template<typename T>
     bool encode(const char*key, const QVector<T>&val, const Extend *ext) {
         return encode_list<QVector<T> >(key, val, ext);
     }
+    #endif
+
     #endif
 
     // list
