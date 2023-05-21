@@ -52,28 +52,25 @@ class xml {
 public:
     template <class T>
     static void decode(const std::string &data, T &val) {
-        XmlDecoder doc(data);
-        doc.decode(NULL, val, NULL);
+        XmlDecoder de;
+        de.decode(data, val);
     }
     template <class T>
     static void decode_file(const std::string &file_name, T &val) {
-        XmlDecoder doc(file_name, true);
-        doc.decode(NULL, val, NULL);
+        XmlDecoder de;
+        de.decode_file(file_name, val);
     }
     template <class T>
     static std::string encode(const T &val, const std::string&root) {
-        XmlEncoder doc(-1);
-        doc.encode(root.c_str(), val, NULL);
-        return doc.String();
+        XmlEncoder en;
+        return en.encode(val, root);
     }
 
     template <class T>
     static std::string encode(const T &val, const std::string&root, int flag, int indentCount, char indentChar) {
-        XmlEncoder doc(indentCount, indentChar);
-        Extend ext(flag, NULL);
-
-        doc.encode(root.c_str(), val, &ext);
-        return doc.String();
+        (void)flag;
+        XmlEncoder en(indentCount, indentChar);
+        return en.encode(val, root);
     }
 };
 

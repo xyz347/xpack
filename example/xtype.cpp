@@ -31,9 +31,9 @@ struct is_xpack_xtype<Date> {static bool const value = true;};
 
 // implement decode
 template<class OBJ>
-bool xpack_xtype_decode(OBJ &obj, const char*key, Date &val, const Extend *ext) {
+bool xpack_xtype_decode(OBJ &obj, Date &val, const Extend *ext) {
     std::string str;
-    obj.decode(key, str, ext);
+    obj.decode(str, ext);
     if (str.empty()) {
         return false;
     }

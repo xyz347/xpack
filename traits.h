@@ -37,6 +37,9 @@ struct is_xpack_out{static bool const value = false;};
 template <class T>
 struct is_xpack_xtype {static bool const value = false;};
 
+template <class T>
+struct is_xpack_type_spec {static bool const value = false;};
+
 
 // for bitfield, declare raw type. thx https://stackoverflow.com/a/12199635/5845104
 template<int N> struct x_size { char value[N]; };
@@ -101,8 +104,8 @@ XPACK_IS_XPACK need to add !is_xpack_out<T>::value
 */
 
 #define XPACK_IS_XOUT(T) typename x_enable_if<is_xpack_out<T>::value && !is_xpack_xtype<T>::value, bool>::type
-
 #define XPACK_IS_XPACK(T) typename x_enable_if<T::__x_pack_value && !is_xpack_out<T>::value && !is_xpack_xtype<T>::value, bool>::type
+
 
 #endif
 

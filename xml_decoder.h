@@ -30,180 +30,123 @@
 
 namespace xpack {
 
-class XmlDecoder:public XDecoder<XmlDecoder>, private noncopyable {
-    typedef rapidxml::xml_document<> XML_READER_DOCUMENT;
-    typedef rapidxml::xml_node<> XML_READER_NODE;
-    friend class XDecoder<XmlDecoder>;
-
-    class MemberIterator {
-        friend class XmlDecoder;
-    public:
-        MemberIterator(size_t iter, XmlDecoder* parent):_iter(iter),_parent(parent){}
-        bool operator != (const MemberIterator &that) const {
-            return _iter != that._iter;
-        }
-        MemberIterator& operator ++ () {
-            ++_iter;
-            return *this;
-        }
-        const char* Key() const {
-            if (NULL != _parent) {
-                return _parent->get_iter_key(_iter);
-            }
-            return "";
-        }
-        XmlDecoder& Val() const {
-            return _parent->member(*this, *_parent->alloc());
-        }
-    private:
-        size_t _iter;
-        XmlDecoder* _parent;
-    };
+class XmlNode {
+    typedef rapidxml::xml_node<> Node;
+    typedef XDecoder<XmlNode> decoder;
 public:
-    using xdoc_type::decode;
-    typedef MemberIterator Iterator;
+    typedef size_t Iterator;
 
-    XmlDecoder(const std::string& str, bool isfile=false):xdoc_type(NULL, ""),_doc(new XML_READER_DOCUMENT),_node(NULL) {
-        std::string err;
-        _xml_data = NULL;
+public:
+    XmlNode(Node *n=NULL):node(n), attr(NULL), inited(false) {}
 
-        do {
-            try {
-                if (isfile) {
-                    std::ifstream fs(str.c_str(), std::ifstream::binary);
-                    if (!fs) {
-                        err = "Open file["+str+"] fail.";
-                        break;
-                    }
-                    std::string data((std::istreambuf_iterator<char>(fs)), std::istreambuf_iterator<char>());
-                    _xml_data = new char[data.length()+1];
-                    memcpy(_xml_data, data.data(), data.length());
-                    _xml_data[data.length()] = '\0';
-                } else  {
-                    _xml_data = new char[str.length()+1];
-                    memcpy(_xml_data, str.data(), str.length());
-                    _xml_data[str.length()] = '\0';
-                }
-                _doc->parse<0>(_xml_data);
-            } catch (const rapidxml::parse_error&e) {
-                err = std::string("parse xml fail. err=")+e.what()+". "+std::string(e.where<char>()).substr(0, 32);
-            } catch (const std::exception&e) {
-                err = std::string("parse xml fail. unknow exception. err=")+e.what();
-            }
-
-            if (!err.empty()) {
-                break;
-            }
-
-            _node = _doc->first_node(); // root
-
-            init();
-            return;
-        } while (false);
-
-        delete _doc;
-        _doc = NULL;
-        if (NULL != _xml_data) {
-            delete []_xml_data;
-            _xml_data = NULL;
-        }
-        throw std::runtime_error(err);
-    }
-    ~XmlDecoder() {
-        if (NULL != _doc) {
-            delete _doc;
-            delete []_xml_data;
-            _doc = NULL;
-            _xml_data = NULL;
-        }
-    }
-
-    const char * Type() {
+    inline static const char * XType() {
         return "xml";
     }
-
-    const char * Name() {
-        if (NULL != _node) {
-            return _node->name();
-        }
-        return NULL;
+    operator bool() const {
+        return node != NULL;
     }
-
-public: // decode
-    #define XPACK_XML_DECODE_CHECK()                              \
-        bool exists; std::string v = get_val(key, exists);        \
-        if (!exists) {                                            \
-            if (Extend::Mandatory(ext)) {                         \
-                decode_exception("mandatory key not found", key); \
-            }                                                     \
-            return false;                                         \
+    bool IsNull() const {
+        return false;
+    }
+    XmlNode Find(decoder&de, const char*key, const Extend *ext) {
+        (void)de;
+        if (!inited) {
+            this->init();
         }
 
-    #define XPACK_XML_DECODE_INTEGER(type) \
-    bool decode(const char*key, type&val, const Extend*ext) {return this->decode_integer(key, val, ext);}
-    XPACK_XML_DECODE_INTEGER(char)
-    XPACK_XML_DECODE_INTEGER(signed char)
-    XPACK_XML_DECODE_INTEGER(unsigned char)
-    XPACK_XML_DECODE_INTEGER(short)
-    XPACK_XML_DECODE_INTEGER(unsigned short)
-    XPACK_XML_DECODE_INTEGER(int)
-    XPACK_XML_DECODE_INTEGER(unsigned int)
-    XPACK_XML_DECODE_INTEGER(long)
-    XPACK_XML_DECODE_INTEGER(unsigned long)
-    XPACK_XML_DECODE_INTEGER(long long)
-    XPACK_XML_DECODE_INTEGER(unsigned long long)
-
-    // string
-    bool decode(const char *key, std::string &val, const Extend *ext) {
-        if (!Extend::AliasFlag(ext, "xml", "cdata")) {
-            XPACK_XML_DECODE_CHECK();
-            val = v;
-        } else {
-            const XML_READER_NODE *cur = NULL;
-            const XML_READER_NODE *tmp = NULL;
-            if (key == NULL) {
-                tmp = _node->first_node();
-                cur = _node;
+        node_index::iterator iter;
+        if (_childs_index.end() != (iter=_childs_index.find(key))) {
+            bool sbs = Extend::AliasFlag(ext, "xml", "sbs");
+            if (!sbs) {
+                return XmlNode(_childs[iter->second]);
             } else {
-                node_index::iterator iter = _childs_index.find(key);
-                if (_childs_index.end() != iter) {
-                    cur = _childs[iter->second];
-                    tmp = cur->first_node();
-                } else if (Extend::Mandatory(ext)) {
-                    decode_exception("mandatory key not found", key);
-                }
+                XmlNode node(_childs[iter->second]);
+                node.initsbs(*this, key);
+                return node;
             }
+        } else { // sbs not support attribute
+            XmlNode tmp;
+            tmp.attr = node->first_attribute(key);
+            if (NULL != tmp.attr) {
+                tmp.node = this->node;
+            }
+            return tmp;
+        }
+    }
+    size_t Size(decoder&de) {
+        (void)de;
+        if (!inited) {
+            this->init();
+        }
+        return _childs.size();
+    }
+    XmlNode At(size_t index) const { // no exception
+        return XmlNode(_childs[index]);
+    }
+    // if child node defined sbs, results can be confusing
+    XmlNode Next(decoder&de, XmlNode&p, Iterator&iter, std::string&key) {
+        (void)de;
+        if (!p.inited) {
+            p.init();
+        }
+        if (node != NULL) {
+            if (node != p.node) {
+                ++iter;
+            } else {
+                iter = 0;
+            }
+
+            if (iter < p._childs.size()) {
+                key = p._childs[iter]->name();
+                return XmlNode(p._childs[iter]);
+            }
+        }
+        return XmlNode();
+    }
+    bool Get(decoder&de, std::string&val, const Extend*ext) {
+        if (!Extend::AliasFlag(ext, "xml", "cdata")) {
+            val = get_val();
+        } else {
+            const Node *tmp = node->first_node();
             if (NULL != tmp) {
                 if (tmp->type() == rapidxml::node_cdata || tmp->type() == rapidxml::node_data) {
                     val = tmp->value();
                 } else {
-                    decode_exception("not cdata type", key);
+                    de.decode_exception("not cdata type", NULL);
                 }
-            } else if (NULL != cur) { // if node contain text not CDATA, get it
-                val = cur->value();
-            } else if (Extend::Mandatory(ext)) {
-                decode_exception("mandatory key not found", key);
-            } else {
-                return false;
+            } else { // if node contain text not CDATA, get it
+                val = node->value();
             }
         }
         return true;
     }
-    bool decode(const char *key, bool &val, const Extend *ext) {
-        XPACK_XML_DECODE_CHECK();
+    bool Get(decoder&de, bool &val, const Extend*ext) {
+        (void)ext;
+        std::string v = get_val();
         if (v=="1" || v=="true" || v=="TRUE" || v=="True") {
             val = true;
         } else if (v=="0" || v=="false" || v=="FALSE" || v=="False") {
             val = false;
         } else {
-            decode_exception("parse bool fail.", key);
-            return false;
+            de.decode_exception("parse bool fail.", NULL);
         }
         return true;
     }
-
-    bool decode(const char *key, double &val, const Extend *ext) {
-        XPACK_XML_DECODE_CHECK();
+    template <class T>
+    typename x_enable_if<numeric<T>::is_integer, bool>::type Get(decoder&de, T &val, const Extend*ext){
+        (void)ext;
+        std::string v = get_val();
+        if (Util::atoi(v, val)) {
+            return true;
+        } else {
+            de.decode_exception("parse int fail. not integer or overflow", NULL);
+            return false;
+        }
+    }
+    template <class T>
+    typename x_enable_if<numeric<T>::is_float, bool>::type Get(decoder&de, T &val, const Extend*ext){
+        (void)ext;
+        std::string v = get_val();
         if (1==v.length() && v[0]=='-') {
             return false;
         }
@@ -212,160 +155,93 @@ public: // decode
         char *end;
         double d = strtod(data, &end);
         if ((size_t)(end-data) == v.length()) {
-            val = d;
+            val = (T)d;
             return true;
         }
-        decode_exception("parse double fail.", key);
+        de.decode_exception("parse double fail.", NULL);
         return false;
-    }
-    bool decode(const char *key, float &val, const Extend *ext) {
-        double d;
-        bool ret = this->decode(key, d, ext);
-        if (ret) {
-            val = (float)d;
-        }
-        return ret;
-    }
-    bool decode(const char *key, long double &val, const Extend *ext) {
-        double d;
-        bool ret = this->decode(key, d, ext);
-        if (ret) {
-            val = (long double)d;
-        }
-        return ret;
-    }
-
-    size_t Size() {
-            return _childs.size();
-    }
-    XmlDecoder& operator[](size_t index) {
-        XmlDecoder *d = alloc();
-        member(index, *d, NULL);
-        return *d;
-    }
-    XmlDecoder& operator[](const char* key) {
-        XmlDecoder *d = alloc();
-        member(key, *d, NULL);
-        return *d;
-    }
-    Iterator Begin() {
-        return Iterator(0, this);
-    }
-    Iterator End() {
-        return Iterator(_childs.size(), this);
-    }
-    operator bool() const {
-        return NULL != _node;
     }
 
 private:
-    // integer. if we named this as decode, clang and msvc will fail
-    template <class T>
-    typename x_enable_if<numeric<T>::is_integer, bool>::type decode_integer(const char *key, T &val, const Extend *ext) {
-        XPACK_XML_DECODE_CHECK();
-        if (Util::atoi(v, val)) {
-            return true;
-        } else {
-            decode_exception("parse int fail. not integer or overflow", key);
-            return false;
-        }
-    }
-
     typedef std::map<const char*, size_t, cmp_str> node_index; // index of _childs
 
-    XmlDecoder():xdoc_type(NULL, ""),_doc(NULL),_xml_data(NULL),_node(NULL) {
-        init();
-    }
-
-    XmlDecoder& member(size_t index, XmlDecoder&d, const Extend *ext) {
-        (void)ext;
-        if (index < _childs.size()) {
-            d.init_base(this, index);
-            d._node = _childs[index];
-            d.init();
-        } else {
-            decode_exception("Out of index", NULL);
-        }
-
-        return d;
-    }
-
-    XmlDecoder& member(const char*key, XmlDecoder&d, const Extend *ext) {
-        node_index::iterator iter;
-        if (_childs_index.end() != (iter=_childs_index.find(key))) {
-            d.init_base(this, key);
-            d._node = _childs[iter->second];
-
-            if (!Extend::AliasFlag(ext, "xml", "sbs")) {
-                d.init();
-            } else {
-                d._childs.clear();
-                d._childs_index.clear();
-                for (size_t i=0; i<_childs.size(); ++i) {
-                    if (0 == strcmp(key, _childs[i]->name())) {
-                        d._childs.push_back(_childs[i]);
-                    }
-                }
-            }
-        }
-
-        return d;
-    }
-
-    XmlDecoder& member(const Iterator &iter, XmlDecoder&d) const {
-        const XML_READER_NODE* node = _childs[iter._iter];
-        d.init_base(iter._parent, node->name());
-        d._node = node;
-        d.init();
-        return d;
-    }
-
-    const char *get_iter_key(size_t iter) const {
-        if (iter < _childs.size()) {
-            return _childs[iter]->name();
-        }
-        return "";
-    }
-
     void init() {
-        _childs.clear();
-        _childs_index.clear();
-        if (NULL != _node) {
-            XML_READER_NODE *tmp = _node->first_node();
+        inited = true;
+        if (NULL != node) {
+            Node *tmp = node->first_node();
             for (size_t i=0; tmp; tmp=tmp->next_sibling(), ++i) {
                 _childs.push_back(tmp);
                 _childs_index[tmp->name()] = i;
             }
         }
     }
-
-    std::string get_val(const char *key, bool &exists) {
-        exists = true;
-        if (NULL == key) {
-            return _node->value();
-        } else {
-            node_index::iterator iter;
-            if (_childs_index.end()!=(iter=_childs_index.find(key))) {
-                return _childs[iter->second]->value();
-            } else {
-                rapidxml::xml_attribute<char> *attr = _node->first_attribute(key);
-                if (NULL != attr) {
-                    return attr->value();
-                }
+    void initsbs(const XmlNode&parent, const char *key) {
+        inited = true;
+        for (size_t i=0; i<parent._childs.size(); ++i) {
+            if (0 == strcmp(key, parent._childs[i]->name())) {
+                _childs.push_back(parent._childs[i]);
             }
         }
-        exists = false;
-        return "";
     }
 
-    // for parse xml file. only root has this
-    XML_READER_DOCUMENT* _doc;
-    char *_xml_data;
+    std::string get_val() {
+        if (attr != NULL) {
+            return attr->value();
+        } else {
+            return node->value();
+        }
+    }
 
-    const XML_READER_NODE* _node;           // current node
-    std::vector<XML_READER_NODE*> _childs;  // childs
+    const Node* node;   // current node
+    rapidxml::xml_attribute<char> *attr;
+    bool inited;        // delay init to avoid copy _childs and _childs_index
+
+    std::vector<Node*> _childs;  // childs
     node_index _childs_index;
-    size_t _iter;
+};
+
+
+class XmlDecoder {
+public:
+    template <class T>
+    bool decode(const std::string&str, T&val, bool with_root=false) {
+        std::string tmp = str;
+        return this->decode_indata(tmp, val, with_root);
+    }
+    template <class T>
+    bool decode_file(const std::string&fname, T&val, bool with_root=false) {
+        std::string data;
+        bool ret = Util::readfile(fname, data);
+        if (ret) {
+            ret = this->decode_indata(data, val, with_root);
+        }
+        return ret;
+    }
+private:
+    template <class T>
+    bool decode_indata(std::string&str, T&val, bool with_root=false) {
+        rapidxml::xml_document<> de;
+        std::string err;
+        try {
+            de.parse<0>((char*)str.c_str());
+        } catch (const rapidxml::parse_error&e) {
+            err = std::string("parse xml fail. err=")+e.what()+". "+std::string(e.where<char>()).substr(0, 32);
+        } catch (const std::exception&e) {
+            err = std::string("parse xml fail. unknow exception. err=")+e.what();
+        }
+
+        if (!err.empty()) {
+            throw std::runtime_error(err);
+        }
+
+        if (!with_root) {
+            XmlNode node(de.first_node());
+            return XDecoder<XmlNode>(NULL, (const char*)NULL, node).decode(val, NULL);
+        } else { 
+            XmlNode node(&de);
+            return XDecoder<XmlNode>(NULL, (const char*)NULL, node).decode(val, NULL);
+        }
+    }
 };
 
 }

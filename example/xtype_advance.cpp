@@ -20,6 +20,7 @@
 
 using namespace std;
 
+// The requirement is to encode seq1 when type==1, and encode seq2 when type==2
 struct Sub {
     int    type;
     string seq1;
@@ -40,44 +41,43 @@ namespace xpack {
 template<>
 struct is_xpack_xtype<Sub> {static bool const value = true;};
 
-template <class OBJ>
-bool xpack_xtype_decode(OBJ& obj, const char *name, Sub &data, const xpack::Extend *ext) {
-    (void)name;
-    data.__x_pack_decode(obj, data, ext);
+template <class Decoder>
+bool xpack_xtype_decode(Decoder& de, Sub &data, const xpack::Extend *ext) {
+    de.decode_struct(data, ext);
     return true;
 }
 
-template <class BASE>
+template <class BaseEncoder>
 class MyEncoder {
 public:
-    MyEncoder(BASE&b, const Sub&sub):_b(&b), _s(&sub){}
-    template <class DATA>
-    bool encode(const char*name, const DATA&val, const xpack::Extend *ext) {
-        if (strcmp(name, "seq1") == 0) {
+    MyEncoder(BaseEncoder&b, const Sub&sub):_b(&b), _s(&sub){}
+    template <class T>
+    bool encode(const char*key, const T&val, const xpack::Extend *ext) {
+        if (strcmp(key, "seq1") == 0) {
             if (_s->type == 1) {
-                return _b->encode(name, val, ext);
+                return _b->encode(key, val, ext);
             } else {
                 return false;
             }
-        } else if (strcmp(name, "seq2") == 0) {
+        } else if (strcmp(key, "seq2") == 0) {
             if (_s->type == 2) {
-                return _b->encode(name, val, ext);
+                return _b->encode(key, val, ext);
             } else {
                 return false;
             }
         } else {
-            return _b->encode(name, val, ext);
+            return _b->encode(key, val, ext);
         }
     }
 private:
-    BASE *_b;
+    BaseEncoder *_b;
     const Sub *_s;
 };
 
-template <class OBJ>
-bool xpack_xtype_encode(OBJ &obj, const char *name, const Sub &data, const xpack::Extend *ext) {
+template <class Encoder>
+bool xpack_xtype_encode(Encoder &en, const char *name, const Sub &data, const xpack::Extend *ext) {
     (void)name;
-    MyEncoder<OBJ> my(obj, data);
+    MyEncoder<Encoder> my(en, data);
     data.__x_pack_encode(my, data, ext);
     return true;
 }
@@ -100,5 +100,9 @@ int main(int argc, char *argv[]) {
     Test n;
     xpack::json::decode(str, t);
     cout<<t.uid<<endl;
+
+    t.sub.type = 2;
+    cout<<xpack::json::encode(t)<<endl;
+
     return 0;
 }

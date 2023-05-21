@@ -25,10 +25,24 @@ enum Enum {
     Z = 2,
 };
 
+enum class Enum1 {
+    X = 0,
+    Y = 1,
+    Z = 2,
+};
+
+enum class Enum2:int64_t {
+    X = 0,
+    Y = 1,
+    Z = 2,
+};
+
 struct Test {
     string  name;
     Enum    e;
-    XPACK(O(name), E(F(0), e));
+    Enum1   e1;
+    Enum2   e2;
+    XPACK(O(name), E(F(0), e), O(e1, e2));
 };
 
 int main(int argc, char *argv[]) {
@@ -36,10 +50,9 @@ int main(int argc, char *argv[]) {
     (void)argv;
 
     Test t;
-    string json="{\"name\":\"IPv4\", \"e\":1}";
+    string json="{\"name\":\"IPv4\", \"e\":1, \"e1\":2, \"e2\":2}";
 
     xpack::json::decode(json, t);
-    cout<<t.name<<endl;
-    cout<<t.e<<endl;
+    cout<<xpack::json::encode(t)<<endl;
     return 0;
 }

@@ -21,3 +21,9 @@ endif
 
 tar:$(TAR)
 	@echo -------test done-------
+
+mysql:mysql.cpp
+	$(GPP) -o $@ -g $< -lmysqlclient -I ../..
+
+sqlite:sqlite.cpp
+	$(GPP) -o $@ -g $< -lsqlite -I ../..

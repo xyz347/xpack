@@ -38,7 +38,6 @@ namespace xpack {
 
 // control flag
 #define X_PACK_CTRL_FLAG_INHERIT     (1<<0)
-#define X_PACK_CTRL_FLAG_IGNORE_NULL (1<<1)
 
 // Alias name. [def ][type:name[,flag,key@value,flag]]  def not support flag
 struct Alias {

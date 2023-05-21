@@ -14,27 +14,27 @@
 * limitations under the License.
 */
 
-#ifndef __X_PACK_MYSQL_H
-#define __X_PACK_MYSQL_H
+#ifndef __X_PACK_SQLITE_H
+#define __X_PACK_SQLITE_H
 
-#include "mysql_decoder.h"
+#include "sqlite_decoder.h"
 #include "xpack.h"
 
 namespace xpack {
 
-class mysql {
+class sqlite {
 public:
-    // convert MYSQL_RES to a struct or vector<struct>
+    // convert result of sqlite_get_table to a struct or vector<struct>
     template <class T>
-    static void decode(MYSQL_RES *result, T &val) {
-        MySQLDecoder de(result);
+    static void decode(const char **result, int rows, int cols, T &val) {
+        SQLiteDecoder de(result, rows, cols);
         de.decode_top(val, NULL);
     }
 
     // select name from test where id = 1; // just want to get name, did not want to use a struct
     template <class T>
-    static void decode(MYSQL_RES *result, const std::string&field, T &val) {
-        MySQLDecoder de(result);
+    static void decode(const char **result, int rows, int cols, const std::string&field, T &val) {
+        SQLiteDecoder de(result, rows, cols);
         de.decode_column(field.c_str(), val, NULL);
     }
 };

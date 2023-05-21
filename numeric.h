@@ -29,31 +29,31 @@ template<>
 struct numeric<signed char>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
-struct numeric<unsigned char>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<unsigned char>{static bool const value = true; static bool const is_integer = true;;static bool const is_signed = false;};
 
 template<>
 struct numeric<short>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
-struct numeric<unsigned short>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<unsigned short>{static bool const value = true; static bool const is_integer = true;;static bool const is_signed = false;};
 
 template<>
 struct numeric<int>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
-struct numeric<unsigned int>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<unsigned int>{static bool const value = true; static bool const is_integer = true;;static bool const is_signed = false;};
 
 template<>
 struct numeric<long>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
-struct numeric<unsigned long>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<unsigned long>{static bool const value = true; static bool const is_integer = true;;static bool const is_signed = false;};
 
 template<>
 struct numeric<long long>{static bool const value = true; static bool const is_integer = true;static bool const is_signed = true;};
 
 template<>
-struct numeric<unsigned long long>{static bool const value = true; static bool const is_integer = true;};
+struct numeric<unsigned long long>{static bool const value = true; static bool const is_integer = true;;static bool const is_signed = false;};
 
 template<>
 struct numeric<float>{static bool const value = true;static bool const is_float = true;};

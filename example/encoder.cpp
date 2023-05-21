@@ -29,12 +29,17 @@ int main(int argc, char *argv[]) {
     vi[1] = 2;
     vi[2] = 3;
 
-    xpack::JsonEncoder en;
-    xpack::XmlEncoder xn;
-    en.ob(NULL).add("vv", vi).add("i",10).add("s","hello").oe();
-    xn.ob("root").add("vv", vi).add("i",10).add("s","hello").oe();
+    xpack::JsonWriter jw;
+    xpack::XEncoder<xpack::JsonWriter> je(jw);
 
-    cout<<en.String()<<endl;
-    cout<<xn.String()<<endl;
+    xpack::XmlWriter xw;
+    xpack::XEncoder<xpack::XmlWriter> xe(xw);
+
+    je.ob(NULL).add("vv", vi).add("i",10).add("s","hello").oe();
+    xe.ob("root").add("vv", vi).add("i",10).add("s","hello").oe();
+
+    cout<<je.String()<<endl;
+    cout<<xe.String()<<endl;
+
     return 0;
 }
