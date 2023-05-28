@@ -2,6 +2,9 @@ xpack
 ==== 
 * Used to convert between C++ structure and json/xml, bson is supported in [xbson](https://github.com/xyz347/xbson). 
 * Only header files, no need to compile library files, so there is no Makefile. 
+* Support MySQL, depends on `libmysqlclient-dev`, need to install by yourself. **not fully tested**
+* Support Sqlite, depends on [libsqlite3](https://cppget.org/libsqlite3), need to install it yourself. **not fully tested**
+* Support yaml, depend on [yaml-cpp](https://github.com/jbeder/yaml-cpp), need to install it yourself. **not fully tested**
 * For details, please refer to the example
 
 ------ 

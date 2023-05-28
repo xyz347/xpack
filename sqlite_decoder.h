@@ -45,7 +45,7 @@ public:
         }
         return false;
     }
-    const char *XType() const { // mysql and sqlite use db
+    const char *Name() const { // mysql and sqlite use db
         return "db";
     }
 

@@ -69,8 +69,9 @@ public:
             _pretty = NULL;
         }
     }
+
 private:
-    inline static const char *XType() {
+    inline static const char *Name() {
         return "json";
     }
     inline const char *IndexKey(size_t index) {
@@ -279,11 +280,14 @@ private:
     int maxDecimalPlaces;
 };
 
-// JsonData 
+// //////////////// JsonData  ///////////////////////
+template<>struct is_xpack_type_spec<JsonWriter, JsonData> {static bool const value = true;};
+
 inline std::string JsonData::String() const {
     JsonEncoder en;
     return en.encode(*this);
 }
+
 
 }
 

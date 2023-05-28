@@ -1,7 +1,9 @@
 .DS_Store
 mytest
 */vgcore*
-example/config.json
+example/*.json
 example/*.db
+example/*.yml
+example/core
 example/mysql
 example/sqlite

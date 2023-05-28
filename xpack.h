@@ -108,7 +108,7 @@
     {                                                                      \
         static xpack::Alias __x_pack_alias(#M, NAME);                      \
         xpack::Extend __x_pack_ext(__x_pack_flag, &__x_pack_alias);        \
-        const char *__new_name = __x_pack_alias.Name(__x_pack_obj.XType());\
+        const char *__new_name = __x_pack_alias.Name(__x_pack_obj.Name());\
         __x_pack_ret |= __x_pack_obj.decode(__new_name, __x_pack_self.M, &__x_pack_ext);   \
     }
 
@@ -144,7 +144,7 @@
     {                                                                      \
         static xpack::Alias __x_pack_alias(#M, NAME);                      \
         xpack::Extend __x_pack_ext(__x_pack_flag, &__x_pack_alias);        \
-        const char *__new_name = __x_pack_alias.Name(__x_pack_obj.XType());\
+        const char *__new_name = __x_pack_alias.Name(__x_pack_obj.Name());\
         __x_pack_ret |= __x_pack_obj.encode(__new_name, __x_pack_self.M, &__x_pack_ext);   \
     }
 

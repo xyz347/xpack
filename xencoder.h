@@ -44,7 +44,7 @@ namespace xpack {
 
 /*
   DOC need implement:
-    const char *XType() const; "json/bson/...."
+    const char *Name() const; "json/bson/...."
     const static bool support_null = true/false;
 
     ArrayBegin(const char *key, const Extend *ext)  begin encode array
@@ -70,8 +70,8 @@ class XEncoder :private noncopyable{
 public:
     XEncoder(Writer &w):_w(w){}
 
-    const char *XType() const {
-        return Writer::XType();
+    const char *Name() const {
+        return Writer::Name();
     }
 
     // After calling String, this Encoder has finished its work and should not be used anymore
@@ -154,9 +154,9 @@ public:
     inline XPACK_IS_XOUT(T) encode(const char*key, const T& val, const Extend *ext) {
         return encode_struct(key, val, ext);
     }
-    // XType
+    // xtype
     template <class T>
-    inline XPACK_IS_XTYPE(T) encode(const char*key, const T& val, const Extend *ext) {
+    inline XPACK_IS_XTYPE(Writer, T) encode(const char*key, const T& val, const Extend *ext) {
         return encode_xtype(key, val, ext);
     }
 
@@ -214,18 +214,18 @@ public:
     bool encode(const char*key, const QVector<T>&val, const Extend *ext) {
         return encode_list<QVector<T> >(key, val, ext);
     }
-    #endif Qt5
+    #endif // Qt5
 
     #endif // Qt
 
     template <typename T>
-    inline typename x_enable_if<is_xpack_type_spec<T>::value, bool>::type encode(const char*key, const T&val, const Extend *ext) {
+    inline typename x_enable_if<is_xpack_type_spec<Writer, T>::value, bool>::type encode(const char*key, const T&val, const Extend *ext) {
         return _w.encode_type_spec(key, val, ext);
     }
 
     // only for class/struct that defined XPACK
     template <class T>
-    XPACK_IS_XPACK(T) encode_struct(const char*key, const T& val, const Extend *ext) {
+    typename x_enable_if<T::__x_pack_value && !is_xpack_out<T>::value, bool>::type encode_struct(const char*key, const T& val, const Extend *ext) {
         bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
         if (!inherit) {
             _w.ObjectBegin(key, ext);
@@ -238,7 +238,7 @@ public:
     }
     // only for class/struct that defined XPACK_OUT
     template <class T>
-    XPACK_IS_XOUT(T) encode_struct(const char*key, const T& val, const Extend *ext) {
+    typename x_enable_if<is_xpack_out<T>::value, bool>::type encode_struct(const char*key, const T& val, const Extend *ext) {
         bool inherit = 0!=(X_PACK_CTRL_FLAG_INHERIT&Extend::CtrlFlag(ext));
 
         if (!inherit) {
@@ -345,7 +345,7 @@ private:
     }
     #ifdef XPACK_SUPPORT_QT
     inline std::string keyConvert(const QString &key) {
-        return QString::fromStdString(s);
+        return key.toStdString();
     }
     #endif
     #ifdef X_PACK_SUPPORT_CXX0X

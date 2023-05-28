@@ -110,8 +110,6 @@ private:
     const rapidjson::Value* current;
 };
 
-template<>struct is_xpack_type_spec<JsonData> {static bool const value = true;};
-
 }
 
 #endif

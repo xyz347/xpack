@@ -38,3 +38,8 @@ test:
 	$(GPP) -o $@ -g $(MFLAG) test.cpp  $(INC) $(LIB)
 	@-./$@
 	@-rm $@
+
+bson:bson_test.cpp
+	$(GPP) -o $@ -g $< -std=c++11 $(INC) $(LIB) $(MFLAG) -lbson-1.0
+	@-valgrind --tool=memcheck --leak-check=full	./$@
+	@-rm $@

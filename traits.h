@@ -37,7 +37,7 @@ struct is_xpack_out{static bool const value = false;};
 template <class T>
 struct is_xpack_xtype {static bool const value = false;};
 
-template <class T>
+template <class CODER, class T>
 struct is_xpack_type_spec {static bool const value = false;};
 
 
@@ -86,9 +86,9 @@ private:
 // can use custom
 // The priority of xtype is the highest
 #if defined _MSC_VER &&  _MSC_VER<=1400
-#define XPACK_IS_XTYPE(T) typename x_enable_if<is_xpack_xtype<T>::value && !is_xpack_out<T>::value, bool>::type
+#define XPACK_IS_XTYPE(Coder, T) typename x_enable_if<is_xpack_xtype<T>::value && !is_xpack_type_spec<Coder, T>::value && !is_xpack_out<T>::value, bool>::type
 #else
-#define XPACK_IS_XTYPE(T) typename x_enable_if<is_xpack_xtype<T>::value, bool>::type
+#define XPACK_IS_XTYPE(Coder, T) typename x_enable_if<is_xpack_xtype<T>::value && !is_xpack_type_spec<Coder, T>::value, bool>::type
 #endif
 
 /*

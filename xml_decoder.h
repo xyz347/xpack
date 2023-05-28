@@ -39,7 +39,7 @@ public:
 public:
     XmlNode(Node *n=NULL):node(n), attr(NULL), inited(false) {}
 
-    inline static const char * XType() {
+    inline static const char * Name() {
         return "xml";
     }
     operator bool() const {

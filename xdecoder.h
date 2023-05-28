@@ -70,8 +70,8 @@ public:
     XDecoder(const decoder *parent, int index, Node node):_p(parent),_k(NULL),_i(index),_n(node) {}
     XDecoder():_i(-2){}
 
-    const char *XType() const {
-        return Node::XType();
+    const char *Name() const {
+        return Node::Name();
     }
     void decode_exception(const char* what, const char *key) const {
         std::string err;
@@ -93,11 +93,25 @@ public:
         err.append(")");
         throw std::runtime_error(err);
     }
+    // find by key
+    decoder Find(const char *key, const Extend *ext) {
+        Node child = _n.Find(*this, key, ext);
+        if (child){
+            return XDecoder(this, key, child);
+        } else if (Extend::Mandatory(ext)) {
+            decode_exception("mandatory key not found", key);
+        }
+
+        return XDecoder();
+    }
+    operator bool() const {
+        return _i != -2;
+    }
 
 public:
     template <class T>
     bool decode(const char*key, T&val, const Extend*ext) {
-        decoder child = find(key, ext);
+        decoder child = Find(key, ext);
         if (child) {
             return child.decode_type(val, ext);
         }
@@ -118,6 +132,15 @@ public:
     template <class T>
     inline typename x_enable_if<is_xpack_out<T>::value, bool>::type decode_struct(T& val, const Extend *ext) {
         return __x_pack_decode_out(*this, val, ext);
+    }
+
+    template <class T>
+    inline bool decode_struct(const char*key, T&val, const Extend *ext) {
+        decoder child = Find(key, ext);
+        if (child) {
+            return child.decode_struct(val, ext);
+        }
+        return false;
     }
 
 private:
@@ -168,9 +191,9 @@ private:
     inline XPACK_IS_XPACK(T) decode_type(T&val, const Extend *ext) {
         return decode_struct(val, ext);
     }
-    // XType. add && !is_xpack_out<T>::value to fix SFINAE bug of vs2005 
+    // xtype. add && !is_xpack_out<T>::value to fix SFINAE bug of vs2005 
     template <class T>
-    inline XPACK_IS_XTYPE(T) decode_type(T& val, const Extend *ext) {
+    inline XPACK_IS_XTYPE(Node, T) decode_type(T& val, const Extend *ext) {
         return xpack_xtype_decode(*this, val, ext);
     }
 
@@ -235,12 +258,12 @@ private:
 
     template<typename K, typename V>
     inline bool decode_type(QMap<K, V> &val, const Extend *ext) {
-        return decode_map<QMap<K, V>, K, T>(val, ext);
+        return decode_map<QMap<K, V>, K, V>(val, ext);
     }
     #endif
 
     template <typename T>
-    inline typename x_enable_if<is_xpack_type_spec<T>::value, bool>::type decode_type(T&val, const Extend *ext) {
+    inline typename x_enable_if<is_xpack_type_spec<Node, T>::value, bool>::type decode_type(T&val, const Extend *ext) {
         return _n.decode_type_spec(val, ext);
     }
 
@@ -315,6 +338,12 @@ private:
     inline void add_ele(std::set<T>&val, T &t) {
         val.insert(t);
     }
+    #ifdef XPACK_SUPPORT_QT
+    template <class T>
+    inline void add_ele(QList<T>&val, T &t) {
+        val.push_back(t);
+    }
+    #endif
 
     // convert map key
     inline bool keyConvert(std::string&s, std::string&key) {
@@ -344,20 +373,6 @@ private:
         return Util::atoi(s, key);
     }
 
-    operator bool() const {
-        return _i != -2;
-    }
-    // find by key
-    decoder find(const char *key, const Extend *ext) {
-        Node child = _n.Find(*this, key, ext);
-        if (child){
-            return XDecoder(this, key, child);
-        } else if (Extend::Mandatory(ext)) {
-            decode_exception("mandatory key not found", key);
-        }
-
-        return XDecoder();
-    }
     // index
     decoder at(size_t i, const Extend *ext) {
         (void)ext;

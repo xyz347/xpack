@@ -50,7 +50,7 @@ public:
         }
         return false;
     }
-    const char *XType() const {
+    const char *Name() const {
         return "db";
     }
 

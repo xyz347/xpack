@@ -69,7 +69,7 @@ private:
         merge();
         return _output;
     }
-    inline static const char *XType() {
+    inline static const char *Name() {
         return "xml";
     }
     inline const char *IndexKey(size_t index) {

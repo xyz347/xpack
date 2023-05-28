@@ -34,14 +34,14 @@ class JsonNode {
     typedef XDecoder<JsonNode> decoder;
 public:
     typedef rapidjson::Value::ConstMemberIterator Iterator;
-public:
+
     JsonNode(const rapidjson::Value* val=NULL):v(val){}
 
     // convert JsonData to JsonNode
     // The life cycle of jd cannot be shorter than JsonNode
     JsonNode(const JsonData&jd):v(jd.current){}
 
-    inline static const char * XType() {
+    inline static const char * Name() {
         return "json";
     }
     operator bool() const {
@@ -76,19 +76,21 @@ public:
         return JsonNode(&(*v)[(rapidjson::SizeType)index]);
     }
     JsonNode Next(decoder&de, const JsonNode&parent, Iterator&iter, std::string&key) const {
-        if (v != NULL && !parent.v->IsNull()) {
-            if (v != parent.v) {
-                ++iter;
-            } else if (parent.v->IsObject()) {
-                iter = parent.v->MemberBegin();
-            } else {
-                de.decode_exception("not object", NULL);
-            }
-            if (iter != parent.v->MemberEnd()) {
-                key = iter->name.GetString();
-                return JsonNode(&iter->value);
-            }
+        if (!parent.v->IsObject()) {
+            de.decode_exception("not object", NULL);
         }
+
+        if (v != parent.v) {
+            ++iter;
+        } else  {
+            iter = parent.v->MemberBegin();
+        }
+
+        if (iter != parent.v->MemberEnd()) {
+            key = iter->name.GetString();
+            return JsonNode(&iter->value);
+        }
+
         return JsonNode();
     }
 
@@ -197,6 +199,8 @@ private:
 };
 
 // /////////////// JsonData ///////////////////
+template<>struct is_xpack_type_spec<JsonNode, JsonData> {static bool const value = true;};
+
 template <typename T>
 inline T JsonData::Get() const {
     JsonNode node(*this);
