@@ -24,29 +24,38 @@
 #include "rapidjson/stringbuffer.h"
 
 #include "xencoder.h"
+#include "json_data.h"
 
 namespace xpack {
 
-class JsonEncoder:public XEncoder<JsonEncoder>, private noncopyable {
+class JsonWriter:private noncopyable {
     typedef rapidjson::StringBuffer JSON_WRITER_BUFFER;
     typedef rapidjson::Writer<rapidjson::StringBuffer> JSON_WRITER_WRITER;
     typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> JSON_WRITER_PRETTY;
-public:
-    friend class XEncoder<JsonEncoder>;
-    using xdoc_type::encode;
 
-    JsonEncoder(int indentCount=-1, char indentChar=' ') {
+    friend class XEncoder<JsonWriter>;
+    friend class JsonEncoder;
+
+    const static bool support_null = true;
+public:
+    JsonWriter(int indentCount = -1, char indentChar = ' ', int maxDecimalPlaces = -1) {
         _buf = new JSON_WRITER_BUFFER;
         if (indentCount < 0) {
             _writer = new JSON_WRITER_WRITER(*_buf);
+            if (maxDecimalPlaces > 0) {
+                _writer->SetMaxDecimalPlaces(maxDecimalPlaces);
+            }
             _pretty = NULL;
         } else {
             _pretty = new JSON_WRITER_PRETTY(*_buf);
             _pretty->SetIndent(indentChar, indentCount);
+            if (maxDecimalPlaces > 0) {
+                _pretty->SetMaxDecimalPlaces(maxDecimalPlaces);
+            }
             _writer = NULL;
         }
     }
-    ~JsonEncoder() {
+    ~JsonWriter() {
         if (NULL != _buf) {
             delete _buf;
             _buf = NULL;
@@ -61,31 +70,18 @@ public:
         }
     }
 
-    inline const char *Type() const {
+private:
+    inline static const char *Name() {
         return "json";
     }
     inline const char *IndexKey(size_t index) {
         (void)index;
         return NULL;
     }
-
-    bool empty_null(const Extend *ext) const {
-        return Extend::EmptyNull(ext);
-    }
-
     std::string String() {
         return _buf->GetString();
     }
 
-    void SetMaxDecimalPlaces(int maxDecimalPlaces) {
-        if (NULL != _writer) {
-            _writer->SetMaxDecimalPlaces(maxDecimalPlaces);
-        } else {
-            _pretty->SetMaxDecimalPlaces(maxDecimalPlaces);
-        }
-    }
-
-public:
     void ArrayBegin(const char *key, const Extend *ext) {
         (void)ext;
         xpack_set_key(key);
@@ -128,30 +124,8 @@ public:
             _pretty->EndObject();
         }
     }
-
-public:
-    #define X_PACK_JSON_ENCODE_ARG(cond, f, ...)  \
-        if ((cond)){                     \
-            if (Extend::OmitEmpty(ext)) {\
-                return false;            \
-            } else if (Extend::EmptyNull(ext)) {\
-                return writeNull(key, ext); \
-            }                            \
-        }                                \
-        xpack_set_key(key);              \
-        if (NULL != _writer) {           \
-            _writer->f(__VA_ARGS__);     \
-        } else {                         \
-            _pretty->f(__VA_ARGS__);     \
-        }                                \
-        return true
-
-	#define X_PACK_JSON_ENCODE(cond, f) X_PACK_JSON_ENCODE_ARG(cond, f, val)
-
-    bool writeNull(const char*key, const Extend *ext) {
-        if (Extend::OmitEmpty(ext)) {
-            return false;
-        }
+    bool WriteNull(const char*key, const Extend *ext) {
+        (void)ext;
         xpack_set_key(key);
         if (NULL != _writer) {
             _writer->Null();
@@ -160,76 +134,106 @@ public:
         }
         return true;
     }
-    bool encode(const char*key, const std::string &val, const Extend *ext) {
-        X_PACK_JSON_ENCODE_ARG(val.empty(), String, val.data(), val.length());
+    bool encode_bool(const char*key, const bool&val, const Extend *ext) {
+        (void)ext;
+        xpack_set_key(key);
+        if (NULL != _writer) {
+            _writer->Bool(val);
+        } else {
+            _pretty->Bool(val);
+        }   
+        return true; 
     }
-    bool encode(const char*key, const bool &val, const Extend *ext) {
-        X_PACK_JSON_ENCODE(!val, Bool);
+    bool encode_string(const char*key, const char*val, size_t length, const Extend *ext) {
+        (void)ext;
+        xpack_set_key(key);
+        if (NULL != _writer) {
+            _writer->String(val, length);
+        } else {
+            _pretty->String(val, length);
+        }   
+        return true; 
     }
-    bool encode(const char*key, const char &val, const Extend *ext) {
-        return this->encode(key, (const int&)val, ext);
+    bool encode_string(const char*key, const std::string&val, const Extend *ext) {
+        return this->encode_string(key, val.data(), val.length(), ext); 
     }
-    bool encode(const char*key, const signed char &val, const Extend *ext) {
-        return this->encode(key, (const int&)val, ext);
+    template <typename T>
+    typename x_enable_if<numeric<T>::is_integer && numeric<T>::is_signed, bool>::type encode_number(const char*key, const T&val, const Extend *ext) {
+        (void)ext;
+        xpack_set_key(key);
+        if (NULL != _writer) {
+            _writer->Int64((int64_t)val);
+        } else {
+            _pretty->Int64((int64_t)val);
+        }   
+        return true; 
     }
-    bool encode(const char*key, const unsigned char &val, const Extend *ext) {
-        return this->encode(key, (const unsigned int&)val, ext);
+    template <typename T>
+    typename x_enable_if<numeric<T>::is_integer && !numeric<T>::is_signed, bool>::type encode_number(const char*key, const T&val, const Extend *ext) {
+        (void)ext;
+        xpack_set_key(key);
+        if (NULL != _writer) {
+            _writer->Uint64((uint64_t)val);
+        } else {
+            _pretty->Uint64((uint64_t)val);
+        }   
+        return true; 
     }
-    bool encode(const char*key, const short & val, const Extend *ext) {
-        return this->encode(key, (const int&)val, ext);
-    }
-    bool encode(const char*key, const unsigned short & val, const Extend *ext) {
-        return this->encode(key, (const unsigned int&)val, ext);
-    }
-    bool encode(const char*key, const int& val, const Extend *ext) {
-        X_PACK_JSON_ENCODE(val==0, Int);
-    }
-    bool encode(const char*key, const unsigned int& val, const Extend *ext) {
-        X_PACK_JSON_ENCODE(val==0, Uint);
-    }
-    bool encode(const char*key, const long long& val, const Extend *ext) {
-        X_PACK_JSON_ENCODE(val==0, Int64);
-    }
-    bool encode(const char*key, const unsigned long long & val, const Extend *ext) {
-        X_PACK_JSON_ENCODE(val==0, Uint64);
-    }
-    bool encode(const char*key, const long &val, const Extend *ext) {
-        return this->encode(key, (const long long&)val, ext);
-    }
-    bool encode(const char*key, const unsigned long &val, const Extend *ext) {
-        return this->encode(key, (const unsigned long long&)val, ext);
-    }
-    bool encode(const char*key, const float & val, const Extend *ext) {
-        X_PACK_JSON_ENCODE(val==0, Double);
-    }
-    bool encode(const char*key, const double & val, const Extend *ext) {
-        X_PACK_JSON_ENCODE(val==0, Double);
-    }
-    bool encode(const char*key, const long double & val, const Extend *ext) {
-        X_PACK_JSON_ENCODE(val==0, Double);
+    template <typename T>
+    typename x_enable_if<numeric<T>::is_float, bool>::type encode_number(const char*key, const T&val, const Extend *ext) {
+        (void)ext;
+        xpack_set_key(key);
+        if (NULL != _writer) {
+            _writer->Double((double)val);
+        } else {
+            _pretty->Double((double)val);
+        }   
+        return true; 
     }
 
-    // map<int, T> xml not support use number as label
-    template <class K, class T>
-    typename x_enable_if<numeric<K>::is_integer, bool>::type encode(const char*key, const std::map<K,T>& val, const Extend *ext) {
-        return encode_map<const std::map<K,T>, K>(key, val, ext, Util::itoa);
+    // JsonData
+    bool encode_type_spec(const char*key, const JsonData&val, const Extend *ext) {
+        if (val.current == NULL) {
+            return false;
+        }
+        return this->encode_json_value(key, *val.current, ext);
     }
 
-    #ifdef X_PACK_SUPPORT_CXX0X
-    // enum is_enum implementation is too complicated, so not support in c++03
-    template <class K, class T>
-    typename x_enable_if<std::is_enum<K>::value, bool>::type  encode(const char*key, const std::map<K,T>& val, const Extend *ext) {
-        return encode_map<const std::map<K,T>, K>(key, val, ext, Util::itoa);
+    bool encode_json_value(const char*key, const rapidjson::Value& val, const Extend *ext) {
+        switch (val.GetType()){
+        case rapidjson::kNullType:
+            return this->WriteNull(key, ext);
+        case kFalseType:
+        case kTrueType:
+            return this->encode_bool(key, val.GetBool(), ext);
+        case kStringType:
+            return this->encode_string(key, val.GetString(), (size_t)val.GetStringLength(), ext);
+        case kNumberType:
+            if (val.IsDouble()) {
+                return this->encode_number(key, val.GetDouble(), ext);
+            } else {
+                return this->encode_number(key, val.GetInt64(), ext);
+            }
+        case kObjectType:
+            this->ObjectBegin(key, ext);
+            for (rapidjson::Value::ConstMemberIterator iter = val.MemberBegin(); iter!=val.MemberEnd(); ++iter) {
+                this->encode_json_value(iter->name.GetString(), iter->value, ext);
+            }
+            this->ObjectEnd(key, ext);
+            break;
+        case kArrayType:{
+                this->ArrayBegin(key, ext);
+                size_t max = (size_t)val.Size();
+                for (size_t i = 0; i<max; ++i) {
+                    this->encode_json_value(NULL, val[(rapidjson::SizeType)i], ext);
+                }
+                this->ArrayEnd(key, ext);
+            }
+            break;
+        }
+        return true;
     }
-    #endif
 
-    #ifdef XPACK_SUPPORT_QT
-    template <class K, class T>
-    typename x_enable_if<numeric<K>::is_integer, bool>::type encode(const char*key, const QMap<K,T>& val, const Extend *ext) {
-        return encode_qmap<const QMap<K,T>, K>(key, val, ext, Util::itoa);
-    }
-    #endif
-private:
     void xpack_set_key(const char*key) { // openssl defined set_key macro, so we named it xpack_set_key
         if (NULL!=key && key[0]!='\0') {
             if (NULL != _writer) {
@@ -244,6 +248,46 @@ private:
     JSON_WRITER_WRITER* _writer;
     JSON_WRITER_PRETTY* _pretty;
 };
+
+class JsonEncoder {
+public:
+    JsonEncoder() {
+        indentCount = -1;
+        indentChar = ' ';
+        maxDecimalPlaces = -1;
+    }
+    JsonEncoder(int _indentCount, char _indentChar, int _maxDecimalPlaces = -1) { // compat
+        indentCount = _indentCount;
+        indentChar = _indentChar;
+        maxDecimalPlaces = _maxDecimalPlaces;
+    }
+
+    void SetMaxDecimalPlaces(int _maxDecimalPlaces) {
+        maxDecimalPlaces = _maxDecimalPlaces;
+    }
+
+    template <class T>
+    std::string encode(const T&val) {
+        JsonWriter wr(indentCount, indentChar, maxDecimalPlaces);
+        XEncoder<JsonWriter> en(wr);
+        en.encode(NULL, val, NULL);
+        return wr.String();
+    }
+
+private:
+    int indentCount;
+    char indentChar;
+    int maxDecimalPlaces;
+};
+
+// //////////////// JsonData  ///////////////////////
+template<>struct is_xpack_type_spec<JsonWriter, JsonData> {static bool const value = true;};
+
+inline std::string JsonData::String() const {
+    JsonEncoder en;
+    return en.encode(*this);
+}
+
 
 }
 

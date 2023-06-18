@@ -15,7 +15,8 @@
 */
 
 #include <iostream>
-#include "xpack/json.h" // 包含这个头文件
+#include "xpack/yaml.h"
+#include "xpack/json.h"
 
 using namespace std;
 
@@ -24,21 +25,24 @@ struct User {
     string  name;
     string  mail;
     User(int64_t i=0, const string& n="", const string& m=""):id(i),name(n),mail(m){}
-    XPACK(O(id, name, mail)); // 添加宏定义XPACK在结构体定义结尾
+    XPACK(O(id, name, mail));
 };
 
 struct Group {
     string  name;
     int64_t master;
-    map<int, string> flags;
+    map<string, string> flags;
     vector<User> members;
     User         arrays[2];
-    XPACK(O(name, master, flags, members, arrays)); // 添加宏定义XPACK在结构体定义结尾
+    XPACK(O(name, master, flags, members, arrays));
 };
 
-int main(int argc, char *argv[]) {
-    (void)argc;
-    (void)argv;
+int main() {
+    User u;
+    xpack::yaml::decode_file("./test.yml", u);
+    string json = xpack::json::encode(u);
+    cout<<"json:"<<json<<endl;
+    cout<<"yaml is =================="<<endl<<xpack::yaml::encode(u)<<endl<<"=================="<<endl;
 
     Group g;
     g.name = "C++";
@@ -48,24 +52,14 @@ int main(int argc, char *argv[]) {
     g.members[1] = User(2, "Pony", "pony@xpack.com");
     g.arrays[0] = g.members[0];
     g.arrays[1] = g.members[1];
-    g.flags[1] = "a";
-    g.flags[2] = "b";
+    g.flags["a"] = "good";
+    g.flags["b"] = "nice";
+    string ys = xpack::yaml::encode(g);
+    cout<<"yaml is =================="<<endl<<ys<<endl<<"=================="<<endl;
 
-    string json = xpack::json::encode(g);      // 结构体转json
-    cout<<json<<endl;
-
-    Group n;
-    xpack::json::decode(json, n);             // json转结构体
-    cout<<n.name<<endl;
-    cout<<xpack::json::encode(n)<<endl;
-
-    vector<int> vi;
-    xpack::json::decode("[1,2,3]", vi);     // 直接转换vector
-    cout<<vi.size()<<','<<vi[1]<<endl;
-
-    map<string, int> m;
-    xpack::json::decode("{\"1\":10, \"2\":20}", m); // 直接转换map
-    cout<<m.size()<<','<<m["2"]<<endl;
+    Group g1;
+    xpack::yaml::decode(ys, g1);
+    cout<<xpack::json::encode(g1)<<endl;
 
     return 0;
 }

@@ -24,8 +24,7 @@
 
 namespace xpack {
 
-class XmlEncoder:public XEncoder<XmlEncoder>, private noncopyable {
-private:
+class XmlWriter {
     struct Attr {
         const char* key;
         std::string val;
@@ -53,11 +52,11 @@ private:
         std::string vec_key;    // key for vector
     };
 
+    friend class XEncoder<XmlWriter>;
+    friend class XmlEncoder;
+    const static bool support_null = false;
 public:
-    friend class XEncoder<XmlEncoder>;
-    using xdoc_type::encode;
-
-    XmlEncoder(int indentCount=-1, char indentChar=' '):_indentCount(indentCount),_indentChar(indentChar),_decimalPlaces(324) {
+    XmlWriter(int indentCount = -1, char indentChar = ' ', int decimalPlaces = 324):_indentCount(indentCount),_indentChar(indentChar),_decimalPlaces(decimalPlaces) {
         if (_indentCount > 0) {
             if (_indentChar!=' ' && _indentChar!='\t') {
                 throw std::runtime_error("indentChar must be space or tab");
@@ -65,23 +64,12 @@ public:
         }
         _cur = &_root;
     }
-    ~XmlEncoder() {
-    }
-
+private:
     std::string String() {
         merge();
         return _output;
     }
-
-    void SetMaxDecimalPlaces(int maxDecimalPlaces) {
-        if (maxDecimalPlaces >= 1) {
-            _decimalPlaces = maxDecimalPlaces;
-        } else {
-            _decimalPlaces = 1;
-        }
-    }
-public:
-    inline const char *Type() const {
+    inline static const char *Name() {
         return "xml";
     }
     inline const char *IndexKey(size_t index) {
@@ -129,19 +117,17 @@ public:
         _cur = _stack.back();
         _stack.pop_back();
     }
-    bool writeNull(const char*key, const Extend *ext) {
+    bool WriteNull(const char*key, const Extend *ext) {
         static std::string empty;
-        return this->encode(key, empty, ext);
+        return this->encode_string(key, empty, ext);
     }
     // string
-    bool encode(const char*key, const std::string &val, const Extend *ext) {
-        if (val.empty() && Extend::OmitEmpty(ext)) {
-            return false;
-        } else if (Extend::Attribute(ext)) {
-            _cur->attrs.push_back(Attr(key, StringQuote(val)));
+    bool encode_string(const char*key, const std::string &val, const Extend *ext) {
+        if (Extend::Attribute(ext)) {
+            _cur->attrs.push_back(Attr(key, string_quote(val)));
         } else if (!Extend::AliasFlag(ext, "xml", "cdata")) {
             Node *n = new Node(key);
-            n->val = StringQuote(val);
+            n->val = string_quote(val);
             _cur->childs.push_back(n);
         } else {
             Node *n = new Node(key);
@@ -150,52 +136,63 @@ public:
         }
         return true;
     }
-
     // bool
-    bool encode(const char*key, const bool &val, const Extend *ext) {
-        if (!val && Extend::OmitEmpty(ext)) {
+    bool encode_bool(const char*key, const bool &val, const Extend *ext) {
+        std::string bval;
+        if (val) {
+            bval = "true";
+        } else {
+            bval = "false";
+        }
+
+        if (Extend::Attribute(ext)) {
+            _cur->attrs.push_back(Attr(key, bval));
+        } else {
+            Node *n = new Node(key);
+            n->val = bval;
+            _cur->childs.push_back(n);
+        }
+        return true;
+    }
+    // integer
+    template <class T>
+    typename x_enable_if<numeric<T>::is_integer, bool>::type encode_number(const char*key, const T& val, const Extend *ext) {
+        if (val==0 && Extend::OmitEmpty(ext)) {
+            return false;
+        } else if (Extend::Attribute(ext)) {
+            _cur->attrs.push_back(Attr(key, Util::itoa(val)));
+        } else {
+            Node *n = new Node(key);
+            n->val = Util::itoa(val);
+            _cur->childs.push_back(n);
+        }
+        return true;
+    }
+
+    // float
+    template <class T>
+    typename x_enable_if<numeric<T>::is_float, bool>::type encode_number(const char*key, const T &val, const Extend *ext) {
+        if (val==0 && Extend::OmitEmpty(ext)) {
             return false;
         } else {
-            std::string bval;
-            if (val) {
-                bval = "true";
-            } else {
-                bval = "false";
-            }
+            std::ostringstream os;
+            os.precision(_decimalPlaces+1);
+            os<<val;
+            std::string fval = os.str();
 
             if (Extend::Attribute(ext)) {
-                _cur->attrs.push_back(Attr(key, bval));
+                _cur->attrs.push_back(Attr(key, fval));
             } else {
                 Node *n = new Node(key);
-                n->val = bval;
+                n->val = fval;
                 _cur->childs.push_back(n);
             }
         }
         return true;
     }
 
-    #define XPACK_XML_ENCODE_INTEGER(type) \
-    bool encode(const char*key, const type&val, const Extend*ext) {return this->encode_integer(key, val, ext);}
-    XPACK_XML_ENCODE_INTEGER(char)
-    XPACK_XML_ENCODE_INTEGER(signed char)
-    XPACK_XML_ENCODE_INTEGER(unsigned char)
-    XPACK_XML_ENCODE_INTEGER(short)
-    XPACK_XML_ENCODE_INTEGER(unsigned short)
-    XPACK_XML_ENCODE_INTEGER(int)
-    XPACK_XML_ENCODE_INTEGER(unsigned int)
-    XPACK_XML_ENCODE_INTEGER(long)
-    XPACK_XML_ENCODE_INTEGER(unsigned long)
-    XPACK_XML_ENCODE_INTEGER(long long)
-    XPACK_XML_ENCODE_INTEGER(unsigned long long)
-
-    #define XPACK_XML_ENCODE_FLOAT(type) \
-    bool encode(const char*key, const type&val, const Extend*ext) {return this->encode_float(key, val, ext);}
-    XPACK_XML_ENCODE_FLOAT(float)
-    XPACK_XML_ENCODE_FLOAT(double)
-    XPACK_XML_ENCODE_FLOAT(long double)
-
     // escape string
-    static std::string StringQuote(const std::string &val) {
+    static std::string string_quote(const std::string &val) {
         std::string ret;
         ret.reserve(val.length()*2);
 
@@ -242,43 +239,8 @@ public:
         return ret;
     }
 
-private:
-    // integer
-    template <class T>
-    typename x_enable_if<numeric<T>::is_integer, bool>::type encode_integer(const char*key, const T& val, const Extend *ext) {
-        if (val==0 && Extend::OmitEmpty(ext)) {
-            return false;
-        } else if (Extend::Attribute(ext)) {
-            _cur->attrs.push_back(Attr(key, Util::itoa(val)));
-        } else {
-            Node *n = new Node(key);
-            n->val = Util::itoa(val);
-            _cur->childs.push_back(n);
-        }
-        return true;
-    }
 
-    // float
-    template <class T>
-    typename x_enable_if<numeric<T>::is_float, bool>::type encode_float(const char*key, const T &val, const Extend *ext) {
-        if (val==0 && Extend::OmitEmpty(ext)) {
-            return false;
-        } else {
-            std::ostringstream os;
-            os.precision(_decimalPlaces+1);
-            os<<val;
-            std::string fval = os.str();
 
-            if (Extend::Attribute(ext)) {
-                _cur->attrs.push_back(Attr(key, fval));
-            } else {
-                Node *n = new Node(key);
-                n->val = fval;
-                _cur->childs.push_back(n);
-            }
-        }
-        return true;
-    }
     void appendNode(const Node *nd, int depth) {
         bool indentEnd = true;
 
@@ -359,6 +321,38 @@ private:
     char _indentChar;
 
     int _decimalPlaces;
+};
+
+
+class XmlEncoder {
+public:
+    XmlEncoder() {
+        indentCount = -1;
+        indentChar = ' ';
+        maxDecimalPlaces = 324;
+    }
+    XmlEncoder(int _indentCount, char _indentChar, int _maxDecimalPlaces = 324) { // compat
+        indentCount = _indentCount;
+        indentChar = _indentChar;
+        maxDecimalPlaces = _maxDecimalPlaces;
+    }
+
+    void SetMaxDecimalPlaces(int _maxDecimalPlaces) {
+        maxDecimalPlaces = _maxDecimalPlaces;
+    }
+
+    template <class T>
+    std::string encode(const T&val, const std::string&root) {
+        XmlWriter wr(indentCount, indentChar, maxDecimalPlaces);
+        XEncoder<XmlWriter> en(wr);
+        en.encode(root.c_str(), val, NULL);
+        return wr.String();
+    }
+
+private:
+    int indentCount;
+    char indentChar;
+    int maxDecimalPlaces;
 };
 
 }

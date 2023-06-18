@@ -28,23 +28,23 @@ struct Test {
 
 namespace xpack {
 
-template <class OBJ>
-bool hexint_decode(OBJ&obj, Test&t, const char *name, unsigned int&data, const xpack::Extend *ext) {
+template <class Decoder>
+bool hexint_decode(Decoder&de, Test&t, const char *name, unsigned int&data, const xpack::Extend *ext) {
     (void)t;
     string raw;
-    bool ret = obj.decode(name, raw, ext);
+    bool ret = de.decode(name, raw, ext);
     if (ret) {
         sscanf(raw.c_str(), "%x", &data);
     }
     return ret;
 }
 
-template <class OBJ>
-bool hexint_encode(OBJ&obj, const Test&t, const char *name, const unsigned &data, const xpack::Extend *ext) {
+template <class Encoder>
+bool hexint_encode(Encoder&en, const Test&t, const char *name, const unsigned &data, const xpack::Extend *ext) {
     (void)t;
     char buf[64];
     sprintf(buf, "%x", data);
-    bool ret = obj.encode(name, buf, ext);
+    bool ret = en.encode(name, buf, ext);
     return ret;
 }
 }

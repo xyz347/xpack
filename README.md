@@ -1,8 +1,12 @@
 xpack
 ====
 [English](README-en.md)
-* 用于在C++结构体和json/xml之间互相转换, bson在[xbson](https://github.com/xyz347/xbson)中支持。
+* 用于在C++结构体和json/xml/yaml/bson/mysql/sqlite之间互相转换
 * 只有头文件, 无需编译库文件，所以也没有Makefile。
+* 支持bson，依赖于`libbson-1.0`，需自行安装。**未经充分测试**，具体请参考[README](README-bson.md)
+* 支持MySQL，依赖于`libmysqlclient-dev`，需自行安装。**未经充分测试**
+* 支持Sqlite，依赖于[libsqlite3](https://cppget.org/libsqlite3)，需自行安装。**未经充分测试**
+* 支持yaml，依赖于[yaml-cpp](https://github.com/jbeder/yaml-cpp)，需自行安装。**未经充分测试**
 * 具体可以参考example的例子
 
 ------

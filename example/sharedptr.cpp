@@ -26,7 +26,7 @@ struct User {
     string  mail;
     std::shared_ptr<string> bio;
     User(int64_t i=0, const string& n="", const string& m=""):id(i),name(n),mail(m){}
-    XPACK(O(id, name, mail, bio)); // 添加宏定义XPACK在结构体定义结尾
+    XPACK(O(id, name, mail, bio));
 };
 
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     User u2;
     User u3;
 
-    string json = xpack::json::encode(u1);      // 结构体转json
+    string json = xpack::json::encode(u1);
     string xml = xpack::xml::encode(u1, "root");
     cout<<"========================"<<endl;
     cout<<json<<endl;
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 
     cout<<"========================"<<endl;
     u1.bio.reset(new std::string("farmer"));
-    json = xpack::json::encode(u1);      // 结构体转json
+    json = xpack::json::encode(u1);
     xml = xpack::xml::encode(u1, "root");
     cout<<json<<endl;
     cout<<xml<<endl;

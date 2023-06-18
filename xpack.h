@@ -91,61 +91,61 @@
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ decode act ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #define X_PACK_DECODE_ACT_O(ARG, M)                        \
-        __x_pack_obj.decode(#M, __x_pack_self.M, &__x_pack_ext);
+        __x_pack_ret |= __x_pack_obj.decode(#M, __x_pack_self.M, &__x_pack_ext);
 
 #define X_PACK_DECODE_ACT_C(CUSTOM, M)                     \
-        CUSTOM##_decode(__x_pack_obj, __x_pack_self, #M, __x_pack_self.M, &__x_pack_ext);
+        __x_pack_ret |= CUSTOM##_decode(__x_pack_obj, __x_pack_self, #M, __x_pack_self.M, &__x_pack_ext);
 
 // enum for not support c++11
 #ifndef X_PACK_SUPPORT_CXX0X
 #define X_PACK_DECODE_ACT_E(ARG, M)                        \
-        __x_pack_obj.decode(#M, *((int*)&__x_pack_self.M), &__x_pack_ext);
+        __x_pack_ret |= __x_pack_obj.decode(#M, *((int*)&__x_pack_self.M), &__x_pack_ext);
 #else
 #define X_PACK_DECODE_ACT_E X_PACK_DECODE_ACT_O
 #endif
 
-#define X_PACK_DECODE_ACT_A(ARG, M, NAME)                                 \
-    {                                                                     \
-        static xpack::Alias __x_pack_alias(#M, NAME);                     \
-        xpack::Extend __x_pack_ext(__x_pack_flag, &__x_pack_alias);       \
-        const char *__new_name = __x_pack_alias.Name(__x_pack_obj.Type());\
-        __x_pack_obj.decode(__new_name, __x_pack_self.M, &__x_pack_ext);  \
+#define X_PACK_DECODE_ACT_A(ARG, M, NAME)                                  \
+    {                                                                      \
+        static xpack::Alias __x_pack_alias(#M, NAME);                      \
+        xpack::Extend __x_pack_ext(__x_pack_flag, &__x_pack_alias);        \
+        const char *__new_name = __x_pack_alias.Name(__x_pack_obj.Name());\
+        __x_pack_ret |= __x_pack_obj.decode(__new_name, __x_pack_self.M, &__x_pack_ext);   \
     }
 
 // Inheritance B::__x_pack_decode(__x_pack_obj)
 #define X_PACK_DECODE_ACT_I(ARG, P)                                                                        \
         {                                                                                                  \
             xpack::Extend __x_pack_tmp_ext(0,NULL); __x_pack_tmp_ext.ctrl_flag |= X_PACK_CTRL_FLAG_INHERIT;\
-            __x_pack_obj.decode(NULL, static_cast<P&>(__x_pack_self), &__x_pack_tmp_ext);                  \
+            __x_pack_ret |= __x_pack_obj.decode(static_cast<P&>(__x_pack_self), &__x_pack_tmp_ext);                  \
         }
 
 // bitfield, not support alias
 #define X_PACK_DECODE_ACT_B(ARG, B)                           \
     {                                                         \
         x_pack_decltype(__x_pack_self.B) __x_pack_tmp = 0;    \
-        __x_pack_obj.decode(#B, __x_pack_tmp, &__x_pack_ext); \
+        __x_pack_ret |= __x_pack_obj.decode(#B, __x_pack_tmp, &__x_pack_ext); \
         __x_pack_self.B = __x_pack_tmp;\
     }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~ encode act ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #define X_PACK_ENCODE_ACT_O(ARG, M)                        \
-        __x_pack_obj.encode(#M, __x_pack_self.M, &__x_pack_ext);
+        __x_pack_ret |= __x_pack_obj.encode(#M, __x_pack_self.M, &__x_pack_ext);
 #define X_PACK_ENCODE_ACT_C(CUSTOM, M)                        \
-        CUSTOM##_encode(__x_pack_obj, __x_pack_self, #M, __x_pack_self.M, &__x_pack_ext);
+        __x_pack_ret |= CUSTOM##_encode(__x_pack_obj, __x_pack_self, #M, __x_pack_self.M, &__x_pack_ext);
 
 #ifndef X_PACK_SUPPORT_CXX0X
 #define X_PACK_ENCODE_ACT_E(ARG, M)                        \
-        __x_pack_obj.encode(#M, (const int&)__x_pack_self.M, &__x_pack_ext);
+        __x_pack_ret |= __x_pack_obj.encode(#M, (const int&)__x_pack_self.M, &__x_pack_ext);
 #else
 #define X_PACK_ENCODE_ACT_E X_PACK_ENCODE_ACT_O
 #endif
 
-#define X_PACK_ENCODE_ACT_A(ARG, M, NAME)                                 \
-    {                                                                     \
-        static xpack::Alias __x_pack_alias(#M, NAME);                     \
-        xpack::Extend __x_pack_ext(__x_pack_flag, &__x_pack_alias);       \
-        const char *__new_name = __x_pack_alias.Name(__x_pack_obj.Type());\
-        __x_pack_obj.encode(__new_name, __x_pack_self.M, &__x_pack_ext);  \
+#define X_PACK_ENCODE_ACT_A(ARG, M, NAME)                                  \
+    {                                                                      \
+        static xpack::Alias __x_pack_alias(#M, NAME);                      \
+        xpack::Extend __x_pack_ext(__x_pack_flag, &__x_pack_alias);        \
+        const char *__new_name = __x_pack_alias.Name(__x_pack_obj.Name());\
+        __x_pack_ret |= __x_pack_obj.encode(__new_name, __x_pack_self.M, &__x_pack_ext);   \
     }
 
 #define X_PACK_ENCODE_ACT_B(ARG, M)      \
@@ -154,7 +154,7 @@
 #define X_PACK_ENCODE_ACT_I(ARG, P)                                                                        \
         {                                                                                                  \
             xpack::Extend __x_pack_tmp_ext(0,NULL); __x_pack_tmp_ext.ctrl_flag |= X_PACK_CTRL_FLAG_INHERIT;\
-            __x_pack_obj.encode(NULL, static_cast<const P&>(__x_pack_self), &__x_pack_tmp_ext);            \
+            __x_pack_ret |= __x_pack_obj.encode(NULL, static_cast<const P&>(__x_pack_self), &__x_pack_tmp_ext);            \
         }
 
 
@@ -166,35 +166,35 @@ public:               \
 // decode function
 #define X_PACK_DECODE_BEGIN                         \
     template<class __X_PACK_DOC, class __X_PACK_ME> \
-    void __x_pack_decode(__X_PACK_DOC& __x_pack_obj, __X_PACK_ME &__x_pack_self, const xpack::Extend *__x_pack_extp) {(void)__x_pack_extp;
+    bool __x_pack_decode(__X_PACK_DOC& __x_pack_obj, __X_PACK_ME &__x_pack_self, const xpack::Extend *__x_pack_extp) {(void)__x_pack_extp; bool __x_pack_ret = false;
 
 // encode function
 #define X_PACK_ENCODE_BEGIN                          \
     template <class __X_PACK_DOC, class __X_PACK_ME> \
-    void __x_pack_encode(__X_PACK_DOC& __x_pack_obj, const __X_PACK_ME &__x_pack_self, const xpack::Extend *__x_pack_extp) const {(void)__x_pack_extp;
+    bool __x_pack_encode(__X_PACK_DOC& __x_pack_obj, const __X_PACK_ME &__x_pack_self, const xpack::Extend *__x_pack_extp) const {(void)__x_pack_extp; bool __x_pack_ret = false;
 
 
 // out decode function
 #define X_PACK_DECODE_BEGIN_OUT(NAME) \
     template<typename __X_PACK_DOC>   \
-    void __x_pack_decode_out(__X_PACK_DOC& __x_pack_obj, NAME & __x_pack_self, const xpack::Extend *__x_pack_extp) {(void)__x_pack_extp;
+    bool __x_pack_decode_out(__X_PACK_DOC& __x_pack_obj, NAME & __x_pack_self, const xpack::Extend *__x_pack_extp) {(void)__x_pack_extp; bool __x_pack_ret = false;
 
 // out encode function
 #define X_PACK_ENCODE_BEGIN_OUT(NAME)  \
     template <class __X_PACK_DOC>      \
-    void __x_pack_encode_out(__X_PACK_DOC& __x_pack_obj, const NAME &__x_pack_self, const xpack::Extend *__x_pack_extp) {(void)__x_pack_extp;
+    bool __x_pack_encode_out(__X_PACK_DOC& __x_pack_obj, const NAME &__x_pack_self, const xpack::Extend *__x_pack_extp) {(void)__x_pack_extp; bool __x_pack_ret = false;
 
 
 #define XPACK(...)   \
     X_PACK_COMMON    \
-    X_PACK_DECODE_BEGIN X_PACK_N(X_PACK_L1, X_PACK_L1_DECODE, __VA_ARGS__) }  \
-    X_PACK_ENCODE_BEGIN X_PACK_N(X_PACK_L1, X_PACK_L1_ENCODE, __VA_ARGS__) }
+    X_PACK_DECODE_BEGIN X_PACK_N(X_PACK_L1, X_PACK_L1_DECODE, __VA_ARGS__) return __x_pack_ret; }  \
+    X_PACK_ENCODE_BEGIN X_PACK_N(X_PACK_L1, X_PACK_L1_ENCODE, __VA_ARGS__) return __x_pack_ret; }
 
 #define XPACK_OUT(NAME, ...)   \
 namespace xpack {              \
     template<> struct is_xpack_out<NAME> {static bool const value = true;}; \
-    X_PACK_DECODE_BEGIN_OUT(NAME) X_PACK_N(X_PACK_L1, X_PACK_L1_DECODE, __VA_ARGS__) }  \
-    X_PACK_ENCODE_BEGIN_OUT(NAME) X_PACK_N(X_PACK_L1, X_PACK_L1_ENCODE, __VA_ARGS__) }  \
+    X_PACK_DECODE_BEGIN_OUT(NAME) X_PACK_N(X_PACK_L1, X_PACK_L1_DECODE, __VA_ARGS__) return __x_pack_ret; }  \
+    X_PACK_ENCODE_BEGIN_OUT(NAME) X_PACK_N(X_PACK_L1, X_PACK_L1_ENCODE, __VA_ARGS__) return __x_pack_ret; }  \
 }
 
 #endif

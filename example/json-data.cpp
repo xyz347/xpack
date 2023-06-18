@@ -42,19 +42,21 @@ static void test(const std::string &data) {
     xpack::json::decode(data, e);
     if (e.type == "range") {
         Range r;
-        e.data.decode(r);
-        cout<<"range. min:"<<r.min<<", max:"<<r.max<<endl;
-        cout<<e.data["min"].GetInt()<<endl;
-        cout<<"raw:"<<e.data.String()<<endl;
+        e.data.Get(r);
+        cout<<"min in r:"<<r.min<<endl;
+        cout<<"max in r:"<<r.max<<endl;
+
+        cout<<"min:"<<e.data["min"].Get<int>()<<endl;
+        cout<<"max:"<<e.data["max"].Get<int>()<<endl;
     } else if (e.type == "user") {
-        User u;
-        e.data.decode(u);
-        cout<<"user. id:"<<u.id<<", name:"<<u.name<<endl;
-        cout<<"raw:"<<e.data.String()<<endl;
+        cout<<"id:"<<e.data["id"].Get<int>()<<endl;
+        cout<<"name:"<<e.data["name"].Get<std::string>()<<endl;
     } else {
         cout<<"unknow type"<<endl;
     }
     cout<<"re encode:"<<xpack::json::encode(e)<<endl;
+    cout<<"data encode:"<<xpack::json::encode(e.data)<<endl;
+    cout<<"data dir encode:"<<e.data.String()<<endl;
 }
 
 

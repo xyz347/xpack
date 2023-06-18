@@ -14,28 +14,32 @@
 * limitations under the License.
 */
 
-#ifndef __X_PACK_MYSQL_H
-#define __X_PACK_MYSQL_H
+#ifndef __X_PACK_YAML_H
+#define __X_PACK_YAML_H
 
-#include "mysql_decoder.h"
+#include "yaml_decoder.h"
+#include "yaml_encoder.h"
 #include "xpack.h"
 
 namespace xpack {
 
-class mysql {
+class yaml {
 public:
-    // convert MYSQL_RES to a struct or vector<struct>
     template <class T>
-    static void decode(MYSQL_RES *result, T &val) {
-        MySQLDecoder de(result);
-        de.decode_top(val, NULL);
+    static void decode(const std::string &data, T &val) {
+        YamlDecoder de;
+        de.decode(data, val);
+    }
+    template <class T>
+    static void decode_file(const std::string &file_name, T &val) {
+        YamlDecoder de;
+        de.decode_file(file_name, val);
     }
 
-    // select name from test where id = 1; // just want to get name, did not want to use a struct
     template <class T>
-    static void decode(MYSQL_RES *result, const std::string&field, T &val) {
-        MySQLDecoder de(result);
-        de.decode_column(field.c_str(), val, NULL);
+    static std::string encode(const T &val) {
+        YamlEncoder en;
+        return en.encode(val);
     }
 };
 

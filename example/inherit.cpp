@@ -35,6 +35,22 @@ struct Test:public P1, public P2 {
     XPACK(I(P1, P2), A(uid, "id"), O(name));
 };
 
+struct Pa {
+    string mail;
+    XPACK(O(mail));
+};
+
+struct Pb: public Pa {
+    long version;
+    XPACK(I(Pa), O(version));
+};
+
+struct Pc:public Pb {
+    long uid;
+    string  name;
+    XPACK(I(Pb), A(uid, "id"), O(name));
+};
+
 int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
@@ -43,7 +59,11 @@ int main(int argc, char *argv[]) {
     string json="{\"mail\":\"pony@xpack.com\", \"version\":2019, \"id\":123, \"name\":\"Pony\"}";
 
     xpack::json::decode(json, t);
-    cout<<t.mail<<endl;
-    cout<<t.version<<endl;
+    cout<<xpack::json::encode(t)<<endl;
+
+    Pc p;
+    xpack::json::decode(json, p);
+    cout<<xpack::json::encode(p)<<endl;
+
     return 0;
 }

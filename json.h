@@ -30,34 +30,31 @@ class json {
 public:
     template <class T>
     static void decode(const std::string &data, T &val) {
-        JsonDecoder doc(data);
-        doc.decode(NULL, val, NULL);
+        JsonDecoder de;
+        de.decode(data, val);
     }
     template <class T>
     static void decode(const rapidjson::Value &data, T &val) {
-        JsonDecoder doc(&data);
-        doc.decode(NULL, val, NULL);
+        JsonNode node(&data);
+        return XDecoder<JsonNode>(NULL, (const char*)NULL, node).decode(val, NULL);
     }
     template <class T>
     static void decode_file(const std::string &file_name, T &val) {
-        JsonDecoder doc(file_name, true);
-        doc.decode(NULL, val, NULL);
+        JsonDecoder de;
+        de.decode_file(file_name, val);
     }
 
     template <class T>
     static std::string encode(const T &val) {
-        JsonEncoder doc(-1);
-        doc.encode(NULL, val, NULL);
-        return doc.String();
+        JsonEncoder en;
+        return en.encode(val);
     }
 
     template <class T>
     static std::string encode(const T &val, int flag, int indentCount, char indentChar) {
-        JsonEncoder doc(indentCount, indentChar);
-        Extend ext(flag, NULL);
-
-        doc.encode(NULL, val, &ext);
-        return doc.String();
+        (void)flag;
+        JsonEncoder en(indentCount, indentChar);
+        return en.encode(val);
     }
 };
 

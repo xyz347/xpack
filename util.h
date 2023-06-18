@@ -19,6 +19,9 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
+#include <stdexcept>
+#include <memory>
 
 #include <stdio.h>
 #include <string.h>
@@ -36,6 +39,16 @@ struct cmp_str {
 
 class Util {
 public:
+    static bool readfile(const std::string&fname, std::string&data) {
+        std::ifstream fs(fname.c_str(), std::ifstream::binary);
+        if (!fs) {
+            std::string err = "Open file["+fname+"] fail.";
+            throw std::runtime_error(err);
+        }
+        std::string _tmp((std::istreambuf_iterator<char>(fs)), std::istreambuf_iterator<char>());
+        data.swap(_tmp);
+        return true;
+    }
     // if n<0 will split all
     static size_t split(std::vector<std::string>&slice, const std::string&str, char c, int n = -1) {
         size_t last = 0;
@@ -178,6 +191,66 @@ public:
         return atoi(_t, val);
     }
 };
+
+
+#if defined(X_PACK_SUPPORT_CXX0X)
+    template <class T>
+    using x_shared_ptr = std::shared_ptr<T>;
+#elif defined(_GNU_SOURCE)
+// A very crude implementation of shared_ptr
+template <class T>
+class x_shared_ptr {
+public:
+    x_shared_ptr(T *p = NULL):ptr(p) {
+        if (NULL != p) {
+            counter = new int;
+            *counter = 1;
+        } else {
+            counter = NULL;
+        }
+    }
+    x_shared_ptr(const x_shared_ptr &src) {
+        ptr = src.ptr;
+        counter = src.counter;
+        add_ref(1);
+    }
+    ~x_shared_ptr() {
+        add_ref(-1);
+    }
+    x_shared_ptr& operator = (const x_shared_ptr &src) {
+        add_ref(-1);
+        ptr = src.ptr;
+        counter = src.counter;
+        add_ref(1);
+        return *this;
+    }
+    void reset(T *p = NULL) {
+        *this = x_shared_ptr(p);
+    }
+    T* operator ->() {
+        return ptr;
+    }
+    T* get() {
+        return ptr;
+    }
+    T& operator *() {
+        return *ptr;
+    }
+private:
+    void add_ref(int cnt) {
+        if (counter == NULL) {
+            return;
+        }
+        int ncnt = __sync_add_and_fetch(counter, cnt);
+        if (0 == ncnt) {
+            delete counter;
+            delete ptr;
+        }
+    }
+    T   *ptr;
+    mutable int *counter;
+};
+#endif
 
 }
 

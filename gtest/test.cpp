@@ -572,12 +572,9 @@ template<>
 struct is_xpack_xtype<XtypeUnion> {static bool const value = true;};
 
 template<class OBJ>
-bool xpack_xtype_decode(OBJ &obj, const char*key, XtypeUnion &val, const Extend *ext) {
-    OBJ *o = obj.find(key, ext);
-    if (NULL == o) {
-        // should check Mandatory
-        return false;
-    }
+bool xpack_xtype_decode(OBJ &obj, XtypeUnion &val, const Extend *ext) {
+    (void)ext;
+    OBJ *o = &obj;
     o->decode("type", val.type, NULL);
     switch (val.type) {
         case 1:
@@ -801,15 +798,16 @@ TEST(jsondata, memory) {
 
     xpack::json::decode("[0, 1, 2, 3]", *jd);
     EXPECT_TRUE(jd->IsArray());
+    EXPECT_EQ(jd->Size(), 4U);
     EXPECT_TRUE((*jd)[(size_t)0].IsNumber());
-    EXPECT_EQ((*jd)[1].GetInt64(), 1);
+    EXPECT_EQ((*jd)[1].Get<int64_t>(), 1);
 
     xpack::JsonData s = *jd;
     delete jd;
 
     EXPECT_TRUE(s.IsArray());
     EXPECT_TRUE(s[(size_t)0].IsNumber());
-    EXPECT_EQ(s[1].GetInt64(), 1);    
+    EXPECT_EQ(s[1].Get<int64_t>(), 1);    
 }
 
 // ++++++++++++++++++bug history+++++++++++++++++++++++
@@ -864,9 +862,7 @@ TEST(bughis, shared_ptr_null) {
     SharedPtrNull sn;
 
     xpack::json::decode("{\"jd\":null}", sn);
-    EXPECT_TRUE(sn.jd);
-    EXPECT_TRUE(sn.jd->IsNull());
-    EXPECT_FALSE(sn.jd->IsArray());
+    EXPECT_FALSE(sn.jd);
 }
 #endif
 

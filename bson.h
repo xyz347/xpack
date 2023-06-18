@@ -14,28 +14,38 @@
 * limitations under the License.
 */
 
-#ifndef __X_PACK_MYSQL_H
-#define __X_PACK_MYSQL_H
+#ifndef __X_PACK_BSON_H
+#define __X_PACK_BSON_H
 
-#include "mysql_decoder.h"
+#include "bson_decoder.h"
+#include "bson_encoder.h"
 #include "xpack.h"
+
+#ifdef X_PACK_SUPPORT_CXX0X // support c++11 or later
+#include "bson_builder.h"
+#endif
+
 
 namespace xpack {
 
-class mysql {
+class bson {
 public:
-    // convert MYSQL_RES to a struct or vector<struct>
     template <class T>
-    static void decode(MYSQL_RES *result, T &val) {
-        MySQLDecoder de(result);
-        de.decode_top(val, NULL);
+    static void decode(const std::string &data, T &val) {
+        BsonDecoder de;
+        de.decode(data, val);
     }
 
-    // select name from test where id = 1; // just want to get name, did not want to use a struct
     template <class T>
-    static void decode(MYSQL_RES *result, const std::string&field, T &val) {
-        MySQLDecoder de(result);
-        de.decode_column(field.c_str(), val, NULL);
+    static void decode(const uint8_t* data, size_t len, T &val) {
+        BsonDecoder de;
+        de.decode(data, len, val);
+    }
+
+    template <class T>
+    static std::string encode(const T &val) {
+        BsonEncoder en;
+        return en.encode(val);
     }
 };
 

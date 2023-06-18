@@ -21,3 +21,16 @@ endif
 
 tar:$(TAR)
 	@echo -------test done-------
+
+mysql:mysql.cpp
+	$(GPP) -o $@ -g $< -lmysqlclient -I ../..
+
+sqlite:sqlite.cpp
+	$(GPP) -o $@ -g $< -lsqlite -I ../..
+
+yaml:yaml.cpp
+	$(GPP) -o $@ -g $< -Wall -Wextra -I ../.. -I ../../yaml-cpp/include  ../../yaml-cpp/build/libyaml-cpp.a -std=c++11
+	@echo ============ run $@ ================
+	@./$@
+	@-rm $@
+	@-rm -rf $@.dSYM
