@@ -130,7 +130,6 @@ public:
         } else if (v->IsNull()) {
             val = 0;
         } else {
-            std::cout<<"typeis:"<<int(v->GetType())<<std::endl;
             de.decode_exception("not integer", NULL);
         }
         return true;

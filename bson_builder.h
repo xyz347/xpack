@@ -368,7 +368,6 @@ private: // encoder
                 delete item;
                 break;
             }
-            //std::cout<<"get token:"<<item->tk.type<<std::endl;
 
             if ((item->tk.type&exp) == 0) {
                 fmtErr = "unexpected token. expect["+tokenName(exp)+"]. but get["+tokenName(item->tk.type)+"]";
