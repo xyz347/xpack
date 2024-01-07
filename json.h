@@ -36,7 +36,7 @@ public:
     template <class T>
     static void decode(const rapidjson::Value &data, T &val) {
         JsonNode node(&data);
-        return XDecoder<JsonNode>(NULL, (const char*)NULL, node).decode(val, NULL);
+        XDecoder<JsonNode>(NULL, (const char*)NULL, node).decode(val, NULL);
     }
     template <class T>
     static void decode_file(const std::string &file_name, T &val) {

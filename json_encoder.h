@@ -203,25 +203,25 @@ private:
         switch (val.GetType()){
         case rapidjson::kNullType:
             return this->WriteNull(key, ext);
-        case kFalseType:
-        case kTrueType:
+        case rapidjson::kFalseType:
+        case rapidjson::kTrueType:
             return this->encode_bool(key, val.GetBool(), ext);
-        case kStringType:
+        case rapidjson::kStringType:
             return this->encode_string(key, val.GetString(), (size_t)val.GetStringLength(), ext);
-        case kNumberType:
+        case rapidjson::kNumberType:
             if (val.IsDouble()) {
                 return this->encode_number(key, val.GetDouble(), ext);
             } else {
                 return this->encode_number(key, val.GetInt64(), ext);
             }
-        case kObjectType:
+        case rapidjson::kObjectType:
             this->ObjectBegin(key, ext);
             for (rapidjson::Value::ConstMemberIterator iter = val.MemberBegin(); iter!=val.MemberEnd(); ++iter) {
                 this->encode_json_value(iter->name.GetString(), iter->value, ext);
             }
             this->ObjectEnd(key, ext);
             break;
-        case kArrayType:{
+        case rapidjson::kArrayType:{
                 this->ArrayBegin(key, ext);
                 size_t max = (size_t)val.Size();
                 for (size_t i = 0; i<max; ++i) {
