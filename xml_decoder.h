@@ -53,6 +53,9 @@ public:
         if (!inited) {
             this->init();
         }
+        if (Extend::XmlContent(ext)) {
+            return *this;
+        }
 
         node_index::iterator iter;
         if (_childs_index.end() != (iter=_childs_index.find(key))) {
@@ -105,7 +108,7 @@ public:
     }
     bool Get(decoder&de, std::string&val, const Extend*ext) {
         if (!Extend::AliasFlag(ext, "xml", "cdata")) {
-            val = get_val();
+            val = get_val(Extend::XmlContent(ext));
         } else {
             const Node *tmp = node->first_node();
             if (NULL != tmp) {
@@ -122,7 +125,7 @@ public:
     }
     bool Get(decoder&de, bool &val, const Extend*ext) {
         (void)ext;
-        std::string v = get_val();
+        std::string v = get_val(Extend::XmlContent(ext));
         if (v=="1" || v=="true" || v=="TRUE" || v=="True") {
             val = true;
         } else if (v=="0" || v=="false" || v=="FALSE" || v=="False") {
@@ -135,7 +138,7 @@ public:
     template <class T>
     typename x_enable_if<numeric<T>::is_integer, bool>::type Get(decoder&de, T &val, const Extend*ext){
         (void)ext;
-        std::string v = get_val();
+        std::string v = get_val(Extend::XmlContent(ext));
         if (Util::atoi(v, val)) {
             return true;
         } else {
@@ -146,7 +149,7 @@ public:
     template <class T>
     typename x_enable_if<numeric<T>::is_float, bool>::type Get(decoder&de, T &val, const Extend*ext){
         (void)ext;
-        std::string v = get_val();
+        std::string v = get_val(Extend::XmlContent(ext));
         if (1==v.length() && v[0]=='-') {
             return false;
         }
@@ -184,11 +187,13 @@ private:
         }
     }
 
-    std::string get_val() {
-        if (attr != NULL) {
+    std::string get_val(bool forceContent=false) {
+        if (forceContent || attr==NULL) {
+            return node->value();
+        } else if  (attr != NULL) {
             return attr->value();
         } else {
-            return node->value();
+            return "";
         }
     }
 

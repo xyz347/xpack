@@ -125,6 +125,8 @@ private:
     bool encode_string(const char*key, const std::string &val, const Extend *ext) {
         if (Extend::Attribute(ext)) {
             _cur->attrs.push_back(Attr(key, string_quote(val)));
+        } else if (Extend::XmlContent(ext)) {
+            _cur->val = val;
         } else if (!Extend::AliasFlag(ext, "xml", "cdata")) {
             Node *n = new Node(key);
             n->val = string_quote(val);
@@ -147,6 +149,8 @@ private:
 
         if (Extend::Attribute(ext)) {
             _cur->attrs.push_back(Attr(key, bval));
+        } else if (Extend::XmlContent(ext)) {
+            _cur->val = bval;
         } else {
             Node *n = new Node(key);
             n->val = bval;
@@ -161,6 +165,8 @@ private:
             return false;
         } else if (Extend::Attribute(ext)) {
             _cur->attrs.push_back(Attr(key, Util::itoa(val)));
+        } else if (Extend::XmlContent(ext)) {
+            _cur->val = Util::itoa(val);
         } else {
             Node *n = new Node(key);
             n->val = Util::itoa(val);
@@ -182,6 +188,8 @@ private:
 
             if (Extend::Attribute(ext)) {
                 _cur->attrs.push_back(Attr(key, fval));
+            } else if (Extend::XmlContent(ext)) {
+                _cur->val = fval;
             } else {
                 Node *n = new Node(key);
                 n->val = fval;
@@ -252,6 +260,7 @@ private:
             depth--;
         }
 
+        // output attribute
         std::list<Attr>::const_iterator it;
         for (it=nd->attrs.begin(); it!=nd->attrs.end(); ++it) {
             _output.push_back(' ');
@@ -261,6 +270,7 @@ private:
             _output.push_back('"');
         }
 
+        // no content, end object
         if (nd->val.empty() && nd->childs.size()==0) {
             if (!nd->key.empty()) {
                 _output += "/>";
@@ -268,6 +278,7 @@ private:
             return;
         }
 
+        // key finished
         if (!nd->key.empty()) {
             _output.push_back('>');
         }

@@ -36,6 +36,11 @@ namespace xpack {
 
 #define X_PACK_FLAG_ATTR (1<<15) // for xml encode, encode in attribute
 
+// for xml encode/decode: <label attr1="a" attr2="b">content</label>
+// CONTENT flag for decode and encode content
+// A structure can only have one CONTENT flag. If multiple ones are defined, the behavior is undefined.
+#define X_PACK_FLAG_XML_CONTENT (1<<16)
+
 // control flag
 #define X_PACK_CTRL_FLAG_INHERIT     (1<<0)
 
@@ -171,6 +176,9 @@ struct Extend {
     }
     static bool Attribute(const Extend *ext) {
         return NULL!=ext && (ext->flag&X_PACK_FLAG_ATTR);
+    }
+    static bool XmlContent(const Extend *ext) {
+        return NULL!=ext && (ext->flag&X_PACK_FLAG_XML_CONTENT);
     }
 };
 
