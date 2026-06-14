@@ -42,7 +42,7 @@ public:
     }
     YamlNode Find(decoder&de, const char*key, const Extend *ext) const {
         (void)ext;
-        if (n.IsNull()) {
+        if (n.IsNull() || !n[key]) {
             return YamlNode();
         } else if (!n.IsMap()) {
             de.decode_exception("not map", NULL);
